@@ -1,0 +1,52 @@
+{{ define "model/additional/update_repository" }}
+    {{ $repository := print $.Name "UpdateRepository" }}
+    {{ $updateInput := print $.Name "UpdateInput" }}
+    type {{ $repository }} struct {
+        client *Client
+        isAtomic bool
+    }
+
+    func New{{ $repository }}(
+        client *Client,
+        isAtomic bool,
+    ) *{{ $repository }} {
+        return &{{ $repository }}{
+            client: client,
+            isAtomic: isAtomic,
+        }
+    }
+
+    // using in Tx
+    func (r *{{ $repository }}) UpdateWithClient(
+        ctx context.Context, client *Client, instance *{{ $.Name }}, input *{{ $updateInput }},
+    ) (*{{ $.Name }}, error) {
+        newInstance, err := client.{{ $.Name }}.UpdateOne(instance).SetInput(input).Save(ctx)
+        if err != nil {
+          return nil, err
+        }
+        return newInstance, nil
+    }
+
+    func (r *{{ $repository }}) Update(
+        ctx context.Context, instance *{{ $.Name }}, input *{{ $updateInput }},
+    ) (*{{ $.Name }}, error) {
+        if !r.isAtomic {
+            return r.UpdateWithClient(ctx, r.client, instance, input)
+        }
+        tx, err := r.client.Tx(ctx)
+        if err != nil {
+            return nil, err
+        }
+        instance, err = r.UpdateWithClient(ctx, tx.Client(), instance, input)
+        if err != nil {
+            if rerr := tx.Rollback(); rerr != nil {
+                err = fmt.Errorf("rolling back transaction: %w", rerr)
+            }
+            return nil, err
+        }
+        if err := tx.Commit(); err != nil {
+            return nil, fmt.Errorf("committing transaction: %w", err) 
+        }
+        return instance, nil
+    }
+{{ end }}

@@ -1,0 +1,52 @@
+{{ define "model/additional/create_repository" }}
+    {{ $repository := print $.Name "CreateRepository" }}
+    {{ $createInput := print $.Name "CreateInput" }}
+    type {{ $repository }} struct {
+        client *Client
+        isAtomic bool
+    }
+
+    func New{{ $repository }}(
+        client *Client, 
+        isAtomic bool,
+    ) *{{ $repository }} {
+        return &{{ $repository }}{
+            client: client,
+            isAtomic: isAtomic,
+        }
+    }
+
+    // using in Tx
+    func (r *{{ $repository }}) CreateWithClient(
+        ctx context.Context, client *Client, input *{{ $createInput }},
+    ) (*{{ $.Name }}, error) {
+        instance, err := client.{{ $.Name }}.Create().SetInput(input).Save(ctx)
+        if err != nil {
+          return nil, err
+        }
+        return instance, nil
+    }
+
+    func (r *{{ $repository }}) Create(
+        ctx context.Context, input *{{ $createInput }},
+    ) (*{{ $.Name }}, error) {
+        if !r.isAtomic {
+          return r.CreateWithClient(ctx, r.client, input)
+        }
+        tx, err := r.client.Tx(ctx)
+        if err != nil {
+            return nil, err
+        }
+        instance, err := r.CreateWithClient(ctx, tx.Client(), input)
+        if err != nil {
+            if rerr := tx.Rollback(); rerr != nil {
+                err = fmt.Errorf("rolling back transaction: %w", rerr)
+            }
+            return nil, err
+        }
+        if err := tx.Commit(); err != nil {
+            return nil, fmt.Errorf("committing transaction: %w", err) 
+        }
+        return instance, nil
+    }
+{{ end }}

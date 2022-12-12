@@ -1,0 +1,15 @@
+internal.controller.http.v1.one_or_more_fields_failed_to_be_validated: One or more fields failed to be validated
+internal.usecase.authentication_failed: Authentication failed
+internal.usecase.can_not_create_now: Can't create now
+internal.usecase.can_not_delete_now: Can't delete now
+internal.usecase.can_not_login_now: Can't login now
+internal.usecase.can_not_update_now: Can't update now
+internal.usecase.email_is_registered: Email is registered
+internal.usecase.incorrect_login_input: Your username or password is incorrect
+internal.usecase.permission_denied: Permission denied
+internal.usecase.username_is_registered: Username is registered
+pkg.entity.model.usecase.invalid_email: Invalid email
+pkg.entity.model.usecase.invalid_first_name: Invalid first name
+pkg.entity.model.usecase.invalid_last_name: Invalid last name
+pkg.entity.model.usecase.invalid_username: Invalid username
+pkg.entity.model.usecase.one_or_more_fields_failed_to_be_validated: One or more fields failed to be validated

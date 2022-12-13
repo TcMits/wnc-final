@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/TcMits/ent-clean-template/ent"
+	"github.com/TcMits/wnc-final/ent"
 	// required by schema hooks.
-	_ "github.com/TcMits/ent-clean-template/ent/runtime"
+	_ "github.com/TcMits/wnc-final/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/TcMits/ent-clean-template/ent/migrate"
+	"github.com/TcMits/wnc-final/ent/migrate"
 )
 
 type (

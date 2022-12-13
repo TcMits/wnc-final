@@ -3,7 +3,13 @@
 package ent
 
 import (
-	"github.com/TcMits/ent-clean-template/ent/user"
+	"github.com/TcMits/wnc-final/ent/bankaccount"
+	"github.com/TcMits/wnc-final/ent/contact"
+	"github.com/TcMits/wnc-final/ent/customer"
+	"github.com/TcMits/wnc-final/ent/debt"
+	"github.com/TcMits/wnc-final/ent/employee"
+	"github.com/TcMits/wnc-final/ent/predicate"
+	"github.com/TcMits/wnc-final/ent/transaction"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -13,31 +19,337 @@ import (
 
 // schemaGraph holds a representation of ent/schema at runtime.
 var schemaGraph = func() *sqlgraph.Schema {
-	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 1)}
+	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 6)}
 	graph.Nodes[0] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
-			Table:   user.Table,
-			Columns: user.Columns,
+			Table:   bankaccount.Table,
+			Columns: bankaccount.Columns,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeUUID,
-				Column: user.FieldID,
+				Column: bankaccount.FieldID,
 			},
 		},
-		Type: "User",
+		Type: "BankAccount",
 		Fields: map[string]*sqlgraph.FieldSpec{
-			user.FieldCreateTime:  {Type: field.TypeTime, Column: user.FieldCreateTime},
-			user.FieldUpdateTime:  {Type: field.TypeTime, Column: user.FieldUpdateTime},
-			user.FieldJwtTokenKey: {Type: field.TypeString, Column: user.FieldJwtTokenKey},
-			user.FieldPassword:    {Type: field.TypeString, Column: user.FieldPassword},
-			user.FieldUsername:    {Type: field.TypeString, Column: user.FieldUsername},
-			user.FieldFirstName:   {Type: field.TypeString, Column: user.FieldFirstName},
-			user.FieldLastName:    {Type: field.TypeString, Column: user.FieldLastName},
-			user.FieldEmail:       {Type: field.TypeString, Column: user.FieldEmail},
-			user.FieldIsStaff:     {Type: field.TypeBool, Column: user.FieldIsStaff},
-			user.FieldIsSuperuser: {Type: field.TypeBool, Column: user.FieldIsSuperuser},
-			user.FieldIsActive:    {Type: field.TypeBool, Column: user.FieldIsActive},
+			bankaccount.FieldCreateTime:    {Type: field.TypeTime, Column: bankaccount.FieldCreateTime},
+			bankaccount.FieldUpdateTime:    {Type: field.TypeTime, Column: bankaccount.FieldUpdateTime},
+			bankaccount.FieldCustomerID:    {Type: field.TypeUUID, Column: bankaccount.FieldCustomerID},
+			bankaccount.FieldCashIn:        {Type: field.TypeFloat64, Column: bankaccount.FieldCashIn},
+			bankaccount.FieldCashOut:       {Type: field.TypeFloat64, Column: bankaccount.FieldCashOut},
+			bankaccount.FieldAccountNumber: {Type: field.TypeString, Column: bankaccount.FieldAccountNumber},
+			bankaccount.FieldIsForPayment:  {Type: field.TypeBool, Column: bankaccount.FieldIsForPayment},
 		},
 	}
+	graph.Nodes[1] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   contact.Table,
+			Columns: contact.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUUID,
+				Column: contact.FieldID,
+			},
+		},
+		Type: "Contact",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			contact.FieldCreateTime:    {Type: field.TypeTime, Column: contact.FieldCreateTime},
+			contact.FieldUpdateTime:    {Type: field.TypeTime, Column: contact.FieldUpdateTime},
+			contact.FieldOwnerID:       {Type: field.TypeUUID, Column: contact.FieldOwnerID},
+			contact.FieldAccountNumber: {Type: field.TypeString, Column: contact.FieldAccountNumber},
+			contact.FieldSuggestName:   {Type: field.TypeString, Column: contact.FieldSuggestName},
+			contact.FieldBankName:      {Type: field.TypeString, Column: contact.FieldBankName},
+		},
+	}
+	graph.Nodes[2] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   customer.Table,
+			Columns: customer.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUUID,
+				Column: customer.FieldID,
+			},
+		},
+		Type: "Customer",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			customer.FieldCreateTime:  {Type: field.TypeTime, Column: customer.FieldCreateTime},
+			customer.FieldUpdateTime:  {Type: field.TypeTime, Column: customer.FieldUpdateTime},
+			customer.FieldJwtTokenKey: {Type: field.TypeString, Column: customer.FieldJwtTokenKey},
+			customer.FieldPassword:    {Type: field.TypeString, Column: customer.FieldPassword},
+			customer.FieldUsername:    {Type: field.TypeString, Column: customer.FieldUsername},
+			customer.FieldFirstName:   {Type: field.TypeString, Column: customer.FieldFirstName},
+			customer.FieldLastName:    {Type: field.TypeString, Column: customer.FieldLastName},
+			customer.FieldPhoneNumber: {Type: field.TypeString, Column: customer.FieldPhoneNumber},
+			customer.FieldEmail:       {Type: field.TypeString, Column: customer.FieldEmail},
+			customer.FieldIsActive:    {Type: field.TypeBool, Column: customer.FieldIsActive},
+		},
+	}
+	graph.Nodes[3] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   debt.Table,
+			Columns: debt.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUUID,
+				Column: debt.FieldID,
+			},
+		},
+		Type: "Debt",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			debt.FieldCreateTime:                {Type: field.TypeTime, Column: debt.FieldCreateTime},
+			debt.FieldUpdateTime:                {Type: field.TypeTime, Column: debt.FieldUpdateTime},
+			debt.FieldOwnerBankAccountNumber:    {Type: field.TypeString, Column: debt.FieldOwnerBankAccountNumber},
+			debt.FieldOwnerBankName:             {Type: field.TypeString, Column: debt.FieldOwnerBankName},
+			debt.FieldOwnerName:                 {Type: field.TypeString, Column: debt.FieldOwnerName},
+			debt.FieldOwnerID:                   {Type: field.TypeUUID, Column: debt.FieldOwnerID},
+			debt.FieldReceiverBankAccountNumber: {Type: field.TypeString, Column: debt.FieldReceiverBankAccountNumber},
+			debt.FieldReceiverBankName:          {Type: field.TypeString, Column: debt.FieldReceiverBankName},
+			debt.FieldReceiverName:              {Type: field.TypeString, Column: debt.FieldReceiverName},
+			debt.FieldReceiverID:                {Type: field.TypeUUID, Column: debt.FieldReceiverID},
+			debt.FieldTransactionID:             {Type: field.TypeUUID, Column: debt.FieldTransactionID},
+			debt.FieldStatus:                    {Type: field.TypeEnum, Column: debt.FieldStatus},
+			debt.FieldDescription:               {Type: field.TypeString, Column: debt.FieldDescription},
+			debt.FieldAmount:                    {Type: field.TypeFloat64, Column: debt.FieldAmount},
+		},
+	}
+	graph.Nodes[4] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   employee.Table,
+			Columns: employee.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUUID,
+				Column: employee.FieldID,
+			},
+		},
+		Type: "Employee",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			employee.FieldCreateTime:  {Type: field.TypeTime, Column: employee.FieldCreateTime},
+			employee.FieldUpdateTime:  {Type: field.TypeTime, Column: employee.FieldUpdateTime},
+			employee.FieldJwtTokenKey: {Type: field.TypeString, Column: employee.FieldJwtTokenKey},
+			employee.FieldPassword:    {Type: field.TypeString, Column: employee.FieldPassword},
+			employee.FieldUsername:    {Type: field.TypeString, Column: employee.FieldUsername},
+			employee.FieldFirstName:   {Type: field.TypeString, Column: employee.FieldFirstName},
+			employee.FieldLastName:    {Type: field.TypeString, Column: employee.FieldLastName},
+			employee.FieldIsActive:    {Type: field.TypeBool, Column: employee.FieldIsActive},
+		},
+	}
+	graph.Nodes[5] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   transaction.Table,
+			Columns: transaction.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUUID,
+				Column: transaction.FieldID,
+			},
+		},
+		Type: "Transaction",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			transaction.FieldCreateTime:                {Type: field.TypeTime, Column: transaction.FieldCreateTime},
+			transaction.FieldUpdateTime:                {Type: field.TypeTime, Column: transaction.FieldUpdateTime},
+			transaction.FieldSourceTransactionID:       {Type: field.TypeUUID, Column: transaction.FieldSourceTransactionID},
+			transaction.FieldStatus:                    {Type: field.TypeEnum, Column: transaction.FieldStatus},
+			transaction.FieldReceiverBankAccountNumber: {Type: field.TypeString, Column: transaction.FieldReceiverBankAccountNumber},
+			transaction.FieldReceiverBankName:          {Type: field.TypeString, Column: transaction.FieldReceiverBankName},
+			transaction.FieldReceiverName:              {Type: field.TypeString, Column: transaction.FieldReceiverName},
+			transaction.FieldReceiverID:                {Type: field.TypeUUID, Column: transaction.FieldReceiverID},
+			transaction.FieldSenderBankAccountNumber:   {Type: field.TypeString, Column: transaction.FieldSenderBankAccountNumber},
+			transaction.FieldSenderBankName:            {Type: field.TypeString, Column: transaction.FieldSenderBankName},
+			transaction.FieldSenderName:                {Type: field.TypeString, Column: transaction.FieldSenderName},
+			transaction.FieldSenderID:                  {Type: field.TypeUUID, Column: transaction.FieldSenderID},
+			transaction.FieldAmount:                    {Type: field.TypeFloat64, Column: transaction.FieldAmount},
+			transaction.FieldTransactionType:           {Type: field.TypeEnum, Column: transaction.FieldTransactionType},
+			transaction.FieldDescription:               {Type: field.TypeString, Column: transaction.FieldDescription},
+		},
+	}
+	graph.MustAddE(
+		"customer",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   bankaccount.CustomerTable,
+			Columns: []string{bankaccount.CustomerColumn},
+			Bidi:    false,
+		},
+		"BankAccount",
+		"Customer",
+	)
+	graph.MustAddE(
+		"sent_transaction",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   bankaccount.SentTransactionTable,
+			Columns: []string{bankaccount.SentTransactionColumn},
+			Bidi:    false,
+		},
+		"BankAccount",
+		"Transaction",
+	)
+	graph.MustAddE(
+		"received_transaction",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   bankaccount.ReceivedTransactionTable,
+			Columns: []string{bankaccount.ReceivedTransactionColumn},
+			Bidi:    false,
+		},
+		"BankAccount",
+		"Transaction",
+	)
+	graph.MustAddE(
+		"owned_debts",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   bankaccount.OwnedDebtsTable,
+			Columns: []string{bankaccount.OwnedDebtsColumn},
+			Bidi:    false,
+		},
+		"BankAccount",
+		"Debt",
+	)
+	graph.MustAddE(
+		"received_debts",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   bankaccount.ReceivedDebtsTable,
+			Columns: []string{bankaccount.ReceivedDebtsColumn},
+			Bidi:    false,
+		},
+		"BankAccount",
+		"Debt",
+	)
+	graph.MustAddE(
+		"owner",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   contact.OwnerTable,
+			Columns: []string{contact.OwnerColumn},
+			Bidi:    false,
+		},
+		"Contact",
+		"Customer",
+	)
+	graph.MustAddE(
+		"bank_accounts",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   customer.BankAccountsTable,
+			Columns: []string{customer.BankAccountsColumn},
+			Bidi:    false,
+		},
+		"Customer",
+		"BankAccount",
+	)
+	graph.MustAddE(
+		"contacts",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   customer.ContactsTable,
+			Columns: []string{customer.ContactsColumn},
+			Bidi:    false,
+		},
+		"Customer",
+		"Contact",
+	)
+	graph.MustAddE(
+		"owner",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   debt.OwnerTable,
+			Columns: []string{debt.OwnerColumn},
+			Bidi:    false,
+		},
+		"Debt",
+		"BankAccount",
+	)
+	graph.MustAddE(
+		"receiver",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   debt.ReceiverTable,
+			Columns: []string{debt.ReceiverColumn},
+			Bidi:    false,
+		},
+		"Debt",
+		"BankAccount",
+	)
+	graph.MustAddE(
+		"transaction",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   debt.TransactionTable,
+			Columns: []string{debt.TransactionColumn},
+			Bidi:    false,
+		},
+		"Debt",
+		"Transaction",
+	)
+	graph.MustAddE(
+		"source_transaction",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   transaction.SourceTransactionTable,
+			Columns: []string{transaction.SourceTransactionColumn},
+			Bidi:    false,
+		},
+		"Transaction",
+		"Transaction",
+	)
+	graph.MustAddE(
+		"fee_transaction",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   transaction.FeeTransactionTable,
+			Columns: []string{transaction.FeeTransactionColumn},
+			Bidi:    false,
+		},
+		"Transaction",
+		"Transaction",
+	)
+	graph.MustAddE(
+		"receiver",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   transaction.ReceiverTable,
+			Columns: []string{transaction.ReceiverColumn},
+			Bidi:    false,
+		},
+		"Transaction",
+		"BankAccount",
+	)
+	graph.MustAddE(
+		"sender",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   transaction.SenderTable,
+			Columns: []string{transaction.SenderColumn},
+			Bidi:    false,
+		},
+		"Transaction",
+		"BankAccount",
+	)
+	graph.MustAddE(
+		"debt",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   transaction.DebtTable,
+			Columns: []string{transaction.DebtColumn},
+			Bidi:    false,
+		},
+		"Transaction",
+		"Debt",
+	)
 	return graph
 }()
 
@@ -48,33 +360,33 @@ type predicateAdder interface {
 }
 
 // addPredicate implements the predicateAdder interface.
-func (uq *UserQuery) addPredicate(pred func(s *sql.Selector)) {
-	uq.predicates = append(uq.predicates, pred)
+func (baq *BankAccountQuery) addPredicate(pred func(s *sql.Selector)) {
+	baq.predicates = append(baq.predicates, pred)
 }
 
-// Filter returns a Filter implementation to apply filters on the UserQuery builder.
-func (uq *UserQuery) Filter() *UserFilter {
-	return &UserFilter{config: uq.config, predicateAdder: uq}
+// Filter returns a Filter implementation to apply filters on the BankAccountQuery builder.
+func (baq *BankAccountQuery) Filter() *BankAccountFilter {
+	return &BankAccountFilter{config: baq.config, predicateAdder: baq}
 }
 
 // addPredicate implements the predicateAdder interface.
-func (m *UserMutation) addPredicate(pred func(s *sql.Selector)) {
+func (m *BankAccountMutation) addPredicate(pred func(s *sql.Selector)) {
 	m.predicates = append(m.predicates, pred)
 }
 
-// Filter returns an entql.Where implementation to apply filters on the UserMutation builder.
-func (m *UserMutation) Filter() *UserFilter {
-	return &UserFilter{config: m.config, predicateAdder: m}
+// Filter returns an entql.Where implementation to apply filters on the BankAccountMutation builder.
+func (m *BankAccountMutation) Filter() *BankAccountFilter {
+	return &BankAccountFilter{config: m.config, predicateAdder: m}
 }
 
-// UserFilter provides a generic filtering capability at runtime for UserQuery.
-type UserFilter struct {
+// BankAccountFilter provides a generic filtering capability at runtime for BankAccountQuery.
+type BankAccountFilter struct {
 	predicateAdder
 	config
 }
 
 // Where applies the entql predicate on the query filter.
-func (f *UserFilter) Where(p entql.P) {
+func (f *BankAccountFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
 		if err := schemaGraph.EvalP(schemaGraph.Nodes[0].Type, p, s); err != nil {
 			s.AddError(err)
@@ -83,61 +395,730 @@ func (f *UserFilter) Where(p entql.P) {
 }
 
 // WhereID applies the entql [16]byte predicate on the id field.
-func (f *UserFilter) WhereID(p entql.ValueP) {
-	f.Where(p.Field(user.FieldID))
+func (f *BankAccountFilter) WhereID(p entql.ValueP) {
+	f.Where(p.Field(bankaccount.FieldID))
 }
 
 // WhereCreateTime applies the entql time.Time predicate on the create_time field.
-func (f *UserFilter) WhereCreateTime(p entql.TimeP) {
-	f.Where(p.Field(user.FieldCreateTime))
+func (f *BankAccountFilter) WhereCreateTime(p entql.TimeP) {
+	f.Where(p.Field(bankaccount.FieldCreateTime))
 }
 
 // WhereUpdateTime applies the entql time.Time predicate on the update_time field.
-func (f *UserFilter) WhereUpdateTime(p entql.TimeP) {
-	f.Where(p.Field(user.FieldUpdateTime))
+func (f *BankAccountFilter) WhereUpdateTime(p entql.TimeP) {
+	f.Where(p.Field(bankaccount.FieldUpdateTime))
+}
+
+// WhereCustomerID applies the entql [16]byte predicate on the customer_id field.
+func (f *BankAccountFilter) WhereCustomerID(p entql.ValueP) {
+	f.Where(p.Field(bankaccount.FieldCustomerID))
+}
+
+// WhereCashIn applies the entql float64 predicate on the cash_in field.
+func (f *BankAccountFilter) WhereCashIn(p entql.Float64P) {
+	f.Where(p.Field(bankaccount.FieldCashIn))
+}
+
+// WhereCashOut applies the entql float64 predicate on the cash_out field.
+func (f *BankAccountFilter) WhereCashOut(p entql.Float64P) {
+	f.Where(p.Field(bankaccount.FieldCashOut))
+}
+
+// WhereAccountNumber applies the entql string predicate on the account_number field.
+func (f *BankAccountFilter) WhereAccountNumber(p entql.StringP) {
+	f.Where(p.Field(bankaccount.FieldAccountNumber))
+}
+
+// WhereIsForPayment applies the entql bool predicate on the is_for_payment field.
+func (f *BankAccountFilter) WhereIsForPayment(p entql.BoolP) {
+	f.Where(p.Field(bankaccount.FieldIsForPayment))
+}
+
+// WhereHasCustomer applies a predicate to check if query has an edge customer.
+func (f *BankAccountFilter) WhereHasCustomer() {
+	f.Where(entql.HasEdge("customer"))
+}
+
+// WhereHasCustomerWith applies a predicate to check if query has an edge customer with a given conditions (other predicates).
+func (f *BankAccountFilter) WhereHasCustomerWith(preds ...predicate.Customer) {
+	f.Where(entql.HasEdgeWith("customer", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// WhereHasSentTransaction applies a predicate to check if query has an edge sent_transaction.
+func (f *BankAccountFilter) WhereHasSentTransaction() {
+	f.Where(entql.HasEdge("sent_transaction"))
+}
+
+// WhereHasSentTransactionWith applies a predicate to check if query has an edge sent_transaction with a given conditions (other predicates).
+func (f *BankAccountFilter) WhereHasSentTransactionWith(preds ...predicate.Transaction) {
+	f.Where(entql.HasEdgeWith("sent_transaction", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// WhereHasReceivedTransaction applies a predicate to check if query has an edge received_transaction.
+func (f *BankAccountFilter) WhereHasReceivedTransaction() {
+	f.Where(entql.HasEdge("received_transaction"))
+}
+
+// WhereHasReceivedTransactionWith applies a predicate to check if query has an edge received_transaction with a given conditions (other predicates).
+func (f *BankAccountFilter) WhereHasReceivedTransactionWith(preds ...predicate.Transaction) {
+	f.Where(entql.HasEdgeWith("received_transaction", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// WhereHasOwnedDebts applies a predicate to check if query has an edge owned_debts.
+func (f *BankAccountFilter) WhereHasOwnedDebts() {
+	f.Where(entql.HasEdge("owned_debts"))
+}
+
+// WhereHasOwnedDebtsWith applies a predicate to check if query has an edge owned_debts with a given conditions (other predicates).
+func (f *BankAccountFilter) WhereHasOwnedDebtsWith(preds ...predicate.Debt) {
+	f.Where(entql.HasEdgeWith("owned_debts", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// WhereHasReceivedDebts applies a predicate to check if query has an edge received_debts.
+func (f *BankAccountFilter) WhereHasReceivedDebts() {
+	f.Where(entql.HasEdge("received_debts"))
+}
+
+// WhereHasReceivedDebtsWith applies a predicate to check if query has an edge received_debts with a given conditions (other predicates).
+func (f *BankAccountFilter) WhereHasReceivedDebtsWith(preds ...predicate.Debt) {
+	f.Where(entql.HasEdgeWith("received_debts", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (cq *ContactQuery) addPredicate(pred func(s *sql.Selector)) {
+	cq.predicates = append(cq.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the ContactQuery builder.
+func (cq *ContactQuery) Filter() *ContactFilter {
+	return &ContactFilter{config: cq.config, predicateAdder: cq}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *ContactMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the ContactMutation builder.
+func (m *ContactMutation) Filter() *ContactFilter {
+	return &ContactFilter{config: m.config, predicateAdder: m}
+}
+
+// ContactFilter provides a generic filtering capability at runtime for ContactQuery.
+type ContactFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *ContactFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[1].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql [16]byte predicate on the id field.
+func (f *ContactFilter) WhereID(p entql.ValueP) {
+	f.Where(p.Field(contact.FieldID))
+}
+
+// WhereCreateTime applies the entql time.Time predicate on the create_time field.
+func (f *ContactFilter) WhereCreateTime(p entql.TimeP) {
+	f.Where(p.Field(contact.FieldCreateTime))
+}
+
+// WhereUpdateTime applies the entql time.Time predicate on the update_time field.
+func (f *ContactFilter) WhereUpdateTime(p entql.TimeP) {
+	f.Where(p.Field(contact.FieldUpdateTime))
+}
+
+// WhereOwnerID applies the entql [16]byte predicate on the owner_id field.
+func (f *ContactFilter) WhereOwnerID(p entql.ValueP) {
+	f.Where(p.Field(contact.FieldOwnerID))
+}
+
+// WhereAccountNumber applies the entql string predicate on the account_number field.
+func (f *ContactFilter) WhereAccountNumber(p entql.StringP) {
+	f.Where(p.Field(contact.FieldAccountNumber))
+}
+
+// WhereSuggestName applies the entql string predicate on the suggest_name field.
+func (f *ContactFilter) WhereSuggestName(p entql.StringP) {
+	f.Where(p.Field(contact.FieldSuggestName))
+}
+
+// WhereBankName applies the entql string predicate on the bank_name field.
+func (f *ContactFilter) WhereBankName(p entql.StringP) {
+	f.Where(p.Field(contact.FieldBankName))
+}
+
+// WhereHasOwner applies a predicate to check if query has an edge owner.
+func (f *ContactFilter) WhereHasOwner() {
+	f.Where(entql.HasEdge("owner"))
+}
+
+// WhereHasOwnerWith applies a predicate to check if query has an edge owner with a given conditions (other predicates).
+func (f *ContactFilter) WhereHasOwnerWith(preds ...predicate.Customer) {
+	f.Where(entql.HasEdgeWith("owner", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (cq *CustomerQuery) addPredicate(pred func(s *sql.Selector)) {
+	cq.predicates = append(cq.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the CustomerQuery builder.
+func (cq *CustomerQuery) Filter() *CustomerFilter {
+	return &CustomerFilter{config: cq.config, predicateAdder: cq}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *CustomerMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the CustomerMutation builder.
+func (m *CustomerMutation) Filter() *CustomerFilter {
+	return &CustomerFilter{config: m.config, predicateAdder: m}
+}
+
+// CustomerFilter provides a generic filtering capability at runtime for CustomerQuery.
+type CustomerFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *CustomerFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[2].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql [16]byte predicate on the id field.
+func (f *CustomerFilter) WhereID(p entql.ValueP) {
+	f.Where(p.Field(customer.FieldID))
+}
+
+// WhereCreateTime applies the entql time.Time predicate on the create_time field.
+func (f *CustomerFilter) WhereCreateTime(p entql.TimeP) {
+	f.Where(p.Field(customer.FieldCreateTime))
+}
+
+// WhereUpdateTime applies the entql time.Time predicate on the update_time field.
+func (f *CustomerFilter) WhereUpdateTime(p entql.TimeP) {
+	f.Where(p.Field(customer.FieldUpdateTime))
 }
 
 // WhereJwtTokenKey applies the entql string predicate on the jwt_token_key field.
-func (f *UserFilter) WhereJwtTokenKey(p entql.StringP) {
-	f.Where(p.Field(user.FieldJwtTokenKey))
+func (f *CustomerFilter) WhereJwtTokenKey(p entql.StringP) {
+	f.Where(p.Field(customer.FieldJwtTokenKey))
 }
 
 // WherePassword applies the entql string predicate on the password field.
-func (f *UserFilter) WherePassword(p entql.StringP) {
-	f.Where(p.Field(user.FieldPassword))
+func (f *CustomerFilter) WherePassword(p entql.StringP) {
+	f.Where(p.Field(customer.FieldPassword))
 }
 
 // WhereUsername applies the entql string predicate on the username field.
-func (f *UserFilter) WhereUsername(p entql.StringP) {
-	f.Where(p.Field(user.FieldUsername))
+func (f *CustomerFilter) WhereUsername(p entql.StringP) {
+	f.Where(p.Field(customer.FieldUsername))
 }
 
 // WhereFirstName applies the entql string predicate on the first_name field.
-func (f *UserFilter) WhereFirstName(p entql.StringP) {
-	f.Where(p.Field(user.FieldFirstName))
+func (f *CustomerFilter) WhereFirstName(p entql.StringP) {
+	f.Where(p.Field(customer.FieldFirstName))
 }
 
 // WhereLastName applies the entql string predicate on the last_name field.
-func (f *UserFilter) WhereLastName(p entql.StringP) {
-	f.Where(p.Field(user.FieldLastName))
+func (f *CustomerFilter) WhereLastName(p entql.StringP) {
+	f.Where(p.Field(customer.FieldLastName))
+}
+
+// WherePhoneNumber applies the entql string predicate on the phone_number field.
+func (f *CustomerFilter) WherePhoneNumber(p entql.StringP) {
+	f.Where(p.Field(customer.FieldPhoneNumber))
 }
 
 // WhereEmail applies the entql string predicate on the email field.
-func (f *UserFilter) WhereEmail(p entql.StringP) {
-	f.Where(p.Field(user.FieldEmail))
-}
-
-// WhereIsStaff applies the entql bool predicate on the is_staff field.
-func (f *UserFilter) WhereIsStaff(p entql.BoolP) {
-	f.Where(p.Field(user.FieldIsStaff))
-}
-
-// WhereIsSuperuser applies the entql bool predicate on the is_superuser field.
-func (f *UserFilter) WhereIsSuperuser(p entql.BoolP) {
-	f.Where(p.Field(user.FieldIsSuperuser))
+func (f *CustomerFilter) WhereEmail(p entql.StringP) {
+	f.Where(p.Field(customer.FieldEmail))
 }
 
 // WhereIsActive applies the entql bool predicate on the is_active field.
-func (f *UserFilter) WhereIsActive(p entql.BoolP) {
-	f.Where(p.Field(user.FieldIsActive))
+func (f *CustomerFilter) WhereIsActive(p entql.BoolP) {
+	f.Where(p.Field(customer.FieldIsActive))
+}
+
+// WhereHasBankAccounts applies a predicate to check if query has an edge bank_accounts.
+func (f *CustomerFilter) WhereHasBankAccounts() {
+	f.Where(entql.HasEdge("bank_accounts"))
+}
+
+// WhereHasBankAccountsWith applies a predicate to check if query has an edge bank_accounts with a given conditions (other predicates).
+func (f *CustomerFilter) WhereHasBankAccountsWith(preds ...predicate.BankAccount) {
+	f.Where(entql.HasEdgeWith("bank_accounts", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// WhereHasContacts applies a predicate to check if query has an edge contacts.
+func (f *CustomerFilter) WhereHasContacts() {
+	f.Where(entql.HasEdge("contacts"))
+}
+
+// WhereHasContactsWith applies a predicate to check if query has an edge contacts with a given conditions (other predicates).
+func (f *CustomerFilter) WhereHasContactsWith(preds ...predicate.Contact) {
+	f.Where(entql.HasEdgeWith("contacts", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (dq *DebtQuery) addPredicate(pred func(s *sql.Selector)) {
+	dq.predicates = append(dq.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the DebtQuery builder.
+func (dq *DebtQuery) Filter() *DebtFilter {
+	return &DebtFilter{config: dq.config, predicateAdder: dq}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *DebtMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the DebtMutation builder.
+func (m *DebtMutation) Filter() *DebtFilter {
+	return &DebtFilter{config: m.config, predicateAdder: m}
+}
+
+// DebtFilter provides a generic filtering capability at runtime for DebtQuery.
+type DebtFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *DebtFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[3].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql [16]byte predicate on the id field.
+func (f *DebtFilter) WhereID(p entql.ValueP) {
+	f.Where(p.Field(debt.FieldID))
+}
+
+// WhereCreateTime applies the entql time.Time predicate on the create_time field.
+func (f *DebtFilter) WhereCreateTime(p entql.TimeP) {
+	f.Where(p.Field(debt.FieldCreateTime))
+}
+
+// WhereUpdateTime applies the entql time.Time predicate on the update_time field.
+func (f *DebtFilter) WhereUpdateTime(p entql.TimeP) {
+	f.Where(p.Field(debt.FieldUpdateTime))
+}
+
+// WhereOwnerBankAccountNumber applies the entql string predicate on the owner_bank_account_number field.
+func (f *DebtFilter) WhereOwnerBankAccountNumber(p entql.StringP) {
+	f.Where(p.Field(debt.FieldOwnerBankAccountNumber))
+}
+
+// WhereOwnerBankName applies the entql string predicate on the owner_bank_name field.
+func (f *DebtFilter) WhereOwnerBankName(p entql.StringP) {
+	f.Where(p.Field(debt.FieldOwnerBankName))
+}
+
+// WhereOwnerName applies the entql string predicate on the owner_name field.
+func (f *DebtFilter) WhereOwnerName(p entql.StringP) {
+	f.Where(p.Field(debt.FieldOwnerName))
+}
+
+// WhereOwnerID applies the entql [16]byte predicate on the owner_id field.
+func (f *DebtFilter) WhereOwnerID(p entql.ValueP) {
+	f.Where(p.Field(debt.FieldOwnerID))
+}
+
+// WhereReceiverBankAccountNumber applies the entql string predicate on the receiver_bank_account_number field.
+func (f *DebtFilter) WhereReceiverBankAccountNumber(p entql.StringP) {
+	f.Where(p.Field(debt.FieldReceiverBankAccountNumber))
+}
+
+// WhereReceiverBankName applies the entql string predicate on the receiver_bank_name field.
+func (f *DebtFilter) WhereReceiverBankName(p entql.StringP) {
+	f.Where(p.Field(debt.FieldReceiverBankName))
+}
+
+// WhereReceiverName applies the entql string predicate on the receiver_name field.
+func (f *DebtFilter) WhereReceiverName(p entql.StringP) {
+	f.Where(p.Field(debt.FieldReceiverName))
+}
+
+// WhereReceiverID applies the entql [16]byte predicate on the receiver_id field.
+func (f *DebtFilter) WhereReceiverID(p entql.ValueP) {
+	f.Where(p.Field(debt.FieldReceiverID))
+}
+
+// WhereTransactionID applies the entql [16]byte predicate on the transaction_id field.
+func (f *DebtFilter) WhereTransactionID(p entql.ValueP) {
+	f.Where(p.Field(debt.FieldTransactionID))
+}
+
+// WhereStatus applies the entql string predicate on the status field.
+func (f *DebtFilter) WhereStatus(p entql.StringP) {
+	f.Where(p.Field(debt.FieldStatus))
+}
+
+// WhereDescription applies the entql string predicate on the description field.
+func (f *DebtFilter) WhereDescription(p entql.StringP) {
+	f.Where(p.Field(debt.FieldDescription))
+}
+
+// WhereAmount applies the entql float64 predicate on the amount field.
+func (f *DebtFilter) WhereAmount(p entql.Float64P) {
+	f.Where(p.Field(debt.FieldAmount))
+}
+
+// WhereHasOwner applies a predicate to check if query has an edge owner.
+func (f *DebtFilter) WhereHasOwner() {
+	f.Where(entql.HasEdge("owner"))
+}
+
+// WhereHasOwnerWith applies a predicate to check if query has an edge owner with a given conditions (other predicates).
+func (f *DebtFilter) WhereHasOwnerWith(preds ...predicate.BankAccount) {
+	f.Where(entql.HasEdgeWith("owner", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// WhereHasReceiver applies a predicate to check if query has an edge receiver.
+func (f *DebtFilter) WhereHasReceiver() {
+	f.Where(entql.HasEdge("receiver"))
+}
+
+// WhereHasReceiverWith applies a predicate to check if query has an edge receiver with a given conditions (other predicates).
+func (f *DebtFilter) WhereHasReceiverWith(preds ...predicate.BankAccount) {
+	f.Where(entql.HasEdgeWith("receiver", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// WhereHasTransaction applies a predicate to check if query has an edge transaction.
+func (f *DebtFilter) WhereHasTransaction() {
+	f.Where(entql.HasEdge("transaction"))
+}
+
+// WhereHasTransactionWith applies a predicate to check if query has an edge transaction with a given conditions (other predicates).
+func (f *DebtFilter) WhereHasTransactionWith(preds ...predicate.Transaction) {
+	f.Where(entql.HasEdgeWith("transaction", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (eq *EmployeeQuery) addPredicate(pred func(s *sql.Selector)) {
+	eq.predicates = append(eq.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the EmployeeQuery builder.
+func (eq *EmployeeQuery) Filter() *EmployeeFilter {
+	return &EmployeeFilter{config: eq.config, predicateAdder: eq}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *EmployeeMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the EmployeeMutation builder.
+func (m *EmployeeMutation) Filter() *EmployeeFilter {
+	return &EmployeeFilter{config: m.config, predicateAdder: m}
+}
+
+// EmployeeFilter provides a generic filtering capability at runtime for EmployeeQuery.
+type EmployeeFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *EmployeeFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[4].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql [16]byte predicate on the id field.
+func (f *EmployeeFilter) WhereID(p entql.ValueP) {
+	f.Where(p.Field(employee.FieldID))
+}
+
+// WhereCreateTime applies the entql time.Time predicate on the create_time field.
+func (f *EmployeeFilter) WhereCreateTime(p entql.TimeP) {
+	f.Where(p.Field(employee.FieldCreateTime))
+}
+
+// WhereUpdateTime applies the entql time.Time predicate on the update_time field.
+func (f *EmployeeFilter) WhereUpdateTime(p entql.TimeP) {
+	f.Where(p.Field(employee.FieldUpdateTime))
+}
+
+// WhereJwtTokenKey applies the entql string predicate on the jwt_token_key field.
+func (f *EmployeeFilter) WhereJwtTokenKey(p entql.StringP) {
+	f.Where(p.Field(employee.FieldJwtTokenKey))
+}
+
+// WherePassword applies the entql string predicate on the password field.
+func (f *EmployeeFilter) WherePassword(p entql.StringP) {
+	f.Where(p.Field(employee.FieldPassword))
+}
+
+// WhereUsername applies the entql string predicate on the username field.
+func (f *EmployeeFilter) WhereUsername(p entql.StringP) {
+	f.Where(p.Field(employee.FieldUsername))
+}
+
+// WhereFirstName applies the entql string predicate on the first_name field.
+func (f *EmployeeFilter) WhereFirstName(p entql.StringP) {
+	f.Where(p.Field(employee.FieldFirstName))
+}
+
+// WhereLastName applies the entql string predicate on the last_name field.
+func (f *EmployeeFilter) WhereLastName(p entql.StringP) {
+	f.Where(p.Field(employee.FieldLastName))
+}
+
+// WhereIsActive applies the entql bool predicate on the is_active field.
+func (f *EmployeeFilter) WhereIsActive(p entql.BoolP) {
+	f.Where(p.Field(employee.FieldIsActive))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (tq *TransactionQuery) addPredicate(pred func(s *sql.Selector)) {
+	tq.predicates = append(tq.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the TransactionQuery builder.
+func (tq *TransactionQuery) Filter() *TransactionFilter {
+	return &TransactionFilter{config: tq.config, predicateAdder: tq}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *TransactionMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the TransactionMutation builder.
+func (m *TransactionMutation) Filter() *TransactionFilter {
+	return &TransactionFilter{config: m.config, predicateAdder: m}
+}
+
+// TransactionFilter provides a generic filtering capability at runtime for TransactionQuery.
+type TransactionFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *TransactionFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[5].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql [16]byte predicate on the id field.
+func (f *TransactionFilter) WhereID(p entql.ValueP) {
+	f.Where(p.Field(transaction.FieldID))
+}
+
+// WhereCreateTime applies the entql time.Time predicate on the create_time field.
+func (f *TransactionFilter) WhereCreateTime(p entql.TimeP) {
+	f.Where(p.Field(transaction.FieldCreateTime))
+}
+
+// WhereUpdateTime applies the entql time.Time predicate on the update_time field.
+func (f *TransactionFilter) WhereUpdateTime(p entql.TimeP) {
+	f.Where(p.Field(transaction.FieldUpdateTime))
+}
+
+// WhereSourceTransactionID applies the entql [16]byte predicate on the source_transaction_id field.
+func (f *TransactionFilter) WhereSourceTransactionID(p entql.ValueP) {
+	f.Where(p.Field(transaction.FieldSourceTransactionID))
+}
+
+// WhereStatus applies the entql string predicate on the status field.
+func (f *TransactionFilter) WhereStatus(p entql.StringP) {
+	f.Where(p.Field(transaction.FieldStatus))
+}
+
+// WhereReceiverBankAccountNumber applies the entql string predicate on the receiver_bank_account_number field.
+func (f *TransactionFilter) WhereReceiverBankAccountNumber(p entql.StringP) {
+	f.Where(p.Field(transaction.FieldReceiverBankAccountNumber))
+}
+
+// WhereReceiverBankName applies the entql string predicate on the receiver_bank_name field.
+func (f *TransactionFilter) WhereReceiverBankName(p entql.StringP) {
+	f.Where(p.Field(transaction.FieldReceiverBankName))
+}
+
+// WhereReceiverName applies the entql string predicate on the receiver_name field.
+func (f *TransactionFilter) WhereReceiverName(p entql.StringP) {
+	f.Where(p.Field(transaction.FieldReceiverName))
+}
+
+// WhereReceiverID applies the entql [16]byte predicate on the receiver_id field.
+func (f *TransactionFilter) WhereReceiverID(p entql.ValueP) {
+	f.Where(p.Field(transaction.FieldReceiverID))
+}
+
+// WhereSenderBankAccountNumber applies the entql string predicate on the sender_bank_account_number field.
+func (f *TransactionFilter) WhereSenderBankAccountNumber(p entql.StringP) {
+	f.Where(p.Field(transaction.FieldSenderBankAccountNumber))
+}
+
+// WhereSenderBankName applies the entql string predicate on the sender_bank_name field.
+func (f *TransactionFilter) WhereSenderBankName(p entql.StringP) {
+	f.Where(p.Field(transaction.FieldSenderBankName))
+}
+
+// WhereSenderName applies the entql string predicate on the sender_name field.
+func (f *TransactionFilter) WhereSenderName(p entql.StringP) {
+	f.Where(p.Field(transaction.FieldSenderName))
+}
+
+// WhereSenderID applies the entql [16]byte predicate on the sender_id field.
+func (f *TransactionFilter) WhereSenderID(p entql.ValueP) {
+	f.Where(p.Field(transaction.FieldSenderID))
+}
+
+// WhereAmount applies the entql float64 predicate on the amount field.
+func (f *TransactionFilter) WhereAmount(p entql.Float64P) {
+	f.Where(p.Field(transaction.FieldAmount))
+}
+
+// WhereTransactionType applies the entql string predicate on the transaction_type field.
+func (f *TransactionFilter) WhereTransactionType(p entql.StringP) {
+	f.Where(p.Field(transaction.FieldTransactionType))
+}
+
+// WhereDescription applies the entql string predicate on the description field.
+func (f *TransactionFilter) WhereDescription(p entql.StringP) {
+	f.Where(p.Field(transaction.FieldDescription))
+}
+
+// WhereHasSourceTransaction applies a predicate to check if query has an edge source_transaction.
+func (f *TransactionFilter) WhereHasSourceTransaction() {
+	f.Where(entql.HasEdge("source_transaction"))
+}
+
+// WhereHasSourceTransactionWith applies a predicate to check if query has an edge source_transaction with a given conditions (other predicates).
+func (f *TransactionFilter) WhereHasSourceTransactionWith(preds ...predicate.Transaction) {
+	f.Where(entql.HasEdgeWith("source_transaction", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// WhereHasFeeTransaction applies a predicate to check if query has an edge fee_transaction.
+func (f *TransactionFilter) WhereHasFeeTransaction() {
+	f.Where(entql.HasEdge("fee_transaction"))
+}
+
+// WhereHasFeeTransactionWith applies a predicate to check if query has an edge fee_transaction with a given conditions (other predicates).
+func (f *TransactionFilter) WhereHasFeeTransactionWith(preds ...predicate.Transaction) {
+	f.Where(entql.HasEdgeWith("fee_transaction", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// WhereHasReceiver applies a predicate to check if query has an edge receiver.
+func (f *TransactionFilter) WhereHasReceiver() {
+	f.Where(entql.HasEdge("receiver"))
+}
+
+// WhereHasReceiverWith applies a predicate to check if query has an edge receiver with a given conditions (other predicates).
+func (f *TransactionFilter) WhereHasReceiverWith(preds ...predicate.BankAccount) {
+	f.Where(entql.HasEdgeWith("receiver", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// WhereHasSender applies a predicate to check if query has an edge sender.
+func (f *TransactionFilter) WhereHasSender() {
+	f.Where(entql.HasEdge("sender"))
+}
+
+// WhereHasSenderWith applies a predicate to check if query has an edge sender with a given conditions (other predicates).
+func (f *TransactionFilter) WhereHasSenderWith(preds ...predicate.BankAccount) {
+	f.Where(entql.HasEdgeWith("sender", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// WhereHasDebt applies a predicate to check if query has an edge debt.
+func (f *TransactionFilter) WhereHasDebt() {
+	f.Where(entql.HasEdge("debt"))
+}
+
+// WhereHasDebtWith applies a predicate to check if query has an edge debt with a given conditions (other predicates).
+func (f *TransactionFilter) WhereHasDebtWith(preds ...predicate.Debt) {
+	f.Where(entql.HasEdgeWith("debt", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
 }

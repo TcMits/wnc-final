@@ -8,5 +8,20 @@ import (
 
 type FilterFunc func(*sql.Selector)
 
-// User is the predicate function for user builders.
-type User = FilterFunc
+// BankAccount is the predicate function for bankaccount builders.
+type BankAccount = FilterFunc
+
+// Contact is the predicate function for contact builders.
+type Contact = FilterFunc
+
+// Customer is the predicate function for customer builders.
+type Customer = FilterFunc
+
+// Debt is the predicate function for debt builders.
+type Debt = FilterFunc
+
+// Employee is the predicate function for employee builders.
+type Employee = FilterFunc
+
+// Transaction is the predicate function for transaction builders.
+type Transaction = FilterFunc

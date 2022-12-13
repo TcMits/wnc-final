@@ -10,7 +10,12 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/TcMits/ent-clean-template/ent/user"
+	"github.com/TcMits/wnc-final/ent/bankaccount"
+	"github.com/TcMits/wnc-final/ent/contact"
+	"github.com/TcMits/wnc-final/ent/customer"
+	"github.com/TcMits/wnc-final/ent/debt"
+	"github.com/TcMits/wnc-final/ent/employee"
+	"github.com/TcMits/wnc-final/ent/transaction"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -31,7 +36,12 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		user.Table: user.ValidColumn,
+		bankaccount.Table: bankaccount.ValidColumn,
+		contact.Table:     contact.ValidColumn,
+		customer.Table:    customer.ValidColumn,
+		debt.Table:        debt.ValidColumn,
+		employee.Table:    employee.ValidColumn,
+		transaction.Table: transaction.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {
@@ -263,6 +273,7 @@ func IsConstraintError(err error) bool {
 type selector struct {
 	label string
 	flds  *[]string
+	fns   []AggregateFunc
 	scan  func(context.Context, any) error
 }
 

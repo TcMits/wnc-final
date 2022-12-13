@@ -4,11 +4,11 @@ import (
 	"context"
 	"log"
 
-	"github.com/TcMits/ent-clean-template/config"
-	"github.com/TcMits/ent-clean-template/ent"
-	"github.com/TcMits/ent-clean-template/ent/migrate"
-	"github.com/TcMits/ent-clean-template/pkg/infrastructure/datastore"
-	"github.com/TcMits/ent-clean-template/pkg/infrastructure/logger"
+	"github.com/TcMits/wnc-final/config"
+	"github.com/TcMits/wnc-final/ent"
+	"github.com/TcMits/wnc-final/ent/migrate"
+	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
+	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 )
 
 func main() {

@@ -27,9 +27,59 @@ type orderField struct {
 	fieldName string
 }
 
-type UserOrderInput []OrderField
+type BankAccountOrderInput []OrderField
 
-func (i *UserOrderInput) Order(q *UserQuery) *UserQuery {
+func (i *BankAccountOrderInput) Order(q *BankAccountQuery) *BankAccountQuery {
+	orderFunctions := make([]OrderFunc, 0, len(*i))
+	for _, field := range *i {
+		orderFunctions = append(orderFunctions, field.GetOrderFunc())
+	}
+	return q.Order(orderFunctions...)
+}
+
+type ContactOrderInput []OrderField
+
+func (i *ContactOrderInput) Order(q *ContactQuery) *ContactQuery {
+	orderFunctions := make([]OrderFunc, 0, len(*i))
+	for _, field := range *i {
+		orderFunctions = append(orderFunctions, field.GetOrderFunc())
+	}
+	return q.Order(orderFunctions...)
+}
+
+type CustomerOrderInput []OrderField
+
+func (i *CustomerOrderInput) Order(q *CustomerQuery) *CustomerQuery {
+	orderFunctions := make([]OrderFunc, 0, len(*i))
+	for _, field := range *i {
+		orderFunctions = append(orderFunctions, field.GetOrderFunc())
+	}
+	return q.Order(orderFunctions...)
+}
+
+type DebtOrderInput []OrderField
+
+func (i *DebtOrderInput) Order(q *DebtQuery) *DebtQuery {
+	orderFunctions := make([]OrderFunc, 0, len(*i))
+	for _, field := range *i {
+		orderFunctions = append(orderFunctions, field.GetOrderFunc())
+	}
+	return q.Order(orderFunctions...)
+}
+
+type EmployeeOrderInput []OrderField
+
+func (i *EmployeeOrderInput) Order(q *EmployeeQuery) *EmployeeQuery {
+	orderFunctions := make([]OrderFunc, 0, len(*i))
+	for _, field := range *i {
+		orderFunctions = append(orderFunctions, field.GetOrderFunc())
+	}
+	return q.Order(orderFunctions...)
+}
+
+type TransactionOrderInput []OrderField
+
+func (i *TransactionOrderInput) Order(q *TransactionQuery) *TransactionQuery {
 	orderFunctions := make([]OrderFunc, 0, len(*i))
 	for _, field := range *i {
 		orderFunctions = append(orderFunctions, field.GetOrderFunc())

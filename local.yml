@@ -8,7 +8,7 @@ services:
         image: golang_dev
         container_name: golang_dev
         volumes:
-            - .:/ent-clean-template:z
+            - .:/wnc-final:z
         env_file:
             - ./.envs/.local/.golang
             - ./.envs/.local/.postgres

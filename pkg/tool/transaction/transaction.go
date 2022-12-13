@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/TcMits/ent-clean-template/ent"
+	"github.com/TcMits/wnc-final/ent"
 )
 
 func WithTx(ctx context.Context, client *ent.Client, fn func(tx *ent.Tx) error) error {

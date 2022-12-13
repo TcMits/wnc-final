@@ -1,7 +1,9 @@
 package tool
 
 import (
+	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/kataras/iris/v12/core/router"
 )
@@ -27,4 +29,18 @@ func GetIrisReverseFunc(
 
 		return result + "?" + v.Encode()
 	}
+}
+
+func GetTimeStampID() string {
+	now := time.Now().UTC()
+	return fmt.Sprintf(
+		"%d%02d%02d%02d%02d%02d%d",
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		now.Hour(),
+		now.Minute(),
+		now.Second(),
+		now.Nanosecond(),
+	)
 }

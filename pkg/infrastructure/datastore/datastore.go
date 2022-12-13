@@ -7,7 +7,7 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/jackc/pgx/v4/stdlib"
 
-	"github.com/TcMits/ent-clean-template/ent"
+	"github.com/TcMits/wnc-final/ent"
 )
 
 // Open new connection.

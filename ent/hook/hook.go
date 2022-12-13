@@ -6,18 +6,83 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/TcMits/ent-clean-template/ent"
+	"github.com/TcMits/wnc-final/ent"
 )
 
-// The UserFunc type is an adapter to allow the use of ordinary
-// function as User mutator.
-type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)
+// The BankAccountFunc type is an adapter to allow the use of ordinary
+// function as BankAccount mutator.
+type BankAccountFunc func(context.Context, *ent.BankAccountMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.UserMutation)
+func (f BankAccountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.BankAccountMutation)
 	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BankAccountMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The ContactFunc type is an adapter to allow the use of ordinary
+// function as Contact mutator.
+type ContactFunc func(context.Context, *ent.ContactMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ContactFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.ContactMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ContactMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The CustomerFunc type is an adapter to allow the use of ordinary
+// function as Customer mutator.
+type CustomerFunc func(context.Context, *ent.CustomerMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CustomerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.CustomerMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CustomerMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The DebtFunc type is an adapter to allow the use of ordinary
+// function as Debt mutator.
+type DebtFunc func(context.Context, *ent.DebtMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DebtFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.DebtMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DebtMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The EmployeeFunc type is an adapter to allow the use of ordinary
+// function as Employee mutator.
+type EmployeeFunc func(context.Context, *ent.EmployeeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EmployeeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.EmployeeMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EmployeeMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The TransactionFunc type is an adapter to allow the use of ordinary
+// function as Transaction mutator.
+type TransactionFunc func(context.Context, *ent.TransactionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TransactionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.TransactionMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TransactionMutation", m)
 	}
 	return f(ctx, mv)
 }

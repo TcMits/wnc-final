@@ -3,6 +3,9 @@ package usecase
 
 import (
 	"context"
+
+	"github.com/TcMits/wnc-final/pkg/entity/model"
+	"github.com/google/uuid"
 )
 
 //go:generate mockgen -source=interfaces.go -destination=./mocks.go -package=usecase
@@ -20,10 +23,10 @@ type (
 		Create(context.Context, ModelCreateInput) (ModelType, error)
 	}
 	IDetailUseCase[ModelType any] interface {
-		Detail(context.Context, *uint16) (ModelType, error)
+		Detail(context.Context, *uuid.UUID) (ModelType, error)
 	}
 	IDeleteUseCase interface {
-		Delete(context.Context, *uint16) error
+		Delete(context.Context, *uuid.UUID) error
 	}
 	IEntityUseCase[ModelType, ModelCreateInput any] interface {
 		IListUseCase[ModelType]
@@ -34,5 +37,8 @@ type (
 	IAuthenticationUseCase interface {
 		IGetUserUseCase
 		IConfigUseCase
+	}
+	ICustomerUseCase interface {
+		IEntityUseCase[*model.Customer, *model.CustomerCreateInput]
 	}
 )

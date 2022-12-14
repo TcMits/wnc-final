@@ -9,6 +9,8 @@ import (
 
 	"github.com/TcMits/wnc-final/config"
 	v1 "github.com/TcMits/wnc-final/internal/controller/http/v1"
+	"github.com/TcMits/wnc-final/internal/repository"
+	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/httpserver"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
@@ -29,8 +31,14 @@ func Run(cfg *config.Config) {
 	handler := v1.NewHandler()
 
 	// Usecase
+	cUc := usecase.NewCustomerUseCase(
+		repository.GetCustomerListRepository(client),
+		repository.GetCustomerCreateRepository(client),
+		repository.GetCustomerDeleteRepository(client),
+	)
 
 	v1.RegisterV1HTTPServices(handler,
+		cUc,
 		l,
 	)
 

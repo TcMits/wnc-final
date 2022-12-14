@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/TcMits/wnc-final/internal/controller/http/v1/middleware"
+	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
@@ -49,6 +50,7 @@ func NewHandler() *iris.Application {
 func RegisterV1HTTPServices(
 	handler iris.Party,
 	// adding more usecases here
+	cUc usecase.ICustomerUseCase,
 	// logger
 	l logger.Interface,
 ) {

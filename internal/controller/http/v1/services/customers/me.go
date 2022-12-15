@@ -9,11 +9,11 @@ import (
 )
 
 type meRoute struct {
-	uc     usecase.IMeCustomerUseCase
+	uc     usecase.ICustomerMeUseCase
 	logger logger.Interface
 }
 
-func RegisterMeController(handler iris.Party, l logger.Interface, uc usecase.IMeCustomerUseCase) {
+func RegisterMeController(handler iris.Party, l logger.Interface, uc usecase.ICustomerMeUseCase) {
 	route := &meRoute{
 		uc:     uc,
 		logger: l,
@@ -36,5 +36,5 @@ func RegisterMeController(handler iris.Party, l logger.Interface, uc usecase.IMe
 func (r *meRoute) detail(ctx iris.Context) {
 	userAny, _ := ctx.User().GetRaw()
 	user, _ := userAny.(*model.Customer)
-	ctx.JSON(getEntityResponse(user))
+	ctx.JSON(getResponse(user))
 }

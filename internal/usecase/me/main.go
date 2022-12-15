@@ -12,23 +12,31 @@ import (
 )
 
 type (
-	GetUserUseCase struct {
+	CustomerGetUserUseCase struct {
 		repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
 	}
 
-	MeCustomerUseCase struct {
+	CustomerMeUseCase struct {
 		usecase.ICustomerConfigUseCase
-		*GetUserUseCase
+		usecase.ICustomerGetUserUseCase
 	}
 )
 
-func NewMeCustomerUseCase(
+func NewCustomerGetUserUseCase(
+	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+) usecase.ICustomerGetUserUseCase {
+	uc := &CustomerGetUserUseCase{
+		repoList: repoList,
+	}
+	return uc
+}
+func NewCustomerMeUseCase(
 	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	sk *string,
-) usecase.IMeCustomerUseCase {
-	uc := MeCustomerUseCase{
+) usecase.ICustomerMeUseCase {
+	uc := CustomerMeUseCase{
 		config.NewCustomerConfigUseCase(sk),
-		&GetUserUseCase{repoList: repoList},
+		NewCustomerGetUserUseCase(repoList),
 	}
 	return uc
 }
@@ -43,7 +51,7 @@ func getUser[ModelType, ModelOrderInput, ModelWhereInput any](
 	entities, err := repo.List(ctx, &limit, &offset, oInput, wInput)
 	if err != nil {
 		var eV ModelType
-		return eV, fmt.Errorf("internal.usecase.users.getUser: %w", err)
+		return eV, fmt.Errorf("internal.usecase.me.getUser: %w", err)
 	}
 	if len(entities) == 0 {
 		var eV ModelType
@@ -52,7 +60,7 @@ func getUser[ModelType, ModelOrderInput, ModelWhereInput any](
 	return entities[0], nil
 }
 
-func (useCase *GetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
+func (useCase *CustomerGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
 	usernameAny := input["username"]
 	username, ok := usernameAny.(string)
 	if !ok {

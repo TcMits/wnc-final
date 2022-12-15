@@ -2,6 +2,7 @@ package customers
 
 import (
 	"github.com/TcMits/wnc-final/pkg/entity/model"
+	"github.com/TcMits/wnc-final/pkg/tool/jwt"
 	"github.com/google/uuid"
 )
 
@@ -26,20 +27,15 @@ type (
 		Email       string    `json:"email"`
 		IsActive    bool      `json:"is_active"`
 	}
+	tokenPairResponse struct {
+		AccessToken  *string `json:"access_token"`
+		RefreshToken *string `json:"refresh_token"`
+	}
 
 	// reference on docs
 )
 
 func getResponse(entity any) any {
-	var result any
-	switch entity.(type) {
-	default:
-		result = entity
-	}
-	return result
-}
-
-func getEntityResponse(entity any) any {
 	var result any
 	switch entity.(type) {
 	case *model.Customer:
@@ -53,17 +49,23 @@ func getEntityResponse(entity any) any {
 			Email:       rs.Email,
 			IsActive:    rs.IsActive,
 		}
+	case *jwt.TokenPair:
+		rs, _ := entity.(*jwt.TokenPair)
+		result = &tokenPairResponse{
+			AccessToken:  rs.AccessToken,
+			RefreshToken: rs.RefreshToken,
+		}
 	default:
 		result = entity
 	}
 	return result
 }
 
-func getEntitiesResponse[ModelType any](entities []ModelType) any {
+func getResponses[ModelType any](entities []ModelType) any {
 	fr := make([]any, 0, len(entities))
 
 	for _, entity := range entities {
-		fr = append(fr, getEntityResponse(entity))
+		fr = append(fr, getResponse(entity))
 	}
 	return &EntitiesResponseTemplate[any]{Results: fr}
 }

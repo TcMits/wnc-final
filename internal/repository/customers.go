@@ -22,3 +22,9 @@ func GetCustomerDeleteRepository(
 ) DeleteModelRepository[*model.Customer] {
 	return ent.NewCustomerDeleteRepository(client, false)
 }
+
+func GetCustomerUpdateRepository(
+	client *ent.Client,
+) UpdateModelRepository[*model.Customer, *model.CustomerUpdateInput] {
+	return ent.NewCustomerUpdateRepository(client, false)
+}

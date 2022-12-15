@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
@@ -13,6 +14,7 @@ type (
 		HTTP `yaml:"http"`
 		Log  `yaml:"logger"`
 		PG   `yaml:"postgres"`
+		AuthUseCase
 	}
 
 	// App -.
@@ -36,6 +38,12 @@ type (
 	PG struct {
 		PoolMax int    `env-required:"true" yaml:"pool_max" env:"PG_POOL_MAX" env-default:"90"`
 		URL     string `env-required:"true"                 env:"PG_URL"`
+	}
+
+	// Usecases.
+	AuthUseCase struct {
+		AccessTTL  time.Duration `env-required:"true" env:"AUTH_ACCESS_TTL"`
+		RefreshTTL time.Duration `env-required:"true" env:"AUTH_REFRESH_TTL"`
 	}
 )
 

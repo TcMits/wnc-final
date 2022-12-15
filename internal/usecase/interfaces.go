@@ -4,6 +4,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/google/uuid"
 )
 
@@ -33,9 +34,13 @@ type (
 		iDetailUseCase[ModelType]
 		iDeleteUseCase
 	}
-	iAuthenticationUseCase interface {
+	iAuthenticationUseCase[LoginInput, ModelType any] interface {
 		iGetUserUseCase
 		iConfigUseCase
+		Login(context.Context, LoginInput) (any, error)
+		ValidateLoginInput(context.Context, LoginInput) (LoginInput, error)
+		RenewToken(context.Context, *string) (any, error)
+		Logout(context.Context, ModelType) error
 	}
 )
 
@@ -43,10 +48,14 @@ type (
 	ICustomerConfigUseCase interface {
 		iConfigUseCase
 	}
-	ICustomerAuthenticationUseCase interface {
-		iAuthenticationUseCase
+	ICustomerGetUserUseCase interface {
+		iGetUserUseCase
 	}
-	IMeCustomerUseCase interface {
-		ICustomerAuthenticationUseCase
+	ICustomerMeUseCase interface {
+		ICustomerConfigUseCase
+		ICustomerGetUserUseCase
+	}
+	ICustomerAuthUseCase interface {
+		iAuthenticationUseCase[*model.CustomerLoginInput, *model.Customer]
 	}
 )

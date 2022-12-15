@@ -7,4 +7,5 @@ type (
 	CustomerOrderInput  = ent.CustomerOrderInput
 	CustomerWhereInput  = ent.CustomerWhereInput
 	CustomerCreateInput = ent.CustomerCreateInput
+	CustomerUpdateInput = ent.CustomerUpdateInput
 )

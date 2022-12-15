@@ -49,7 +49,8 @@ func NewHandler() *iris.Application {
 func RegisterV1HTTPServices(
 	handler iris.Party,
 	// adding more usecases here
-	meCUc usecase.IMeCustomerUseCase,
+	cMeUc usecase.ICustomerMeUseCase,
+	cAuthUc usecase.ICustomerAuthUseCase,
 	// logger
 	l logger.Interface,
 ) {
@@ -59,6 +60,6 @@ func RegisterV1HTTPServices(
 	// services
 	h := handler.Party(_apiSubPath)
 	{
-		customers.RegisterCustomerServices(h, meCUc, l)
+		customers.RegisterCustomerServices(h, cMeUc, cAuthUc, l)
 	}
 }

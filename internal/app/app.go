@@ -10,6 +10,7 @@ import (
 	"github.com/TcMits/wnc-final/config"
 	v1 "github.com/TcMits/wnc-final/internal/controller/http/v1"
 	"github.com/TcMits/wnc-final/internal/repository"
+	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/httpserver"
@@ -31,13 +32,21 @@ func Run(cfg *config.Config) {
 	handler := v1.NewHandler()
 
 	// Usecase
-	mCUc := me.NewMeCustomerUseCase(
+	CMeUc := me.NewCustomerMeUseCase(
 		repository.GetCustomerListRepository(client),
 		&cfg.App.SecretKey,
 	)
+	CAuthUc := auth.NewCustomerAuthUseCase(
+		repository.GetCustomerListRepository(client),
+		repository.GetCustomerUpdateRepository(client),
+		&cfg.App.SecretKey,
+		cfg.AuthUseCase.AccessTTL,
+		cfg.AuthUseCase.RefreshTTL,
+	)
 
 	v1.RegisterV1HTTPServices(handler,
-		mCUc,
+		CMeUc,
+		CAuthUc,
 		l,
 	)
 

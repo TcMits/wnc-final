@@ -15,7 +15,8 @@ const (
 func RegisterCustomerServices(
 	handler iris.Party,
 	// adding more usecases here
-	cUc usecase.IMeCustomerUseCase,
+	cUc usecase.ICustomerMeUseCase,
+	aUc usecase.ICustomerAuthUseCase,
 	// logger
 	l logger.Interface,
 ) {
@@ -28,5 +29,7 @@ func RegisterCustomerServices(
 	// routes
 	{
 		RegisterDocsController(h, l)
+		RegisterMeController(h, l, cUc)
+		RegisterAuthController(h, l, aUc)
 	}
 }

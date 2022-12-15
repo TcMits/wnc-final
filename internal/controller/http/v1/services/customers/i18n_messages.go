@@ -1,4 +1,4 @@
-package v1
+package customers
 
 import "github.com/nicksnyder/go-i18n/v2/i18n"
 

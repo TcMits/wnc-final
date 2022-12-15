@@ -6,7 +6,7 @@ import (
 
 const DEBUG = true
 
-func wrapError(err error) error {
+func WrapError(err error) error {
 	if err != nil && !DEBUG {
 		if _, ok := err.(interface{ Code() string }); !ok {
 			return wrapper.NewDBError(err)

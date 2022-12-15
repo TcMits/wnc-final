@@ -1,16 +1,15 @@
 package v1
 
 import (
-	"github.com/TcMits/wnc-final/internal/controller/http/v1/middleware"
+	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customers"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/middleware/cors"
 	"github.com/kataras/iris/v12/middleware/recover"
 )
 
-const _v1SubPath = "/api/v1"
+const _apiSubPath = "/api"
 
 func NewHandler() *iris.Application {
 	handler := iris.New()
@@ -46,25 +45,20 @@ func NewHandler() *iris.Application {
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @host localhost:8080
-// @BasePath /api/v1
+// @BasePath /api
 func RegisterV1HTTPServices(
 	handler iris.Party,
 	// adding more usecases here
-	cUc usecase.ICustomerUseCase,
+	meCUc usecase.IMeCustomerUseCase,
 	// logger
 	l logger.Interface,
 ) {
 	handler.UseRouter(recover.New())
 	RegisterHealthCheckController(handler)
 
-	// HTTP middlewares
-	h := handler.Party(
-		_v1SubPath,
-		cors.New().Handler(),
-		middleware.Logger(l),
-	)
-	// routes
+	// services
+	h := handler.Party(_apiSubPath)
 	{
-		RegisterDocsController(h, l)
+		customers.RegisterCustomerServices(h, meCUc, l)
 	}
 }

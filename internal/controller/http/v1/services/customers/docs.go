@@ -1,4 +1,4 @@
-package v1
+package customers
 
 import (
 	"html/template"
@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	_swaggerDocPath     = _v1SubPath + "/swagger/doc.json"
-	_swaggerSubPath     = "/swagger"
-	_swaggerWideSubPath = "/swagger/{any:path}"
-	_swaggerDocSubPath  = "/swagger/doc.json"
+	_swaggerDocPath     = "/api" + _customerV1SubPath + "/swagger/doc.json"
+	_swaggerSubPath     = _customerV1SubPath + "/swagger"
+	_swaggerWideSubPath = _customerV1SubPath + "/swagger/{any:path}"
+	_swaggerDocSubPath  = _customerV1SubPath + "/swagger/doc.json"
 	_swaggerUIVersion   = "4.5.0"
 )
 

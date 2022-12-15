@@ -1,6 +1,8 @@
 app:
   name: 'wnc-final'
   version: '1.0.0'
+  secret_key: 'dummy'
+
 
 http:
   port: '8080'

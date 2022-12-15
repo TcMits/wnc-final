@@ -4,41 +4,49 @@ package usecase
 import (
 	"context"
 
-	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/google/uuid"
 )
 
 //go:generate mockgen -source=interfaces.go -destination=./mocks.go -package=usecase
 type (
-	IGetUserUseCase interface {
+	iGetUserUseCase interface {
 		GetUser(context.Context, map[string]any) (any, error)
 	}
-	IConfigUseCase interface {
+	iConfigUseCase interface {
 		GetSecret() (*string, error)
 	}
-	IListUseCase[ModelType any] interface {
+	iListUseCase[ModelType any] interface {
 		List(context.Context, *int, *int) ([]ModelType, error)
 	}
-	ICreateUseCase[ModelType, ModelCreateInput any] interface {
+	iCreateUseCase[ModelType, ModelCreateInput any] interface {
 		Create(context.Context, ModelCreateInput) (ModelType, error)
 	}
-	IDetailUseCase[ModelType any] interface {
+	iDetailUseCase[ModelType any] interface {
 		Detail(context.Context, *uuid.UUID) (ModelType, error)
 	}
-	IDeleteUseCase interface {
+	iDeleteUseCase interface {
 		Delete(context.Context, *uuid.UUID) error
 	}
-	IEntityUseCase[ModelType, ModelCreateInput any] interface {
-		IListUseCase[ModelType]
-		ICreateUseCase[ModelType, ModelCreateInput]
-		IDetailUseCase[ModelType]
-		IDeleteUseCase
+	iEntityUseCase[ModelType, ModelCreateInput any] interface {
+		iListUseCase[ModelType]
+		iCreateUseCase[ModelType, ModelCreateInput]
+		iDetailUseCase[ModelType]
+		iDeleteUseCase
 	}
-	IAuthenticationUseCase interface {
-		IGetUserUseCase
-		IConfigUseCase
+	iAuthenticationUseCase interface {
+		iGetUserUseCase
+		iConfigUseCase
 	}
-	ICustomerUseCase interface {
-		IEntityUseCase[*model.Customer, *model.CustomerCreateInput]
+)
+
+type (
+	ICustomerConfigUseCase interface {
+		iConfigUseCase
+	}
+	ICustomerAuthenticationUseCase interface {
+		iAuthenticationUseCase
+	}
+	IMeCustomerUseCase interface {
+		ICustomerAuthenticationUseCase
 	}
 )

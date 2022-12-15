@@ -14,7 +14,7 @@ require (
 	github.com/kataras/iris/v12 v12.2.0-beta5.0.20221020081905-bdceab934246
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
 	github.com/rs/zerolog v1.28.0
-	github.com/shopspring/decimal v1.2.0
+	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.1
 	github.com/swaggo/swag v1.8.8
 	golang.org/x/crypto v0.4.0

@@ -61,7 +61,10 @@ func getUser[ModelType, ModelOrderInput, ModelWhereInput any](
 }
 
 func (useCase *CustomerGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
-	usernameAny := input["username"]
+	usernameAny, ok := input["username"]
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("username is required"))
+	}
 	username, ok := usernameAny.(string)
 	if !ok {
 		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))

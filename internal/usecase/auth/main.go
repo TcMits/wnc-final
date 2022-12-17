@@ -13,7 +13,6 @@ import (
 	"github.com/TcMits/wnc-final/pkg/error/wrapper"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
 	"github.com/TcMits/wnc-final/pkg/tool/password"
-	"github.com/google/uuid"
 )
 
 type (
@@ -87,9 +86,7 @@ func invalidateToken(
 	repo repository.UpdateModelRepository[*model.Customer, *model.CustomerUpdateInput],
 	user *model.Customer,
 ) (*model.Customer, error) {
-	newJwtKey := uuid.New().String()
 	user, err := repo.Update(ctx, user, &model.CustomerUpdateInput{
-		JwtTokenKey:      &newJwtKey,
 		ClearJwtTokenKey: true,
 	})
 	if err != nil {
@@ -99,13 +96,16 @@ func invalidateToken(
 }
 
 func (useCase *CustomerLoginUseCase) Login(ctx context.Context, input *model.CustomerLoginInput) (any, error) {
-	entityAny, err := useCase.GetUser(ctx, map[string]any{"username": &input.Username})
+	entityAny, err := useCase.GetUser(ctx, map[string]any{"username": *input.Username})
 	if err != nil {
 		return nil, usecase.WrapError(err)
 	}
 	entity := entityAny.(*model.Customer)
 	if err != nil {
 		return nil, usecase.WrapError(err)
+	}
+	if !entity.IsActive {
+		return nil, usecase.WrapError(fmt.Errorf("user is not active"))
 	}
 	payload := map[string]any{
 		"username": entity.Username,
@@ -128,7 +128,7 @@ func (useCase *CustomerValidateLoginInputUseCase) ValidateLoginInput(
 	ctx context.Context,
 	input *model.CustomerLoginInput,
 ) (*model.CustomerLoginInput, error) {
-	entityAny, err := useCase.GetUser(ctx, map[string]any{"username": &input.Username})
+	entityAny, err := useCase.GetUser(ctx, map[string]any{"username": *input.Username})
 	if err != nil {
 		return nil, usecase.WrapError(err)
 	}
@@ -151,7 +151,10 @@ func (useCase *CustomerRenewAccessTokenUseCase) RenewToken(
 	if userAny == nil {
 		return nil, usecase.WrapError(fmt.Errorf("user is invalid"))
 	}
-	user := userAny.(*model.Customer)
+	user, ok := userAny.(*model.Customer)
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("user is invalid"))
+	}
 	payload, err := jwt.ParseJWT(*refreshToken, *useCase.secretKey)
 	if err != nil {
 		return nil, usecase.WrapError(err)

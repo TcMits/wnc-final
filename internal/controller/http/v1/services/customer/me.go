@@ -19,8 +19,8 @@ func RegisterMeController(handler iris.Party, l logger.Interface, uc usecase.ICu
 		logger: l,
 	}
 	sk, _ := uc.GetSecret()
-	handler.Get("/me", middleware.Authenticator(sk, uc.GetUser), route.detail)
-	handler.Options("/me", func(_ iris.Context) {})
+	handler.Get("/", middleware.Authenticator(sk, uc.GetUser), route.detail)
+	handler.Options("/", func(_ iris.Context) {})
 }
 
 // @Summary     Get profile

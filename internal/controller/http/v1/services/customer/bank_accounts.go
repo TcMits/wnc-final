@@ -1,0 +1,78 @@
+package customer
+
+import (
+	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer/middleware"
+	"github.com/TcMits/wnc-final/internal/usecase"
+	"github.com/TcMits/wnc-final/pkg/entity/model"
+	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
+	"github.com/kataras/iris/v12"
+)
+
+type bankAccountRoute struct {
+	uc     usecase.ICustomerBankAccountUseCase
+	logger logger.Interface
+}
+
+func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc usecase.ICustomerBankAccountUseCase) {
+	route := &bankAccountRoute{
+		uc:     uc,
+		logger: l,
+	}
+	sk, _ := uc.GetSecret()
+	handler.Put("/bank-accounts/{id:uuid}", middleware.Authenticator(sk, uc.GetUser), route.update)
+	handler.Get("/bank-accounts", middleware.Authenticator(sk, uc.GetUser), route.listing)
+	handler.Options("/bank-accounts", func(_ iris.Context) {})
+}
+
+func (r *bankAccountRoute) listing(ctx iris.Context) {
+	req := newListRequest()
+	if err := ctx.ReadQuery(req); err != nil {
+		handleBindingError(ctx, err, r.logger, req, nil)
+		return
+	}
+	entites, err := r.uc.List(ctx, &req.Limit, &req.Offset, nil, nil)
+	if err != nil {
+		HandleError(ctx, err, r.logger)
+		return
+	}
+	ctx.JSON(getResponses(entites))
+}
+
+func (r *bankAccountRoute) update(ctx iris.Context) {
+	req := new(updateRequest)
+	if err := ctx.ReadParams(req); err != nil {
+		handleBindingError(ctx, err, r.logger, req, nil)
+		return
+	}
+	updateInReq := new(bankAccountUpdateRequest)
+	if err := ctx.ReadBody(updateInReq); err != nil {
+		handleBindingError(ctx, err, r.logger, req, nil)
+		return
+	}
+	l, o := 1, 0
+	entities, err := r.uc.List(ctx, &l, &o, nil, &model.BankAccountWhereInput{
+		ID: req.id,
+	})
+	if err != nil {
+		HandleError(ctx, err, r.logger)
+		return
+	}
+	if len(entities) > 0 {
+		entity := entities[0]
+		in := &model.BankAccountUpdateInput{
+			IsForPayment: &updateInReq.IsForPayment,
+		}
+		in, err = r.uc.Validate(ctx, entity, in)
+		if err != nil {
+			HandleError(ctx, err, r.logger)
+			return
+		}
+		entity, err = r.uc.Update(ctx, entity, in)
+		if err != nil {
+			HandleError(ctx, err, r.logger)
+			return
+		}
+		ctx.JSON(getResponse(entity))
+	}
+	ctx.StatusCode(iris.StatusNoContent)
+}

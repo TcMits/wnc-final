@@ -16,11 +16,17 @@ type (
 	iConfigUseCase interface {
 		GetSecret() (*string, error)
 	}
-	iListUseCase[ModelType any] interface {
-		List(context.Context, *int, *int) ([]ModelType, error)
+	iListUseCase[ModelType, ModelOrderInput, ModelWhereInput any] interface {
+		List(context.Context, *int, *int, ModelOrderInput, ModelWhereInput) ([]ModelType, error)
 	}
 	iCreateUseCase[ModelType, ModelCreateInput any] interface {
 		Create(context.Context, ModelCreateInput) (ModelType, error)
+	}
+	iValidateUpdateInput[ModelType, ModelUpdateInput any] interface {
+		Validate(context.Context, ModelType, ModelUpdateInput) (ModelUpdateInput, error)
+	}
+	iUpdateUseCase[ModelType, ModelUpdateInput any] interface {
+		Update(context.Context, ModelType, ModelUpdateInput) (ModelType, error)
 	}
 	iDetailUseCase[ModelType any] interface {
 		Detail(context.Context, *uuid.UUID) (ModelType, error)
@@ -28,8 +34,8 @@ type (
 	iDeleteUseCase interface {
 		Delete(context.Context, *uuid.UUID) error
 	}
-	iEntityUseCase[ModelType, ModelCreateInput any] interface {
-		iListUseCase[ModelType]
+	iEntityUseCase[ModelType, ModelOrderInput, ModelWhereInput, ModelCreateInput any] interface {
+		iListUseCase[ModelType, ModelOrderInput, ModelWhereInput]
 		iCreateUseCase[ModelType, ModelCreateInput]
 		iDetailUseCase[ModelType]
 		iDeleteUseCase
@@ -57,5 +63,21 @@ type (
 	}
 	ICustomerAuthUseCase interface {
 		iAuthenticationUseCase[*model.CustomerLoginInput, *model.Customer]
+	}
+	ICustomerBankAccountUpdateUseCase interface {
+		iUpdateUseCase[*model.BankAccount, *model.BankAccountUpdateInput]
+	}
+	ICustomerBankAccountListUseCase interface {
+		iListUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
+	ICustomerBankAccountValidateUpdateInputUseCase interface {
+		iValidateUpdateInput[*model.BankAccount, *model.BankAccountUpdateInput]
+	}
+	ICustomerBankAccountUseCase interface {
+		ICustomerGetUserUseCase
+		ICustomerConfigUseCase
+		ICustomerBankAccountUpdateUseCase
+		ICustomerBankAccountValidateUpdateInputUseCase
+		ICustomerBankAccountListUseCase
 	}
 )

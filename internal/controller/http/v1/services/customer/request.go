@@ -1,5 +1,7 @@
 package customer
 
+import "github.com/google/uuid"
+
 type (
 	listRequest struct {
 		Limit  int `url:"limit"`
@@ -11,6 +13,15 @@ type (
 	loginRequest struct {
 		Username *string `json:"username" validate:"required"`
 		Password *string `json:"password" validate:"required"`
+	}
+	updateRequest struct {
+		id *uuid.UUID `param:"id" validate:"required"`
+	}
+)
+
+type (
+	bankAccountUpdateRequest struct {
+		IsForPayment bool `json:"is_for_payment validate:"required"`
 	}
 )
 

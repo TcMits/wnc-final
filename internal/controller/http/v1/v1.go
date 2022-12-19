@@ -51,6 +51,7 @@ func RegisterV1HTTPServices(
 	// adding more usecases here
 	cMeUc usecase.ICustomerMeUseCase,
 	cAuthUc usecase.ICustomerAuthUseCase,
+	cBankAccountUc usecase.ICustomerBankAccountUseCase,
 	// logger
 	l logger.Interface,
 ) {
@@ -60,6 +61,6 @@ func RegisterV1HTTPServices(
 	// services
 	h := handler.Party(_apiSubPath)
 	{
-		customer.RegisterCustomerServices(h, cMeUc, cAuthUc, l)
+		customer.RegisterCustomerServices(h, cMeUc, cAuthUc, cBankAccountUc, l)
 	}
 }

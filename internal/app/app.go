@@ -11,6 +11,7 @@ import (
 	v1 "github.com/TcMits/wnc-final/internal/controller/http/v1"
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase/auth"
+	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/httpserver"
@@ -43,10 +44,17 @@ func Run(cfg *config.Config) {
 		cfg.AuthUseCase.AccessTTL,
 		cfg.AuthUseCase.RefreshTTL,
 	)
+	cBankAccountUc := bankaccount.NewCustomerBankAccountUseCase(
+		repository.GetBankAccountUpdateRepository(client),
+		repository.GetBankAccountListRepository(client),
+		repository.GetCustomerListRepository(client),
+		&cfg.App.SecretKey,
+	)
 
 	v1.RegisterV1HTTPServices(handler,
 		CMeUc,
 		CAuthUc,
+		cBankAccountUc,
 		l,
 	)
 

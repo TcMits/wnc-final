@@ -1,6 +1,8 @@
 package customer
 
 import (
+	"time"
+
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
 	"github.com/google/uuid"
@@ -27,6 +29,16 @@ type (
 		Email       string    `json:"email"`
 		IsActive    bool      `json:"is_active"`
 	}
+	bankAccountResp struct {
+		ID            uuid.UUID `json:"id"`
+		CreateTime    time.Time `json:"create_time"`
+		UpdateTime    time.Time `json:"update_time"`
+		CustomerID    uuid.UUID `json:"customer_id"`
+		CashIn        float64   `json:"cash_in"`
+		CashOut       float64   `json:"cash_out"`
+		AccountNumber string    `json:"account_number"`
+		IsForPayment  bool      `json:"is_for_payment"`
+	}
 	tokenPairResponse struct {
 		AccessToken  *string `json:"access_token"`
 		RefreshToken *string `json:"refresh_token"`
@@ -48,6 +60,18 @@ func getResponse(entity any) any {
 			PhoneNumber: rs.PhoneNumber,
 			Email:       rs.Email,
 			IsActive:    rs.IsActive,
+		}
+	case *model.BankAccount:
+		rs, _ := entity.(*model.BankAccount)
+		result = &bankAccountResp{
+			ID:            rs.ID,
+			CreateTime:    rs.CreateTime,
+			UpdateTime:    rs.UpdateTime,
+			CustomerID:    rs.CustomerID,
+			CashIn:        rs.CashIn,
+			CashOut:       rs.CashOut,
+			AccountNumber: rs.AccountNumber,
+			IsForPayment:  rs.IsForPayment,
 		}
 	case *jwt.TokenPair:
 		rs, _ := entity.(*jwt.TokenPair)

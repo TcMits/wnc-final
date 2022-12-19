@@ -17,6 +17,7 @@ func RegisterCustomerServices(
 	// adding more usecases here
 	cUc usecase.ICustomerMeUseCase,
 	aUc usecase.ICustomerAuthUseCase,
+	cbac usecase.ICustomerBankAccountUseCase,
 	// logger
 	l logger.Interface,
 ) {
@@ -29,7 +30,13 @@ func RegisterCustomerServices(
 	// routes
 	{
 		RegisterDocsController(h, l)
-		RegisterMeController(h, l, cUc)
 		RegisterAuthController(h, l, aUc)
+		h := h.Party(
+			"/me",
+		)
+		{
+			RegisterMeController(h, l, cUc)
+			RegisterBankAccountController(h, l, cbac)
+		}
 	}
 }

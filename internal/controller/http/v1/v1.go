@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customers"
+	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/go-playground/validator/v10"
@@ -60,6 +60,6 @@ func RegisterV1HTTPServices(
 	// services
 	h := handler.Party(_apiSubPath)
 	{
-		customers.RegisterCustomerServices(h, cMeUc, cAuthUc, l)
+		customer.RegisterCustomerServices(h, cMeUc, cAuthUc, l)
 	}
 }

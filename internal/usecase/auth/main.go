@@ -28,6 +28,7 @@ type (
 		repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
 	}
 	CustomerRenewAccessTokenUseCase struct {
+		usecase.ICustomerGetUserUseCase
 		secretKey  *string
 		accessTTL  time.Duration
 		repoList   repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
@@ -69,10 +70,11 @@ func NewCustomerAuthUseCase(
 			repoList:                repoList,
 		},
 		&CustomerRenewAccessTokenUseCase{
-			secretKey:  secretKey,
-			accessTTL:  accessTTL,
-			repoList:   repoList,
-			repoUpdate: repoUpdate,
+			ICustomerGetUserUseCase: gUUc,
+			secretKey:               secretKey,
+			accessTTL:               accessTTL,
+			repoList:                repoList,
+			repoUpdate:              repoUpdate,
 		},
 		&CustomerLogoutUseCase{
 			repoUpdate: repoUpdate,
@@ -147,15 +149,15 @@ func (useCase *CustomerRenewAccessTokenUseCase) RenewToken(
 	ctx context.Context,
 	refreshToken *string,
 ) (any, error) {
-	userAny := ctx.Value("user")
-	if userAny == nil {
-		return nil, usecase.WrapError(fmt.Errorf("user is invalid"))
-	}
-	user, ok := userAny.(*model.Customer)
-	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("user is invalid"))
-	}
 	payload, err := jwt.ParseJWT(*refreshToken, *useCase.secretKey)
+	if err != nil {
+		return nil, usecase.WrapError(err)
+	}
+	userAny, err := useCase.GetUser(ctx, map[string]any{"username": payload["username"]})
+	if err != nil {
+		return nil, usecase.WrapError(err)
+	}
+	user := userAny.(*model.Customer)
 	if err != nil {
 		return nil, usecase.WrapError(err)
 	}

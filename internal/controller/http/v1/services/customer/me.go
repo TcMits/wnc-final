@@ -1,7 +1,7 @@
-package customers
+package customer
 
 import (
-	"github.com/TcMits/wnc-final/internal/controller/http/v1/middleware"
+	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer/middleware"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"

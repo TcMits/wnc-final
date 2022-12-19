@@ -1,4 +1,4 @@
-package customers
+package customer
 
 type (
 	listRequest struct {

@@ -1,4 +1,4 @@
-package customers
+package customer
 
 import (
 	"github.com/TcMits/wnc-final/pkg/entity/model"

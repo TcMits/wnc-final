@@ -30,23 +30,22 @@ func (r *bankAccountRoute) listing(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	entites, err := r.uc.List(ctx, &req.Limit, &req.Offset, nil, nil)
+	entities, err := r.uc.List(ctx, &req.Limit, &req.Offset, nil, nil)
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
 	}
-	ctx.JSON(getResponses(entites))
+	ctx.JSON(getResponses(entities))
 }
-
 func (r *bankAccountRoute) update(ctx iris.Context) {
-	req := new(updateRequest)
+	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
 	updateInReq := new(bankAccountUpdateRequest)
 	if err := ctx.ReadBody(updateInReq); err != nil {
-		handleBindingError(ctx, err, r.logger, req, nil)
+		handleBindingError(ctx, err, r.logger, updateInReq, nil)
 		return
 	}
 	l, o := 1, 0
@@ -73,6 +72,8 @@ func (r *bankAccountRoute) update(ctx iris.Context) {
 			return
 		}
 		ctx.JSON(getResponse(entity))
+	} else {
+		ctx.StatusCode(iris.StatusNoContent)
 	}
-	ctx.StatusCode(iris.StatusNoContent)
+
 }

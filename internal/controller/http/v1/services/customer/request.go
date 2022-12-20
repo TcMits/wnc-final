@@ -1,6 +1,9 @@
 package customer
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
+)
 
 type (
 	listRequest struct {
@@ -14,14 +17,24 @@ type (
 		Username *string `json:"username" validate:"required"`
 		Password *string `json:"password" validate:"required"`
 	}
-	updateRequest struct {
+	detailRequest struct {
 		id *uuid.UUID `param:"id" validate:"required"`
 	}
 )
 
 type (
 	bankAccountUpdateRequest struct {
-		IsForPayment bool `json:"is_for_payment validate:"required"`
+		IsForPayment bool `json:"is_for_payment" validate:"required"`
+	}
+	transactionCreateRequest struct {
+		ReceiverBankAccountNumber string          `json:"receiver_bank_account_number" validate:"required"`
+		ReceiverBankName          string          `json:"receiver_bank_name" validate:"required"`
+		ReceiverName              string          `json:"receiver_name" validate:"required"`
+		ReceiverID                *uuid.UUID      `json:"receiver_id" validate:"required"`
+		Amount                    decimal.Decimal `json:"amount" validate:"required"`
+		Description               string          `json:"description" validate:"required"`
+		WhoPaidFee                *uuid.UUID      `json:"who_paid_fee" validate:"required"`
+		SenderID                  *uuid.UUID      `json:"sender_id" validate:"required"`
 	}
 )
 

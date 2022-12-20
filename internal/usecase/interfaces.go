@@ -25,6 +25,9 @@ type (
 	iValidateUpdateInput[ModelType, ModelUpdateInput any] interface {
 		Validate(context.Context, ModelType, ModelUpdateInput) (ModelUpdateInput, error)
 	}
+	iValidateCreateInput[ModelCreateInput any] interface {
+		Validate(context.Context, ModelCreateInput) (ModelCreateInput, error)
+	}
 	iUpdateUseCase[ModelType, ModelUpdateInput any] interface {
 		Update(context.Context, ModelType, ModelUpdateInput) (ModelType, error)
 	}
@@ -79,5 +82,22 @@ type (
 		ICustomerBankAccountUpdateUseCase
 		ICustomerBankAccountValidateUpdateInputUseCase
 		ICustomerBankAccountListUseCase
+	}
+	ICustomerTransactionCreateUseCase interface {
+		iCreateUseCase[*model.Transaction, *model.TransactionCreateInput]
+	}
+	ICustomerTransactionListUseCase interface {
+		iListUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+	ICustomerTransactionValidateCreateInputUseCase interface {
+		iValidateCreateInput[*model.TransactionCreateInput]
+	}
+	ICustomerTransactionUseCase interface {
+		ICustomerGetUserUseCase
+		ICustomerConfigUseCase
+		ICustomerTransactionCreateUseCase
+		ICustomerTransactionListUseCase
+		ICustomerTransactionValidateCreateInputUseCase
+		ListBankAccounts(context.Context, *int, *int, *model.BankAccountOrderInput, *model.BankAccountWhereInput) ([]*model.BankAccount, error)
 	}
 )

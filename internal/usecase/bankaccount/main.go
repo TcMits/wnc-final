@@ -22,13 +22,37 @@ type (
 		repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
 	CustomerBankAccountUseCase struct {
-		*CustomerBankAccountUpdateUseCase
-		*CustomerBankAccountValidateUpdateInputUseCase
-		*CustomerBankAccountListUseCase
+		usecase.ICustomerBankAccountUpdateUseCase
+		usecase.ICustomerBankAccountValidateUpdateInputUseCase
+		usecase.ICustomerBankAccountListUseCase
 		usecase.ICustomerConfigUseCase
 		usecase.ICustomerGetUserUseCase
 	}
 )
+
+func NewCustomerBankAccountListUseCase(
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.ICustomerBankAccountListUseCase {
+	return &CustomerBankAccountListUseCase{
+		repoList: repoList,
+	}
+}
+
+func NewCustomerBankAccountValidateUpdateInputUseCase(
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.ICustomerBankAccountValidateUpdateInputUseCase {
+	return &CustomerBankAccountValidateUpdateInputUseCase{
+		repoList: repoList,
+	}
+}
+
+func NewCustomerBankAccountUpdateUseCase(
+	repoUpdate repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
+) usecase.ICustomerBankAccountUpdateUseCase {
+	return &CustomerBankAccountUpdateUseCase{
+		repoUpdate: repoUpdate,
+	}
+}
 
 func NewCustomerBankAccountUseCase(
 	repoUpdate repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
@@ -37,17 +61,11 @@ func NewCustomerBankAccountUseCase(
 	sk *string,
 ) usecase.ICustomerBankAccountUseCase {
 	return &CustomerBankAccountUseCase{
-		CustomerBankAccountUpdateUseCase: &CustomerBankAccountUpdateUseCase{
-			repoUpdate: repoUpdate,
-		},
-		CustomerBankAccountValidateUpdateInputUseCase: &CustomerBankAccountValidateUpdateInputUseCase{
-			repoList: repoList,
-		},
-		CustomerBankAccountListUseCase: &CustomerBankAccountListUseCase{
-			repoList: repoList,
-		},
-		ICustomerConfigUseCase:  config.NewCustomerConfigUseCase(sk),
-		ICustomerGetUserUseCase: me.NewCustomerGetUserUseCase(rlc),
+		ICustomerBankAccountUpdateUseCase:              NewCustomerBankAccountUpdateUseCase(repoUpdate),
+		ICustomerBankAccountValidateUpdateInputUseCase: NewCustomerBankAccountValidateUpdateInputUseCase(repoList),
+		ICustomerBankAccountListUseCase:                NewCustomerBankAccountListUseCase(repoList),
+		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk),
+		ICustomerGetUserUseCase:                        me.NewCustomerGetUserUseCase(rlc),
 	}
 }
 

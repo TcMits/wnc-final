@@ -98,6 +98,5 @@ type (
 		ICustomerTransactionCreateUseCase
 		ICustomerTransactionListUseCase
 		ICustomerTransactionValidateCreateInputUseCase
-		ListBankAccounts(context.Context, *int, *int, *model.BankAccountOrderInput, *model.BankAccountWhereInput) ([]*model.BankAccount, error)
 	}
 )

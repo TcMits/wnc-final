@@ -2,7 +2,9 @@ package transaction
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/TcMits/wnc-final/ent/transaction"
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
@@ -15,17 +17,17 @@ type (
 	CustomerTransactionCreateUseCase struct {
 		repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput]
 	}
-	CustomerTransactionValidateCreateInputUseCase struct {
-		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
-	}
 	CustomerTransactionListUseCase struct {
 		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 	CustomerTransactionBankAccountListUseCase struct {
 		usecase.ICustomerBankAccountListUseCase
 	}
-	CustomerTransactionUseCase struct {
+	CustomerTransactionValidateCreateInputUseCase struct {
 		*CustomerTransactionBankAccountListUseCase
+		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+	CustomerTransactionUseCase struct {
 		usecase.ICustomerTransactionValidateCreateInputUseCase
 		usecase.ICustomerTransactionCreateUseCase
 		usecase.ICustomerTransactionListUseCase
@@ -33,14 +35,6 @@ type (
 		usecase.ICustomerGetUserUseCase
 	}
 )
-
-func NewCustomerTransactionValidateCreateInputUseCase(
-	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
-) usecase.ICustomerTransactionValidateCreateInputUseCase {
-	return &CustomerTransactionValidateCreateInputUseCase{
-		repoList: repoList,
-	}
-}
 
 func NewCustomerTransactionListUseCase(
 	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
@@ -66,6 +60,16 @@ func NewCustomerTransactionBankAccountListUseCase(
 	}
 }
 
+func NewCustomerTransactionValidateCreateInputUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.ICustomerTransactionValidateCreateInputUseCase {
+	return &CustomerTransactionValidateCreateInputUseCase{
+		repoList: repoList,
+		CustomerTransactionBankAccountListUseCase: NewCustomerTransactionBankAccountListUseCase(rlba),
+	}
+}
+
 func NewCustomerTransactionUseCase(
 	repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
 	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
@@ -75,9 +79,8 @@ func NewCustomerTransactionUseCase(
 ) usecase.ICustomerTransactionUseCase {
 	return &CustomerTransactionUseCase{
 		ICustomerTransactionCreateUseCase:              NewCustomerTransactionCreateUseCase(repoCreate),
-		ICustomerTransactionValidateCreateInputUseCase: NewCustomerTransactionValidateCreateInputUseCase(repoList),
+		ICustomerTransactionValidateCreateInputUseCase: NewCustomerTransactionValidateCreateInputUseCase(repoList, rlba),
 		ICustomerTransactionListUseCase:                NewCustomerTransactionListUseCase(repoList),
-		CustomerTransactionBankAccountListUseCase:      NewCustomerTransactionBankAccountListUseCase(rlba),
 		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk),
 		ICustomerGetUserUseCase:                        me.NewCustomerGetUserUseCase(rlc),
 	}
@@ -88,13 +91,28 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 }
 
 func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Context, i *model.TransactionCreateInput) (*model.TransactionCreateInput, error) {
+	if i.TransactionType == transaction.TransactionTypeInternal {
+		l, o := 1, 0
+		entities, err := uc.List(ctx, &l, &o, nil, &model.BankAccountWhereInput{
+			ID: &i.SenderID,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if len(entities) > 0 {
+			ba := entities[0]
+			if ba.IsForPayment {
+				balance := ba.Balance()
+			} else {
+				return nil, usecase.WrapError(fmt.Errorf("this bank account is not for payment"))
+			}
+		} else {
+			return nil, usecase.WrapError(fmt.Errorf("this bank account is invalid"))
+		}
+	}
 	return i, nil
 }
 
 func (uc *CustomerTransactionListUseCase) List(ctx context.Context, limit, offset *int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) ([]*model.Transaction, error) {
 	return uc.repoList.List(ctx, limit, offset, o, w)
-}
-
-func (uc *CustomerTransactionBankAccountListUseCase) ListBankAccounts(ctx context.Context, limit, offset *int, o *model.BankAccountOrderInput, w *model.BankAccountWhereInput) ([]*model.BankAccount, error) {
-	return uc.List(ctx, limit, offset, o, w)
 }

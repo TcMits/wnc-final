@@ -72,6 +72,7 @@ func (r *transactionRoute) create(ctx iris.Context) {
 		ReceiverID:                createInReq.ReceiverID,
 		Amount:                    createInReq.Amount,
 		Description:               &createInReq.Description,
+		SenderID:                  *createInReq.SenderID,
 	}
 	in, err := r.uc.Validate(ctx, in)
 	if err != nil {

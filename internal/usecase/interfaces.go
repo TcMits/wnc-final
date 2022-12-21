@@ -60,6 +60,9 @@ type (
 	ICustomerGetUserUseCase interface {
 		iGetUserUseCase
 	}
+	ICustomerGetFirstUseCase interface {
+		GetFirst(context.Context, *model.CustomerOrderInput, *model.CustomerWhereInput) (*model.Customer, error)
+	}
 	ICustomerMeUseCase interface {
 		ICustomerConfigUseCase
 		ICustomerGetUserUseCase
@@ -73,6 +76,9 @@ type (
 	ICustomerBankAccountListUseCase interface {
 		iListUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
+	ICustomerBankAccountGetFirstUseCase interface {
+		GetFirst(context.Context, *model.BankAccountOrderInput, *model.BankAccountWhereInput) (*model.BankAccount, error)
+	}
 	ICustomerBankAccountValidateUpdateInputUseCase interface {
 		iValidateUpdateInput[*model.BankAccount, *model.BankAccountUpdateInput]
 	}
@@ -84,13 +90,13 @@ type (
 		ICustomerBankAccountListUseCase
 	}
 	ICustomerTransactionCreateUseCase interface {
-		iCreateUseCase[*model.Transaction, *model.TransactionCreateInput]
+		Create(context.Context, *model.TransactionCreateInput, bool) (*model.Transaction, error)
 	}
 	ICustomerTransactionListUseCase interface {
 		iListUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 	ICustomerTransactionValidateCreateInputUseCase interface {
-		iValidateCreateInput[*model.TransactionCreateInput]
+		Validate(context.Context, *model.TransactionCreateInput, bool) (*model.TransactionCreateInput, error)
 	}
 	ICustomerTransactionUseCase interface {
 		ICustomerGetUserUseCase

@@ -7,13 +7,13 @@ import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
+	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
-	"github.com/TcMits/wnc-final/pkg/error/wrapper"
 )
 
 type (
 	CustomerGetUserUseCase struct {
-		repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
+		cGetter usecase.ICustomerGetFirstUseCase
 	}
 
 	CustomerMeUseCase struct {
@@ -26,7 +26,7 @@ func NewCustomerGetUserUseCase(
 	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 ) usecase.ICustomerGetUserUseCase {
 	uc := &CustomerGetUserUseCase{
-		repoList: repoList,
+		cGetter: customer.NewCustomerGetFirstUseCase(repoList),
 	}
 	return uc
 }
@@ -41,25 +41,6 @@ func NewCustomerMeUseCase(
 	return uc
 }
 
-func getUser[ModelType, ModelOrderInput, ModelWhereInput any](
-	ctx context.Context,
-	repo repository.ListModelRepository[ModelType, ModelOrderInput, ModelWhereInput],
-	wInput ModelWhereInput,
-) (ModelType, error) {
-	limit, offset := 1, 0
-	var oInput ModelOrderInput
-	entities, err := repo.List(ctx, &limit, &offset, oInput, wInput)
-	if err != nil {
-		var eV ModelType
-		return eV, fmt.Errorf("internal.usecase.me.getUser: %w", err)
-	}
-	if len(entities) == 0 {
-		var eV ModelType
-		return eV, wrapper.NewNotFoundError(fmt.Errorf("entity does not exist"))
-	}
-	return entities[0], nil
-}
-
 func (useCase *CustomerGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
 	usernameAny, ok := input["username"]
 	if !ok {
@@ -69,8 +50,11 @@ func (useCase *CustomerGetUserUseCase) GetUser(ctx context.Context, input map[st
 	if !ok {
 		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))
 	}
-	u, err := getUser(ctx, useCase.repoList, &model.CustomerWhereInput{
+	u, err := useCase.cGetter.GetFirst(ctx, nil, &model.CustomerWhereInput{
 		Username: &username,
 	})
-	return u, usecase.WrapError(err)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
 }

@@ -21,6 +21,9 @@ type (
 	CustomerBankAccountListUseCase struct {
 		repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
+	CustomerBankAccountGetFirstUseCase struct {
+		repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
 	CustomerBankAccountUseCase struct {
 		usecase.ICustomerBankAccountUpdateUseCase
 		usecase.ICustomerBankAccountValidateUpdateInputUseCase
@@ -29,6 +32,14 @@ type (
 		usecase.ICustomerGetUserUseCase
 	}
 )
+
+func NewCustomerBankAccountGetFirstUseCase(
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.ICustomerBankAccountGetFirstUseCase {
+	return &CustomerBankAccountGetFirstUseCase{
+		repoList: repoList,
+	}
+}
 
 func NewCustomerBankAccountListUseCase(
 	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
@@ -103,4 +114,16 @@ func (uc *CustomerBankAccountValidateUpdateInputUseCase) Validate(ctx context.Co
 		}
 	}
 	return i, nil
+}
+
+func (uc *CustomerBankAccountGetFirstUseCase) GetFirst(ctx context.Context, o *model.BankAccountOrderInput, w *model.BankAccountWhereInput) (*model.BankAccount, error) {
+	l, of := 1, 0
+	entities, err := uc.repoList.List(ctx, &l, &of, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.GetFirst: %s", err))
+	}
+	if len(entities) > 0 {
+		return entities[0], nil
+	}
+	return nil, nil
 }

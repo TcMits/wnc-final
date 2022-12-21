@@ -16,3 +16,9 @@ func GetTransactionCreateRepository(
 ) CreateModelRepository[*model.Transaction, *model.TransactionCreateInput] {
 	return ent.NewTransactionCreateRepository(client, false)
 }
+
+func GetTransactionUpdateRepository(
+	client *ent.Client,
+) UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput] {
+	return ent.NewTransactionUpdateRepository(client, false)
+}

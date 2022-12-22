@@ -90,7 +90,7 @@ type (
 		ICustomerBankAccountListUseCase
 	}
 	ICustomerTransactionCreateUseCase interface {
-		Create(context.Context, *model.TransactionCreateInput, bool) (*model.Transaction, error)
+		Create(context.Context, *model.TransactionCreateInput) (*model.Transaction, error)
 	}
 	ICustomerTransactionListUseCase interface {
 		iListUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]

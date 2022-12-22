@@ -12,6 +12,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
+	"github.com/shopspring/decimal"
 )
 
 const (
@@ -27,9 +28,10 @@ type (
 		cBaUpdater usecase.ICustomerBankAccountUpdateUseCase
 	}
 	CustomerTransactionUpdateUseCase struct {
-		cBaUpdater usecase.ICustomerBankAccountUpdateUseCase
-		cBaGetter  usecase.ICustomerBankAccountGetFirstUseCase
-		repoUpdate repository.UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput]
+		cTxcCreater usecase.ICustomerTransactionCreateUseCase
+		cBaUpdater  usecase.ICustomerBankAccountUpdateUseCase
+		cBaGetter   usecase.ICustomerBankAccountGetFirstUseCase
+		repoUpdate  repository.UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput]
 	}
 	CustomerTransactionListUseCase struct {
 		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
@@ -97,70 +99,101 @@ func NewCustomerTransactionUseCase(
 	}
 }
 
-func (uc *CustomerTransactionCreateUseCase) createTxcFee(ctx context.Context, i *model.TransactionCreateInput) (*model.Transaction, error) {
-	return uc.Create(ctx, i, false)
+func (uc *CustomerTransactionUpdateUseCase) createTxcFee(ctx context.Context, i *model.TransactionCreateInput) (*model.Transaction, error) {
+	return uc.cTxcCreater.Create(ctx, i)
 }
 
-//	func (uc *CustomerTransactionUpdateUseCase) Update(ctx context.Context, e *model.Transaction, i *model.TransactionUpdateInput, isFeePaidByMe bool) (*model.Transaction, error) {
-//		if e.TransactionType == transaction.TransactionTypeInternal {
-//			sender, _ := uc.cBaGetter.GetFirst(ctx, nil, &model.BankAccountWhereInput{
-//				ID: e.SenderID,
-//			})
-//			am, _ := i.Amount.Float64()
-//			cshOut := sender.CashOut - am
-//			_, err := uc.cBaUpdater.Update(ctx, sender, &model.BankAccountUpdateInput{
-//				CashOut: &cshOut,
-//			})
-//			if err != nil {
-//				return nil, err
-//			}
-//			if i.ReceiverID != nil {
-//				receiver, _ := uc.cBaGetter.GetFirst(ctx, nil, &model.BankAccountWhereInput{
-//					ID: i.ReceiverID,
-//				})
-//				cshIn := am + receiver.CashIn
-//				_, err := uc.cBaUpdater.Update(ctx, receiver, &model.BankAccountUpdateInput{
-//					CashIn: &cshIn,
-//				})
-//				if err != nil {
-//					return nil, err
-//				}
-//			}
-//			txc, err := uc.repoUpdate.Update(ctx, e, i)
-//			if err != nil {
-//				return nil, err
-//			}
-//			if i.SourceTransactionID == nil {
-//				stsSuc := transaction.StatusSuccess
-//				desc := FeeDesc
-//				ni := &model.TransactionCreateInput{
-//					SourceTransactionID:     &txc.ID,
-//					SenderID:                i.SenderID,
-//					SenderBankAccountNumber: i.SenderBankAccountNumber,
-//					SenderBankName:          i.SenderBankName,
-//					Amount:                  decimal.NewFromFloat(FeeAmount),
-//					Status:                  &stsSuc,
-//					TransactionType:         transaction.TransactionTypeInternal,
-//					Description:             &desc,
-//				}
-//				if isFeePaidByMe {
-//					ni.SenderID = i.SenderID
-//					ni.SenderBankAccountNumber = i.SenderBankAccountNumber
-//					ni.SenderBankName = i.SenderBankName
-//				} else {
-//					ni.SenderID = *i.ReceiverID
-//					ni.SenderBankAccountNumber = i.ReceiverBankAccountNumber
-//					ni.SenderBankName = i.ReceiverBankName
-//				}
-//				_, err = uc.createTxcFee(ctx, ni)
-//				if err != nil {
-//					return nil, err
-//				}
-//			}
-//		}
-//	}
-func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.Transaction, error) {
+func (uc *CustomerTransactionUpdateUseCase) Update(ctx context.Context, e *model.Transaction, i *model.TransactionUpdateInput) (*model.Transaction, error) {
+	if e.Status == transaction.StatusSuccess {
+		return e, usecase.WrapError(fmt.Errorf("The transaction can not be updated"))
+	}
+	e, err := uc.repoUpdate.Update(ctx, e, i)
+	if err != nil {
+		return e, usecase.WrapError(err)
+	}
+	return e, nil
+}
+func (uc *CustomerTransactionUpdateUseCase) Confirm(ctx context.Context, e *model.Transaction, isFeePaidByMe bool) (*model.Transaction, error) {
+	if e.Status == transaction.StatusDraft {
+		if e.TransactionType == transaction.TransactionTypeInternal {
+			sender, _ := uc.cBaGetter.GetFirst(ctx, nil, &model.BankAccountWhereInput{
+				ID: e.SenderID,
+			})
+			am, _ := e.Amount.Float64()
+			cshOut := sender.CashOut - am
+			_, err := uc.cBaUpdater.Update(ctx, sender, &model.BankAccountUpdateInput{
+				CashOut: &cshOut,
+			})
+			if err != nil {
+				return nil, err
+			}
+			receiver, _ := uc.cBaGetter.GetFirst(ctx, nil, &model.BankAccountWhereInput{
+				ID: e.ReceiverID,
+			})
+			cshIn := am + receiver.CashIn
+			_, err = uc.cBaUpdater.Update(ctx, receiver, &model.BankAccountUpdateInput{
+				CashIn: &cshIn,
+			})
+			if err != nil {
+				return nil, err
+			}
+			stsSuc := transaction.StatusSuccess
+			txc, err := uc.repoUpdate.Update(ctx, e, &model.TransactionUpdateInput{
+				Status: &stsSuc,
+			})
+			if err != nil {
+				return nil, err
+			}
+			desc := FeeDesc
+			ni := &model.TransactionCreateInput{
+				SourceTransactionID: &txc.ID,
+				Amount:              decimal.NewFromFloat(FeeAmount),
+				Status:              &stsSuc,
+				TransactionType:     transaction.TransactionTypeInternal,
+				Description:         &desc,
+			}
+			if isFeePaidByMe {
+				ni.SenderID = *e.SenderID
+				ni.SenderBankAccountNumber = e.SenderBankAccountNumber
+				ni.SenderBankName = e.SenderBankName
+			} else {
+				ni.SenderID = *e.ReceiverID
+				ni.SenderBankAccountNumber = e.ReceiverBankAccountNumber
+				ni.SenderBankName = e.ReceiverBankName
+			}
+			_, err = uc.createTxcFee(ctx, ni)
+			if err != nil {
+				return nil, err
+			}
+			return txc, nil
+		}
+	}
+
+}
+func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateInput) (*model.Transaction, error) {
 	return uc.repoCreate.Create(ctx, i)
+}
+
+func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx context.Context, i *model.TransactionCreateInput) error {
+	uAny := ctx.Value("user")
+	user, _ := uAny.(*model.Customer)
+	l, o := 1, 0
+	stsDrf := transaction.StatusDraft
+	entities, err := uc.repoList.List(ctx, &l, &o, nil, &model.TransactionWhereInput{
+		HasSenderWith: []*model.BankAccountWhereInput{
+			{
+				CustomerID: &user.ID,
+			},
+		},
+		Status: &stsDrf,
+	})
+	if err != nil {
+		return usecase.WrapError(err)
+	}
+	if len(entities) > 0 {
+		return usecase.WrapError(fmt.Errorf("There is a draft transaction to be processed. Cannot create a new transaction"))
+	}
+	return nil
 }
 
 func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.TransactionCreateInput, error) {
@@ -175,6 +208,10 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 	}
 	if !ba.IsForPayment {
 		return nil, usecase.WrapError(fmt.Errorf("bank account sender is not for payment"))
+	}
+	err = uc.doesHaveDraftTxc(ctx, i)
+	if err != nil {
+		return nil, err
 	}
 	am, _ := i.Amount.Float64()
 	if isFeePaidByMe {

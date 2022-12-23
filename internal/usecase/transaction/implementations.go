@@ -11,7 +11,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func (uc *CustomerTransactionConfirmUseCase) createTxcFee(ctx context.Context, i *model.TransactionCreateInput) (*model.Transaction, error) {
+func (uc *CustomerTransactionConfirmSuccessUseCase) createTxcFee(ctx context.Context, i *model.TransactionCreateInput) (*model.Transaction, error) {
 	return uc.tCUC.Create(ctx, i)
 }
 
@@ -25,7 +25,7 @@ func (uc *CustomerTransactionUpdateUseCase) Update(ctx context.Context, e *model
 	}
 	return e, nil
 }
-func (uc *CustomerTransactionConfirmUseCase) subtractSenderBankAccount(ctx context.Context, txc *model.Transaction) (*model.BankAccount, error) {
+func (uc *CustomerTransactionConfirmSuccessUseCase) subtractSenderBankAccount(ctx context.Context, txc *model.Transaction) (*model.BankAccount, error) {
 	bk, _ := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
 		ID: txc.SenderID,
 	})
@@ -38,7 +38,7 @@ func (uc *CustomerTransactionConfirmUseCase) subtractSenderBankAccount(ctx conte
 	}
 	return bk, nil
 }
-func (uc *CustomerTransactionConfirmUseCase) addReceiverBankAccount(ctx context.Context, txc *model.Transaction) (*model.BankAccount, error) {
+func (uc *CustomerTransactionConfirmSuccessUseCase) addReceiverBankAccount(ctx context.Context, txc *model.Transaction) (*model.BankAccount, error) {
 	bk, _ := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
 		ID: txc.ReceiverID,
 	})
@@ -69,7 +69,7 @@ func (uc *CustomerTransactionValidateConfirmInputUseCase) ValidateConfirmInput(c
 	}
 	return usecase.WrapError(fmt.Errorf("cannot confirm %s transaction", e.Status))
 }
-func (uc *CustomerTransactionConfirmUseCase) Confirm(ctx context.Context, e *model.Transaction, token *string) (*model.Transaction, error) {
+func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmAsSuccess(ctx context.Context, e *model.Transaction, token *string) (*model.Transaction, error) {
 	if e.TransactionType == transaction.TransactionTypeInternal {
 		_, err := uc.subtractSenderBankAccount(ctx, e)
 		if err != nil {
@@ -138,9 +138,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx co
 }
 
 func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.TransactionCreateInput, error) {
-	ba, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
-		ID: &i.SenderID,
-	})
+	ba, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{ID: &i.SenderID})
 	if err != nil {
 		return nil, err
 	}
@@ -163,9 +161,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 		return nil, usecase.WrapError(err)
 	}
 	if i.TransactionType == transaction.TransactionTypeInternal {
-		baOther, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
-			ID: i.ReceiverID,
-		})
+		baOther, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{ID: i.ReceiverID})
 		if err != nil {
 			return nil, err
 		}
@@ -180,9 +176,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 				return nil, usecase.WrapError(err)
 			}
 		}
-		other, err := uc.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{
-			ID: &baOther.CustomerID,
-		})
+		other, err := uc.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: &baOther.CustomerID})
 		if err != nil {
 			return nil, err
 		}
@@ -190,8 +184,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 		i.ReceiverBankName = *uc.cfUC.GetProductOwnerName()
 		i.ReceiverName = other.GetName()
 	}
-	stsDrf := transaction.StatusDraft
-	i.Status = &stsDrf
+	i.Status = generic.GetPointer(transaction.StatusDraft)
 	i.SenderBankAccountNumber = ba.AccountNumber
 	i.SenderBankName = *uc.cfUC.GetProductOwnerName()
 	user := usecase.GetUserAsCustomer(ctx)

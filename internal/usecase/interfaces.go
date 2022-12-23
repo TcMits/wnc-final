@@ -95,8 +95,8 @@ type (
 	ICustomerTransactionValidateConfirmInputUseCase interface {
 		ValidateConfirmInput(context.Context, *model.Transaction, *string) error
 	}
-	ICustomerTransactionConfirmUseCase interface {
-		Confirm(context.Context, *model.Transaction, *string) (*model.Transaction, error)
+	ICustomerTransactionConfirmSuccessUseCase interface {
+		ConfirmAsSuccess(context.Context, *model.Transaction, *string) (*model.Transaction, error)
 	}
 	ICustomerTransactionCreateUseCase interface {
 		Create(context.Context, *model.TransactionCreateInput) (*model.Transaction, error)
@@ -116,7 +116,7 @@ type (
 		ICustomerTransactionCreateUseCase
 		ICustomerTransactionListUseCase
 		ICustomerTransactionValidateCreateInputUseCase
-		ICustomerTransactionConfirmUseCase
+		ICustomerTransactionConfirmSuccessUseCase
 		ICustomerTransactionValidateConfirmInputUseCase
 	}
 )

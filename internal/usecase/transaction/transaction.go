@@ -18,7 +18,7 @@ type (
 	CustomerTransactionValidateConfirmInputUseCase struct {
 		cfUC usecase.ICustomerConfigUseCase
 	}
-	CustomerTransactionConfirmUseCase struct {
+	CustomerTransactionConfirmSuccessUseCase struct {
 		cfUC   usecase.ICustomerConfigUseCase
 		bAUUC  usecase.ICustomerBankAccountUpdateUseCase
 		bAGFUC usecase.ICustomerBankAccountGetFirstUseCase
@@ -40,7 +40,7 @@ type (
 		usecase.ICustomerTransactionListUseCase
 		usecase.ICustomerConfigUseCase
 		usecase.ICustomerGetUserUseCase
-		usecase.ICustomerTransactionConfirmUseCase
+		usecase.ICustomerTransactionConfirmSuccessUseCase
 		usecase.ICustomerTransactionValidateConfirmInputUseCase
 	}
 )

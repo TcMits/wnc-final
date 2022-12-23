@@ -54,7 +54,7 @@ func NewCustomerTransactionValidateCreateInputUseCase(
 	}
 }
 
-func NewCustomerTransactionConfirmUseCase(
+func NewCustomerTransactionConfirmSuccessUseCase(
 	repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
 	repoUpdate repository.UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput],
 	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
@@ -63,8 +63,8 @@ func NewCustomerTransactionConfirmUseCase(
 	prodOwnerName *string,
 	fee *float64,
 	feeDesc *string,
-) usecase.ICustomerTransactionConfirmUseCase {
-	return &CustomerTransactionConfirmUseCase{
+) usecase.ICustomerTransactionConfirmSuccessUseCase {
+	return &CustomerTransactionConfirmSuccessUseCase{
 		cfUC:   config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 		bAUUC:  bankaccount.NewCustomerBankAccountUpdateUseCase(rUBa),
 		bAGFUC: bankaccount.NewCustomerBankAccountGetFirstUseCase(rlba),
@@ -101,6 +101,6 @@ func NewCustomerTransactionUseCase(
 		ICustomerTransactionListUseCase:                NewCustomerTransactionListUseCase(repoList),
 		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 		ICustomerGetUserUseCase:                        me.NewCustomerGetUserUseCase(rlc),
-		ICustomerTransactionConfirmUseCase:             NewCustomerTransactionConfirmUseCase(repoCreate, repoUpdate, rlba, rUBa, sk, prodOwnerName, fee, feeDesc),
+		ICustomerTransactionConfirmSuccessUseCase:      NewCustomerTransactionConfirmSuccessUseCase(repoCreate, repoUpdate, rlba, rUBa, sk, prodOwnerName, fee, feeDesc),
 	}
 }

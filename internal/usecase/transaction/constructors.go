@@ -17,6 +17,22 @@ func NewCustomerTransactionListUseCase(
 		repoList: repoList,
 	}
 }
+
+func NewCustomerTransactionListMyTxcUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.ICustomerTransactionListMyTxcUseCase {
+	return &CustomerTransactionListMyTxcUseCase{
+		tLUC: NewCustomerTransactionListUseCase(repoList),
+	}
+}
+func NewCustomerTransactionGetFirstMyTxUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.ICustomerTransactionGetFirstMyTxUseCase {
+	return &CustomerTransactionGetFirstMyTxUseCase{
+		tLMTUC: NewCustomerTransactionListMyTxcUseCase(repoList),
+	}
+}
+
 func NewCustomerTransactionUpdateUseCase(
 	repoUpdate repository.UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput],
 ) usecase.ICustomerTransactionUpdateUseCase {
@@ -102,5 +118,7 @@ func NewCustomerTransactionUseCase(
 		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 		ICustomerGetUserUseCase:                        me.NewCustomerGetUserUseCase(rlc),
 		ICustomerTransactionConfirmSuccessUseCase:      NewCustomerTransactionConfirmSuccessUseCase(repoCreate, repoUpdate, rlba, rUBa, sk, prodOwnerName, fee, feeDesc),
+		ICustomerTransactionListMyTxcUseCase:           NewCustomerTransactionListMyTxcUseCase(repoList),
+		ICustomerTransactionGetFirstMyTxUseCase:        NewCustomerTransactionGetFirstMyTxUseCase(repoList),
 	}
 }

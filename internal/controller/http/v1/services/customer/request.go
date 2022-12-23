@@ -36,6 +36,9 @@ type (
 		SenderID                  *uuid.UUID      `json:"sender_id" validate:"required"`
 		IsFeePaidByMe             bool            `json:"is_fee_paid_by_me" validate:"required"`
 	}
+	transactionConfirmRequest struct {
+		Token string `json:"token" validate:"required"`
+	}
 )
 
 func newListRequest() *listRequest {

@@ -107,6 +107,12 @@ type (
 	ICustomerTransactionListUseCase interface {
 		iListUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
+	ICustomerTransactionGetFirstMyTxUseCase interface {
+		GetFirstMyTxc(context.Context, *model.TransactionOrderInput, *model.TransactionWhereInput) (*model.Transaction, error)
+	}
+	ICustomerTransactionListMyTxcUseCase interface {
+		ListMyTxc(context.Context, *int, *int, *model.TransactionOrderInput, *model.TransactionWhereInput) ([]*model.Transaction, error)
+	}
 	ICustomerTransactionUpdateUseCase interface {
 		iUpdateUseCase[*model.Transaction, *model.TransactionUpdateInput]
 	}
@@ -118,5 +124,7 @@ type (
 		ICustomerTransactionValidateCreateInputUseCase
 		ICustomerTransactionConfirmSuccessUseCase
 		ICustomerTransactionValidateConfirmInputUseCase
+		ICustomerTransactionListMyTxcUseCase
+		ICustomerTransactionGetFirstMyTxUseCase
 	}
 )

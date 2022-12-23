@@ -195,3 +195,29 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 func (uc *CustomerTransactionListUseCase) List(ctx context.Context, limit, offset *int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) ([]*model.Transaction, error) {
 	return uc.repoList.List(ctx, limit, offset, o, w)
 }
+
+func (uc *CustomerTransactionListMyTxcUseCase) ListMyTxc(ctx context.Context, limit, offset *int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) ([]*model.Transaction, error) {
+	user := usecase.GetUserAsCustomer(ctx)
+	if w == nil {
+		w = new(model.TransactionWhereInput)
+	}
+	w.Or = []*model.TransactionWhereInput{
+		{
+			HasReceiverWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}},
+			HasSenderWith:   []*model.BankAccountWhereInput{{CustomerID: &user.ID}},
+		},
+	}
+	return uc.tLUC.List(ctx, limit, offset, o, w)
+}
+
+func (uc *CustomerTransactionGetFirstMyTxUseCase) GetFirstMyTxc(ctx context.Context, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (*model.Transaction, error) {
+	l, of := 1, 0
+	entities, err := uc.tLMTUC.ListMyTxc(ctx, &l, &of, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.GetFirst: %s", err))
+	}
+	if len(entities) > 0 {
+		return entities[0], nil
+	}
+	return nil, nil
+}

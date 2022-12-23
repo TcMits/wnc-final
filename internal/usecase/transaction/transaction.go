@@ -28,6 +28,14 @@ type (
 	CustomerTransactionListUseCase struct {
 		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
+	CustomerTransactionListMyTxcUseCase struct {
+		tLUC usecase.ICustomerTransactionListUseCase
+	}
+	CustomerTransactionGetFirstMyTxUseCase struct {
+		tLMTUC usecase.ICustomerTransactionListMyTxcUseCase
+	}
+	CustomerTransactionGetFirstMyTxcUseCase struct {
+	}
 	CustomerTransactionValidateCreateInputUseCase struct {
 		cfUC   usecase.ICustomerConfigUseCase
 		bAGFUC usecase.ICustomerBankAccountGetFirstUseCase
@@ -42,5 +50,7 @@ type (
 		usecase.ICustomerGetUserUseCase
 		usecase.ICustomerTransactionConfirmSuccessUseCase
 		usecase.ICustomerTransactionValidateConfirmInputUseCase
+		usecase.ICustomerTransactionListMyTxcUseCase
+		usecase.ICustomerTransactionGetFirstMyTxUseCase
 	}
 )

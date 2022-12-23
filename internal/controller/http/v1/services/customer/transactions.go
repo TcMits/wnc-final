@@ -18,6 +18,7 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 		uc:     uc,
 		logger: l,
 	}
+	handler.Put("/transactions/confirm-success/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.confirmSuccess)
 	handler.Get("/transactions/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.detail)
 	handler.Get("/transactions", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.listing)
 	handler.Post("/transactions", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.create)
@@ -30,28 +31,7 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	uAny, err := ctx.User().GetRaw()
-	if err != nil {
-		HandleError(ctx, err, r.logger)
-		return
-	}
-	user, _ := uAny.(*model.Customer)
-	entities, err := r.uc.List(ctx, &req.Limit, &req.Offset, nil, &model.TransactionWhereInput{
-		Or: []*model.TransactionWhereInput{
-			{
-				HasReceiverWith: []*model.BankAccountWhereInput{
-					{
-						CustomerID: &user.ID,
-					},
-				},
-				HasSenderWith: []*model.BankAccountWhereInput{
-					{
-						CustomerID: &user.ID,
-					},
-				},
-			},
-		},
-	})
+	entities, err := r.uc.ListMyTxc(ctx, &req.Limit, &req.Offset, nil, nil)
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
@@ -92,36 +72,45 @@ func (r *transactionRoute) detail(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	uAny, err := ctx.User().GetRaw()
+	entity, err := r.uc.GetFirstMyTxc(ctx, nil, &model.TransactionWhereInput{ID: req.id})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
 	}
-	user, _ := uAny.(*model.Customer)
-	l, o := 1, 0
-	entities, err := r.uc.List(ctx, &l, &o, nil, &model.TransactionWhereInput{
-		ID: req.id,
-		Or: []*model.TransactionWhereInput{
-			{
-				HasReceiverWith: []*model.BankAccountWhereInput{
-					{
-						CustomerID: &user.ID,
-					},
-				},
-				HasSenderWith: []*model.BankAccountWhereInput{
-					{
-						CustomerID: &user.ID,
-					},
-				},
-			},
-		},
-	})
+	if entity != nil {
+		ctx.JSON(getResponse(entity))
+	} else {
+		ctx.StatusCode(iris.StatusNoContent)
+	}
+}
+
+func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
+	req := new(detailRequest)
+	if err := ctx.ReadParams(req); err != nil {
+		handleBindingError(ctx, err, r.logger, req, nil)
+		return
+	}
+	entity, err := r.uc.GetFirstMyTxc(ctx, nil, &model.TransactionWhereInput{ID: req.id})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
 	}
-	if len(entities) > 0 {
-		entity := entities[0]
+	if entity != nil {
+		confirmReq := new(transactionConfirmRequest)
+		if err := ctx.ReadBody(confirmReq); err != nil {
+			handleBindingError(ctx, err, r.logger, confirmReq, nil)
+			return
+		}
+		err = r.uc.ValidateConfirmInput(ctx, entity, &confirmReq.Token)
+		if err != nil {
+			HandleError(ctx, err, r.logger)
+			return
+		}
+		entity, err = r.uc.ConfirmAsSuccess(ctx, entity, &confirmReq.Token)
+		if err != nil {
+			HandleError(ctx, err, r.logger)
+			return
+		}
 		ctx.JSON(getResponse(entity))
 	} else {
 		ctx.StatusCode(iris.StatusNoContent)

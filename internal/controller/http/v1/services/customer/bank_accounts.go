@@ -18,9 +18,9 @@ func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc us
 		uc:     uc,
 		logger: l,
 	}
-	sk, _ := uc.GetSecret()
-	handler.Put("/bank-accounts/{id:uuid}", middleware.Authenticator(sk, uc.GetUser), route.update)
-	handler.Get("/bank-accounts", middleware.Authenticator(sk, uc.GetUser), route.listing)
+
+	handler.Put("/bank-accounts/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.update)
+	handler.Get("/bank-accounts", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.listing)
 	handler.Options("/bank-accounts", func(_ iris.Context) {})
 }
 

@@ -36,6 +36,9 @@ func Run(cfg *config.Config) {
 	CMeUc := me.NewCustomerMeUseCase(
 		repository.GetCustomerListRepository(client),
 		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		&cfg.TransactionUseCase.FeeAmount,
+		&cfg.TransactionUseCase.FeeDesc,
 	)
 	CAuthUc := auth.NewCustomerAuthUseCase(
 		repository.GetCustomerListRepository(client),
@@ -43,12 +46,18 @@ func Run(cfg *config.Config) {
 		&cfg.App.SecretKey,
 		cfg.AuthUseCase.AccessTTL,
 		cfg.AuthUseCase.RefreshTTL,
+		&cfg.App.Name,
+		&cfg.TransactionUseCase.FeeAmount,
+		&cfg.TransactionUseCase.FeeDesc,
 	)
 	cBankAccountUc := bankaccount.NewCustomerBankAccountUseCase(
 		repository.GetBankAccountUpdateRepository(client),
 		repository.GetBankAccountListRepository(client),
 		repository.GetCustomerListRepository(client),
 		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		&cfg.TransactionUseCase.FeeAmount,
+		&cfg.TransactionUseCase.FeeDesc,
 	)
 
 	v1.RegisterV1HTTPServices(handler,

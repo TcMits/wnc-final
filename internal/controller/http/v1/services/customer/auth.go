@@ -18,10 +18,9 @@ func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.I
 		uc:     uc,
 		logger: l,
 	}
-	sk, _ := uc.GetSecret()
 	handler.Post("/token", route.renewToken)
 	handler.Post("/login", route.login)
-	handler.Delete("/login", middleware.Authenticator(sk, uc.GetUser), route.logout)
+	handler.Delete("/login", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.logout)
 	handler.Options("/login", func(_ iris.Context) {})
 	handler.Options("/token", func(_ iris.Context) {})
 }

@@ -70,12 +70,15 @@ func NewCustomerBankAccountUseCase(
 	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	sk *string,
+	prodOwnerName *string,
+	fee *float64,
+	feeDesc *string,
 ) usecase.ICustomerBankAccountUseCase {
 	return &CustomerBankAccountUseCase{
 		ICustomerBankAccountUpdateUseCase:              NewCustomerBankAccountUpdateUseCase(repoUpdate),
 		ICustomerBankAccountValidateUpdateInputUseCase: NewCustomerBankAccountValidateUpdateInputUseCase(repoList),
 		ICustomerBankAccountListUseCase:                NewCustomerBankAccountListUseCase(repoList),
-		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk),
+		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 		ICustomerGetUserUseCase:                        me.NewCustomerGetUserUseCase(rlc),
 	}
 }

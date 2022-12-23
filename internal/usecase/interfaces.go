@@ -10,11 +10,12 @@ import (
 
 //go:generate mockgen -source=interfaces.go -destination=./mocks.go -package=usecase
 type (
-	iGetUserUseCase interface {
+	IGetUserUseCase interface {
 		GetUser(context.Context, map[string]any) (any, error)
 	}
-	iConfigUseCase interface {
-		GetSecret() (*string, error)
+	IGetConfigUseCase interface {
+		GetProductOwnerName() *string
+		GetSecret() *string
 	}
 	iListUseCase[ModelType, ModelOrderInput, ModelWhereInput any] interface {
 		List(context.Context, *int, *int, ModelOrderInput, ModelWhereInput) ([]ModelType, error)
@@ -44,8 +45,8 @@ type (
 		iDeleteUseCase
 	}
 	iAuthenticationUseCase[LoginInput, ModelType any] interface {
-		iGetUserUseCase
-		iConfigUseCase
+		IGetUserUseCase
+		IGetConfigUseCase
 		Login(context.Context, LoginInput) (any, error)
 		ValidateLoginInput(context.Context, LoginInput) (LoginInput, error)
 		RenewToken(context.Context, *string) (any, error)
@@ -55,10 +56,12 @@ type (
 
 type (
 	ICustomerConfigUseCase interface {
-		iConfigUseCase
+		IGetConfigUseCase
+		GetFeeAmount() *float64
+		GetFeeDesc() *string
 	}
 	ICustomerGetUserUseCase interface {
-		iGetUserUseCase
+		IGetUserUseCase
 	}
 	ICustomerGetFirstUseCase interface {
 		GetFirst(context.Context, *model.CustomerOrderInput, *model.CustomerWhereInput) (*model.Customer, error)
@@ -89,14 +92,23 @@ type (
 		ICustomerBankAccountValidateUpdateInputUseCase
 		ICustomerBankAccountListUseCase
 	}
+	ICustomerTransactionValidateConfirmInputUseCase interface {
+		ValidateConfirmInput(context.Context, *model.Transaction, *string) error
+	}
+	ICustomerTransactionConfirmUseCase interface {
+		Confirm(context.Context, *model.Transaction, *string) (*model.Transaction, error)
+	}
 	ICustomerTransactionCreateUseCase interface {
 		Create(context.Context, *model.TransactionCreateInput) (*model.Transaction, error)
+	}
+	ICustomerTransactionValidateCreateInputUseCase interface {
+		Validate(context.Context, *model.TransactionCreateInput, bool) (*model.TransactionCreateInput, error)
 	}
 	ICustomerTransactionListUseCase interface {
 		iListUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
-	ICustomerTransactionValidateCreateInputUseCase interface {
-		Validate(context.Context, *model.TransactionCreateInput, bool) (*model.TransactionCreateInput, error)
+	ICustomerTransactionUpdateUseCase interface {
+		iUpdateUseCase[*model.Transaction, *model.TransactionUpdateInput]
 	}
 	ICustomerTransactionUseCase interface {
 		ICustomerGetUserUseCase
@@ -104,5 +116,7 @@ type (
 		ICustomerTransactionCreateUseCase
 		ICustomerTransactionListUseCase
 		ICustomerTransactionValidateCreateInputUseCase
+		ICustomerTransactionConfirmUseCase
+		ICustomerTransactionValidateConfirmInputUseCase
 	}
 )

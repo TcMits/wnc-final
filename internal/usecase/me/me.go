@@ -13,7 +13,7 @@ import (
 
 type (
 	CustomerGetUserUseCase struct {
-		cGetter usecase.ICustomerGetFirstUseCase
+		gFUC usecase.ICustomerGetFirstUseCase
 	}
 
 	CustomerMeUseCase struct {
@@ -26,17 +26,20 @@ func NewCustomerGetUserUseCase(
 	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 ) usecase.ICustomerGetUserUseCase {
 	uc := &CustomerGetUserUseCase{
-		cGetter: customer.NewCustomerGetFirstUseCase(repoList),
+		gFUC: customer.NewCustomerGetFirstUseCase(repoList),
 	}
 	return uc
 }
 func NewCustomerMeUseCase(
 	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	sk *string,
+	prodOwnerName *string,
+	fee *float64,
+	feeDesc *string,
 ) usecase.ICustomerMeUseCase {
-	uc := CustomerMeUseCase{
-		config.NewCustomerConfigUseCase(sk),
-		NewCustomerGetUserUseCase(repoList),
+	uc := &CustomerMeUseCase{
+		ICustomerConfigUseCase:  config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		ICustomerGetUserUseCase: NewCustomerGetUserUseCase(repoList),
 	}
 	return uc
 }
@@ -50,7 +53,7 @@ func (useCase *CustomerGetUserUseCase) GetUser(ctx context.Context, input map[st
 	if !ok {
 		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))
 	}
-	u, err := useCase.cGetter.GetFirst(ctx, nil, &model.CustomerWhereInput{
+	u, err := useCase.gFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{
 		Username: &username,
 	})
 	if err != nil {

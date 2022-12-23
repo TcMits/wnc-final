@@ -15,6 +15,7 @@ type (
 		Log  `yaml:"logger"`
 		PG   `yaml:"postgres"`
 		AuthUseCase
+		TransactionUseCase
 	}
 
 	// App -.
@@ -44,6 +45,10 @@ type (
 	AuthUseCase struct {
 		AccessTTL  time.Duration `env-required:"true" env:"AUTH_ACCESS_TTL"`
 		RefreshTTL time.Duration `env-required:"true" env:"AUTH_REFRESH_TTL"`
+	}
+	TransactionUseCase struct {
+		FeeAmount float64 `env-required:"true" env:"FEE_AMOUNT"`
+		FeeDesc   string  `env-required:"true" env:"FEE_DESC"`
 	}
 )
 

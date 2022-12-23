@@ -18,10 +18,9 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 		uc:     uc,
 		logger: l,
 	}
-	sk, _ := uc.GetSecret()
-	handler.Get("/transactions/{id:uuid}", middleware.Authenticator(sk, uc.GetUser), route.detail)
-	handler.Get("/transactions", middleware.Authenticator(sk, uc.GetUser), route.listing)
-	handler.Post("/transactions", middleware.Authenticator(sk, uc.GetUser), route.create)
+	handler.Get("/transactions/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.detail)
+	handler.Get("/transactions", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.listing)
+	handler.Post("/transactions", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.create)
 	handler.Options("/transactions", func(_ iris.Context) {})
 }
 
@@ -74,7 +73,7 @@ func (r *transactionRoute) create(ctx iris.Context) {
 		Description:               &createInReq.Description,
 		SenderID:                  *createInReq.SenderID,
 	}
-	in, err := r.uc.Validate(ctx, in)
+	in, err := r.uc.Validate(ctx, in, createInReq.IsFeePaidByMe)
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return

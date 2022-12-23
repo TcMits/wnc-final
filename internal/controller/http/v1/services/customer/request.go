@@ -33,8 +33,8 @@ type (
 		ReceiverID                *uuid.UUID      `json:"receiver_id" validate:"required"`
 		Amount                    decimal.Decimal `json:"amount" validate:"required"`
 		Description               string          `json:"description" validate:"required"`
-		WhoPaidFee                *uuid.UUID      `json:"who_paid_fee" validate:"required"`
 		SenderID                  *uuid.UUID      `json:"sender_id" validate:"required"`
+		IsFeePaidByMe             bool            `json:"is_fee_paid_by_me" validate:"required"`
 	}
 )
 

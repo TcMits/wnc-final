@@ -7,13 +7,16 @@ import (
 )
 
 type (
+	CustomerTransactionUpdateUseCase struct {
+		repoUpdate repository.UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput]
+	}
+	CustomerTransactionListUseCase struct {
+		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
 	CustomerTransactionCreateUseCase struct {
 		bKUUC      usecase.ICustomerBankAccountUpdateUseCase
 		bKGFUC     usecase.ICustomerBankAccountGetFirstUseCase
 		repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput]
-	}
-	CustomerTransactionUpdateUseCase struct {
-		repoUpdate repository.UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput]
 	}
 	CustomerTransactionValidateConfirmInputUseCase struct {
 		cfUC usecase.ICustomerConfigUseCase
@@ -25,16 +28,11 @@ type (
 		tCUC   usecase.ICustomerTransactionCreateUseCase
 		tUUC   usecase.ICustomerTransactionUpdateUseCase
 	}
-	CustomerTransactionListUseCase struct {
-		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
-	}
 	CustomerTransactionListMyTxcUseCase struct {
 		tLUC usecase.ICustomerTransactionListUseCase
 	}
-	CustomerTransactionGetFirstMyTxUseCase struct {
-		tLMTUC usecase.ICustomerTransactionListMyTxcUseCase
-	}
 	CustomerTransactionGetFirstMyTxcUseCase struct {
+		tLMTUC usecase.ICustomerTransactionListMyTxcUseCase
 	}
 	CustomerTransactionValidateCreateInputUseCase struct {
 		cfUC   usecase.ICustomerConfigUseCase

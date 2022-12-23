@@ -8,6 +8,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
+	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/error/wrapper"
@@ -21,21 +22,18 @@ type (
 		secretKey  *string
 		refreshTTL time.Duration
 		accessTTL  time.Duration
-		repoList   repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
 	}
 	CustomerValidateLoginInputUseCase struct {
-		gUUC     usecase.ICustomerGetUserUseCase
-		repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
+		gUUC usecase.ICustomerGetUserUseCase
 	}
 	CustomerRenewAccessTokenUseCase struct {
-		gUUC       usecase.ICustomerGetUserUseCase
-		secretKey  *string
-		accessTTL  time.Duration
-		repoList   repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
-		repoUpdate repository.UpdateModelRepository[*model.Customer, *model.CustomerUpdateInput]
+		gUUC      usecase.ICustomerGetUserUseCase
+		secretKey *string
+		accessTTL time.Duration
+		cUUC      usecase.ICustomerUpdateUseCase
 	}
 	CustomerLogoutUseCase struct {
-		repoUpdate repository.UpdateModelRepository[*model.Customer, *model.CustomerUpdateInput]
+		cUUC usecase.ICustomerUpdateUseCase
 	}
 	CustomerAuthUseCase struct {
 		usecase.ICustomerGetUserUseCase
@@ -63,24 +61,21 @@ func NewCustomerAuthUseCase(
 		ICustomerConfigUseCase:  config.NewCustomerConfigUseCase(secretKey, prodOwnerName, fee, feeDesc),
 		CustomerLoginUseCase: &CustomerLoginUseCase{
 			gUUC:       gUUC,
-			repoList:   repoList,
 			secretKey:  secretKey,
 			refreshTTL: refreshTTL,
 			accessTTL:  accessTTL,
 		},
 		CustomerValidateLoginInputUseCase: &CustomerValidateLoginInputUseCase{
-			gUUC:     gUUC,
-			repoList: repoList,
+			gUUC: gUUC,
 		},
 		CustomerRenewAccessTokenUseCase: &CustomerRenewAccessTokenUseCase{
-			gUUC:       gUUC,
-			secretKey:  secretKey,
-			accessTTL:  accessTTL,
-			repoList:   repoList,
-			repoUpdate: repoUpdate,
+			gUUC:      gUUC,
+			secretKey: secretKey,
+			accessTTL: accessTTL,
+			cUUC:      customer.NewCustomerUpdateUseCase(repoUpdate),
 		},
 		CustomerLogoutUseCase: &CustomerLogoutUseCase{
-			repoUpdate: repoUpdate,
+			cUUC: customer.NewCustomerUpdateUseCase(repoUpdate),
 		},
 	}
 	return uc
@@ -88,10 +83,10 @@ func NewCustomerAuthUseCase(
 
 func invalidateToken(
 	ctx context.Context,
-	repo repository.UpdateModelRepository[*model.Customer, *model.CustomerUpdateInput],
+	handler usecase.ICustomerUpdateUseCase,
 	user *model.Customer,
 ) (*model.Customer, error) {
-	user, err := repo.Update(ctx, user, &model.CustomerUpdateInput{
+	user, err := handler.Update(ctx, user, &model.CustomerUpdateInput{
 		ClearJwtTokenKey: true,
 	})
 	if err != nil {
@@ -164,7 +159,7 @@ func (uc *CustomerRenewAccessTokenUseCase) RenewToken(
 	if err != nil {
 		return nil, usecase.WrapError(err)
 	}
-	_, err = invalidateToken(ctx, uc.repoUpdate, user)
+	_, err = invalidateToken(ctx, uc.cUUC, user)
 	if err != nil {
 		return nil, usecase.WrapError(err)
 	}
@@ -182,7 +177,7 @@ func (uc *CustomerLogoutUseCase) Logout(
 	ctx context.Context,
 	user *model.Customer,
 ) error {
-	_, err := invalidateToken(ctx, uc.repoUpdate, user)
+	_, err := invalidateToken(ctx, uc.cUUC, user)
 	if err != nil {
 		return usecase.WrapError(err)
 	}

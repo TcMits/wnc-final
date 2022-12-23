@@ -210,11 +210,11 @@ func (uc *CustomerTransactionListMyTxcUseCase) ListMyTxc(ctx context.Context, li
 	return uc.tLUC.List(ctx, limit, offset, o, w)
 }
 
-func (uc *CustomerTransactionGetFirstMyTxUseCase) GetFirstMyTxc(ctx context.Context, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (*model.Transaction, error) {
+func (uc *CustomerTransactionGetFirstMyTxcUseCase) GetFirstMyTxc(ctx context.Context, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (*model.Transaction, error) {
 	l, of := 1, 0
 	entities, err := uc.tLMTUC.ListMyTxc(ctx, &l, &of, o, w)
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.GetFirst: %s", err))
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.GetFirstMyTxc: %s", err))
 	}
 	if len(entities) > 0 {
 		return entities[0], nil

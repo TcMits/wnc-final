@@ -66,6 +66,9 @@ type (
 	ICustomerGetFirstUseCase interface {
 		GetFirst(context.Context, *model.CustomerOrderInput, *model.CustomerWhereInput) (*model.Customer, error)
 	}
+	ICustomerListUseCase interface {
+		iListUseCase[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
+	}
 	ICustomerMeUseCase interface {
 		ICustomerConfigUseCase
 		ICustomerGetUserUseCase
@@ -75,6 +78,9 @@ type (
 	}
 	ICustomerBankAccountUpdateUseCase interface {
 		iUpdateUseCase[*model.BankAccount, *model.BankAccountUpdateInput]
+	}
+	ICustomerUpdateUseCase interface {
+		iUpdateUseCase[*model.Customer, *model.CustomerUpdateInput]
 	}
 	ICustomerBankAccountListUseCase interface {
 		iListUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]

@@ -28,7 +28,7 @@ func NewCustomerTransactionListMyTxcUseCase(
 func NewCustomerTransactionGetFirstMyTxUseCase(
 	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
 ) usecase.ICustomerTransactionGetFirstMyTxUseCase {
-	return &CustomerTransactionGetFirstMyTxUseCase{
+	return &CustomerTransactionGetFirstMyTxcUseCase{
 		tLMTUC: NewCustomerTransactionListMyTxcUseCase(repoList),
 	}
 }

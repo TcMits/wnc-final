@@ -11,45 +11,12 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func (uc *CustomerTransactionConfirmSuccessUseCase) createTxcFee(ctx context.Context, i *model.TransactionCreateInput) (*model.Transaction, error) {
-	return uc.tCUC.Create(ctx, i)
-}
-
 func (uc *CustomerTransactionUpdateUseCase) Update(ctx context.Context, e *model.Transaction, i *model.TransactionUpdateInput) (*model.Transaction, error) {
-	if e.Status == transaction.StatusSuccess {
-		return e, usecase.WrapError(fmt.Errorf("the transaction can not be updated"))
-	}
 	e, err := uc.repoUpdate.Update(ctx, e, i)
 	if err != nil {
 		return e, usecase.WrapError(err)
 	}
 	return e, nil
-}
-func (uc *CustomerTransactionConfirmSuccessUseCase) subtractSenderBankAccount(ctx context.Context, txc *model.Transaction) (*model.BankAccount, error) {
-	bk, _ := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
-		ID: txc.SenderID,
-	})
-	am, _ := txc.Amount.Float64()
-	bk, err := uc.bAUUC.Update(ctx, bk, &model.BankAccountUpdateInput{
-		CashOut: generic.GetPointer(bk.CashOut - am),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return bk, nil
-}
-func (uc *CustomerTransactionConfirmSuccessUseCase) addReceiverBankAccount(ctx context.Context, txc *model.Transaction) (*model.BankAccount, error) {
-	bk, _ := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
-		ID: txc.ReceiverID,
-	})
-	am, _ := txc.Amount.Float64()
-	bk, err := uc.bAUUC.Update(ctx, bk, &model.BankAccountUpdateInput{
-		CashIn: generic.GetPointer(bk.CashIn + am),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return bk, nil
 }
 func (uc *CustomerTransactionValidateConfirmInputUseCase) ValidateConfirmInput(ctx context.Context, e *model.Transaction, token *string) error {
 	if e.Status == transaction.StatusDraft {
@@ -69,24 +36,10 @@ func (uc *CustomerTransactionValidateConfirmInputUseCase) ValidateConfirmInput(c
 	}
 	return usecase.WrapError(fmt.Errorf("cannot confirm %s transaction", e.Status))
 }
-func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmAsSuccess(ctx context.Context, e *model.Transaction, token *string) (*model.Transaction, error) {
+func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.Context, e *model.Transaction, token *string) (*model.Transaction, error) {
 	if e.TransactionType == transaction.TransactionTypeInternal {
-		_, err := uc.subtractSenderBankAccount(ctx, e)
-		if err != nil {
-			return nil, err
-		}
-		_, err = uc.addReceiverBankAccount(ctx, e)
-		if err != nil {
-			return nil, err
-		}
-		txc, err := uc.tUUC.Update(ctx, e, &model.TransactionUpdateInput{
-			Status: generic.GetPointer(transaction.StatusSuccess),
-		})
-		if err != nil {
-			return nil, err
-		}
 		ni := &model.TransactionCreateInput{
-			SourceTransactionID: &txc.ID,
+			SourceTransactionID: &e.ID,
 			Amount:              decimal.NewFromFloat(*uc.cfUC.GetFeeAmount()),
 			Status:              generic.GetPointer(transaction.StatusSuccess),
 			TransactionType:     transaction.TransactionTypeInternal,
@@ -104,11 +57,11 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmAsSuccess(ctx context
 			ni.SenderBankAccountNumber = e.ReceiverBankAccountNumber
 			ni.SenderBankName = e.ReceiverBankName
 		}
-		_, err = uc.createTxcFee(ctx, ni)
+		e, err := uc.tCRepo.ConfirmSuccess(ctx, e, ni)
 		if err != nil {
-			return nil, err
+			return nil, usecase.WrapError(err)
 		}
-		return txc, nil
+		return e, nil
 	}
 	return nil, usecase.WrapError(fmt.Errorf("unhandled external transaction case"))
 }
@@ -118,15 +71,9 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 
 func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx context.Context, i *model.TransactionCreateInput) error {
 	user := usecase.GetUserAsCustomer(ctx)
-	l, o := 1, 0
-	stsDrf := transaction.StatusDraft
-	entities, err := uc.tLUC.List(ctx, &l, &o, nil, &model.TransactionWhereInput{
-		HasSenderWith: []*model.BankAccountWhereInput{
-			{
-				CustomerID: &user.ID,
-			},
-		},
-		Status: &stsDrf,
+	entities, err := uc.tLUC.List(ctx, generic.GetPointer(1), generic.GetPointer(0), nil, &model.TransactionWhereInput{
+		HasSenderWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}},
+		Status:        generic.GetPointer(transaction.StatusDraft),
 	})
 	if err != nil {
 		return usecase.WrapError(err)
@@ -202,10 +149,8 @@ func (uc *CustomerTransactionListMyTxcUseCase) ListMyTxc(ctx context.Context, li
 		w = new(model.TransactionWhereInput)
 	}
 	w.Or = []*model.TransactionWhereInput{
-		{
-			HasReceiverWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}},
-			HasSenderWith:   []*model.BankAccountWhereInput{{CustomerID: &user.ID}},
-		},
+		{HasReceiverWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}}},
+		{HasSenderWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}}},
 	}
 	return uc.tLUC.List(ctx, limit, offset, o, w)
 }

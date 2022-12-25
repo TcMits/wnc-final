@@ -102,7 +102,7 @@ type (
 		ValidateConfirmInput(context.Context, *model.Transaction, *string) error
 	}
 	ICustomerTransactionConfirmSuccessUseCase interface {
-		ConfirmAsSuccess(context.Context, *model.Transaction, *string) (*model.Transaction, error)
+		ConfirmSuccess(context.Context, *model.Transaction, *string) (*model.Transaction, error)
 	}
 	ICustomerTransactionCreateUseCase interface {
 		Create(context.Context, *model.TransactionCreateInput) (*model.Transaction, error)

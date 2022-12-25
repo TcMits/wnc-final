@@ -106,7 +106,7 @@ func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
 			HandleError(ctx, err, r.logger)
 			return
 		}
-		entity, err = r.uc.ConfirmAsSuccess(ctx, entity, &confirmReq.Token)
+		entity, err = r.uc.ConfirmSuccess(ctx, entity, &confirmReq.Token)
 		if err != nil {
 			HandleError(ctx, err, r.logger)
 			return

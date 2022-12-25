@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -55,8 +57,9 @@ type (
 // NewConfig returns app config.
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
-
-	err := cleanenv.ReadConfig("./config/config.yml", cfg)
+	_, b, _, _ := runtime.Caller(0)
+	path := filepath.Join(filepath.Dir(b), "config.yml")
+	err := cleanenv.ReadConfig(path, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
 	}

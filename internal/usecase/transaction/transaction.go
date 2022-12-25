@@ -3,52 +3,115 @@ package transaction
 import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
+	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
+	"github.com/TcMits/wnc-final/internal/usecase/config"
+	"github.com/TcMits/wnc-final/internal/usecase/customer"
+	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
-type (
-	CustomerTransactionUpdateUseCase struct {
-		repoUpdate repository.UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput]
+func NewCustomerTransactionListUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.ICustomerTransactionListUseCase {
+	return &CustomerTransactionListUseCase{
+		repoList: repoList,
 	}
-	CustomerTransactionListUseCase struct {
-		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+}
+
+func NewCustomerTransactionListMyTxcUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.ICustomerTransactionListMyTxcUseCase {
+	return &CustomerTransactionListMyTxcUseCase{
+		tLUC: NewCustomerTransactionListUseCase(repoList),
 	}
-	CustomerTransactionCreateUseCase struct {
-		bKUUC      usecase.ICustomerBankAccountUpdateUseCase
-		bKGFUC     usecase.ICustomerBankAccountGetFirstUseCase
-		repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput]
+}
+func NewCustomerTransactionGetFirstMyTxUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.ICustomerTransactionGetFirstMyTxUseCase {
+	return &CustomerTransactionGetFirstMyTxcUseCase{
+		tLMTUC: NewCustomerTransactionListMyTxcUseCase(repoList),
 	}
-	CustomerTransactionValidateConfirmInputUseCase struct {
-		cfUC usecase.ICustomerConfigUseCase
+}
+
+func NewCustomerTransactionUpdateUseCase(
+	repoUpdate repository.UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput],
+) usecase.ICustomerTransactionUpdateUseCase {
+	return &CustomerTransactionUpdateUseCase{
+		repoUpdate: repoUpdate,
 	}
-	CustomerTransactionConfirmSuccessUseCase struct {
-		cfUC   usecase.ICustomerConfigUseCase
-		bAUUC  usecase.ICustomerBankAccountUpdateUseCase
-		bAGFUC usecase.ICustomerBankAccountGetFirstUseCase
-		tCUC   usecase.ICustomerTransactionCreateUseCase
-		tUUC   usecase.ICustomerTransactionUpdateUseCase
+}
+
+func NewCustomerTransactionCreateUseCase(
+	repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
+	rLBa repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	rUBa repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
+) usecase.ICustomerTransactionCreateUseCase {
+	return &CustomerTransactionCreateUseCase{
+		repoCreate: repoCreate,
 	}
-	CustomerTransactionListMyTxcUseCase struct {
-		tLUC usecase.ICustomerTransactionListUseCase
+}
+
+func NewCustomerTransactionValidateCreateInputUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+	sk *string,
+	prodOwnerName *string,
+	fee *float64,
+	feeDesc *string,
+) usecase.ICustomerTransactionValidateCreateInputUseCase {
+	return &CustomerTransactionValidateCreateInputUseCase{
+		tLUC:   NewCustomerTransactionListUseCase(repoList),
+		bAGFUC: bankaccount.NewCustomerBankAccountGetFirstUseCase(rlba),
+		cGFUC:  customer.NewCustomerGetFirstUseCase(rlc),
+		cfUC:   config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 	}
-	CustomerTransactionGetFirstMyTxcUseCase struct {
-		tLMTUC usecase.ICustomerTransactionListMyTxcUseCase
+}
+
+func NewCustomerTransactionConfirmSuccessUseCase(
+	repo repository.ITransactionConfirmSuccessRepository,
+	sk *string,
+	prodOwnerName *string,
+	fee *float64,
+	feeDesc *string,
+) usecase.ICustomerTransactionConfirmSuccessUseCase {
+	return &CustomerTransactionConfirmSuccessUseCase{
+		cfUC:   config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		tCRepo: repo,
 	}
-	CustomerTransactionValidateCreateInputUseCase struct {
-		cfUC   usecase.ICustomerConfigUseCase
-		bAGFUC usecase.ICustomerBankAccountGetFirstUseCase
-		cGFUC  usecase.ICustomerGetFirstUseCase
-		tLUC   usecase.ICustomerTransactionListUseCase
+}
+func NewCustomerTransactionValidateConfirmInputUseCase(
+	sk *string,
+	prodOwnerName *string,
+	fee *float64,
+	feeDesc *string,
+) usecase.ICustomerTransactionValidateConfirmInputUseCase {
+	return &CustomerTransactionValidateConfirmInputUseCase{
+		cfUC: config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 	}
-	CustomerTransactionUseCase struct {
-		usecase.ICustomerTransactionValidateCreateInputUseCase
-		usecase.ICustomerTransactionCreateUseCase
-		usecase.ICustomerTransactionListUseCase
-		usecase.ICustomerConfigUseCase
-		usecase.ICustomerGetUserUseCase
-		usecase.ICustomerTransactionConfirmSuccessUseCase
-		usecase.ICustomerTransactionValidateConfirmInputUseCase
-		usecase.ICustomerTransactionListMyTxcUseCase
-		usecase.ICustomerTransactionGetFirstMyTxUseCase
+}
+
+func NewCustomerTransactionUseCase(
+	repoConfirm repository.ITransactionConfirmSuccessRepository,
+	repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+	repoUpdate repository.UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput],
+	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	rUBa repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
+	sk *string,
+	prodOwnerName *string,
+	fee *float64,
+	feeDesc *string,
+) usecase.ICustomerTransactionUseCase {
+	return &CustomerTransactionUseCase{
+		ICustomerTransactionCreateUseCase:              NewCustomerTransactionCreateUseCase(repoCreate, rlba, rUBa),
+		ICustomerTransactionValidateCreateInputUseCase: NewCustomerTransactionValidateCreateInputUseCase(repoList, rlba, rlc, sk, prodOwnerName, fee, feeDesc),
+		ICustomerTransactionListUseCase:                NewCustomerTransactionListUseCase(repoList),
+		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		ICustomerGetUserUseCase:                        me.NewCustomerGetUserUseCase(rlc),
+		ICustomerTransactionConfirmSuccessUseCase:      NewCustomerTransactionConfirmSuccessUseCase(repoConfirm, sk, prodOwnerName, fee, feeDesc),
+		ICustomerTransactionListMyTxcUseCase:           NewCustomerTransactionListMyTxcUseCase(repoList),
+		ICustomerTransactionGetFirstMyTxUseCase:        NewCustomerTransactionGetFirstMyTxUseCase(repoList),
 	}
-)
+}

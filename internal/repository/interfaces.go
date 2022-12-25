@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+
+	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
 //go:generate mockgen -source=interfaces.go -destination=./mocks.go -package=repository
@@ -18,5 +20,11 @@ type (
 	}
 	UpdateModelRepository[ModelType any, UpdateInputType any] interface {
 		Update(context.Context, ModelType, UpdateInputType) (ModelType, error)
+	}
+)
+
+type (
+	ITransactionConfirmSuccessRepository interface {
+		ConfirmSuccess(context.Context, *model.Transaction, *model.TransactionCreateInput) (*model.Transaction, error)
 	}
 )

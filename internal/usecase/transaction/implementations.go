@@ -3,6 +3,7 @@ package transaction
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/TcMits/wnc-final/ent/transaction"
 	"github.com/TcMits/wnc-final/internal/usecase"
@@ -19,7 +20,7 @@ func (uc *CustomerTransactionUpdateUseCase) Update(ctx context.Context, e *model
 	}
 	return e, nil
 }
-func (uc *CustomerTransactionValidateConfirmInputUseCase) ValidateConfirmInput(ctx context.Context, e *model.Transaction, token *string) error {
+func (uc *CustomerTransactionValidateConfirmInputUseCase) ValidateConfirmInput(ctx context.Context, e *model.Transaction, otp, token *string) error {
 	if e.Status == transaction.StatusDraft {
 		pl, err := usecase.ParseConfirmTxcToken(ctx, *token, *uc.cfUC.GetSecret())
 		if err != nil {
@@ -31,6 +32,18 @@ func (uc *CustomerTransactionValidateConfirmInputUseCase) ValidateConfirmInput(c
 		}
 		_, ok = iFPBMAny.(bool)
 		if !ok {
+			return usecase.WrapError(fmt.Errorf("invalid token"))
+		}
+		tkAny, ok := pl["token"]
+		if !ok {
+			return usecase.WrapError(fmt.Errorf("invalid token"))
+		}
+		tk, ok := tkAny.(string)
+		if !ok {
+			return usecase.WrapError(fmt.Errorf("invalid token"))
+		}
+		err = usecase.ValidateHashInfo(usecase.MakeOTPValue(ctx, *otp), tk)
+		if err != nil {
 			return usecase.WrapError(fmt.Errorf("invalid token"))
 		}
 		return nil
@@ -66,14 +79,32 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.C
 	}
 	return nil, usecase.WrapError(fmt.Errorf("unhandled external transaction case"))
 }
-func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateInput) (*model.Transaction, error) {
+
+func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.Transaction, error) {
 	entity, err := uc.repoCreate.Create(ctx, i)
+	if err != nil {
+		return nil, err
+	}
+	otp := usecase.GenerateOTP(6)
+	otpHashValue, err := usecase.GenerateHashInfo(usecase.MakeOTPValue(ctx, otp))
+	if err != nil {
+		return nil, err
+	}
+	tk, err := usecase.GenerateConfirmTxcToken(
+		ctx,
+		map[string]any{
+			"is_fee_paid_by_me": isFeePaidByMe,
+			"token":             otpHashValue,
+		},
+		*uc.cfUC.GetSecret(),
+		time.Minute*5,
+	)
 	if err != nil {
 		return nil, err
 	}
 	err = uc.taskExecutor.ExecuteTask(ctx, &mail.EmailPayload{
 		Subject: "Sample subject",
-		Message: "Sample message",
+		Message: fmt.Sprintf("token: %v", tk),
 		From:    "lehuy.hl27@gmail.com",
 		To: []string{
 			"19127421@student.hcmus.edu.vn",

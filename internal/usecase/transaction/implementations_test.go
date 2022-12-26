@@ -219,19 +219,25 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerTransactionValidateConfirmInputUseCase)
 	}{
 		{
-			name:  "not draft transaction",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {},
+			name: "not draft transaction",
+			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {
+				user, _ := ent.CreateFakeCustomer(ctx, c, nil)
+				ctx = context.WithValue(ctx, "user", user)
+			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
 				i1 := ent.TransactionFactory()
 				i1.Status = generic.GetPointer(entTxc.StatusSuccess)
 				entity1, _ := ent.CreateFakeTransaction(ctx, c, i1)
-				err := uc.ValidateConfirmInput(ctx, entity1, nil)
+				err := uc.ValidateConfirmInput(ctx, entity1, nil, nil)
 				require.ErrorContains(t, err, fmt.Sprintf("cannot confirm %s transaction", entity1.Status))
 			},
 		},
 		{
-			name:  "token invalid: not have field",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {},
+			name: "token invalid: not have field",
+			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {
+				user, _ := ent.CreateFakeCustomer(ctx, c, nil)
+				ctx = context.WithValue(ctx, "user", user)
+			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
 				tk, _ := usecase.GenerateConfirmTxcToken(
 					ctx,
@@ -240,13 +246,16 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 					time.Minute*30,
 				)
 				entity1, _ := ent.CreateFakeTransaction(ctx, c, nil)
-				err := uc.ValidateConfirmInput(ctx, entity1, &tk)
+				err := uc.ValidateConfirmInput(ctx, entity1, nil, &tk)
 				require.ErrorContains(t, err, "invalid token")
 			},
 		},
 		{
-			name:  "token invalid: have field but invalid type",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {},
+			name: "token invalid: have field but invalid type",
+			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {
+				user, _ := ent.CreateFakeCustomer(ctx, c, nil)
+				ctx = context.WithValue(ctx, "user", user)
+			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
 				tk, _ := usecase.GenerateConfirmTxcToken(
 					ctx,
@@ -255,22 +264,30 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 					time.Minute*30,
 				)
 				entity1, _ := ent.CreateFakeTransaction(ctx, c, nil)
-				err := uc.ValidateConfirmInput(ctx, entity1, &tk)
+				err := uc.ValidateConfirmInput(ctx, entity1, nil, &tk)
 				require.ErrorContains(t, err, "invalid token")
 			},
 		},
 		{
-			name:  "success",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {},
+			name: "success",
+			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {
+				user, _ := ent.CreateFakeCustomer(ctx, c, nil)
+				ctx = context.WithValue(ctx, "user", user)
+			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
+				otp := usecase.GenerateOTP(6)
+				hashValue, _ := usecase.GenerateHashInfo(usecase.MakeOTPValue(ctx, otp))
 				tk, _ := usecase.GenerateConfirmTxcToken(
 					ctx,
-					map[string]any{"is_fee_paid_by_me": true},
+					map[string]any{
+						"is_fee_paid_by_me": true,
+						"token":             hashValue,
+					},
 					"foo",
 					time.Minute*30,
 				)
 				entity1, _ := ent.CreateFakeTransaction(ctx, c, nil)
-				err := uc.ValidateConfirmInput(ctx, entity1, &tk)
+				err := uc.ValidateConfirmInput(ctx, entity1, &otp, &tk)
 				require.Nil(t, err)
 			},
 		},
@@ -425,7 +442,11 @@ func TestCreateUseCase(t *testing.T) {
 	uc := transaction.NewCustomerTransactionCreateUseCase(
 		exc,
 		repository.GetTransactionCreateRepository(c),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		&cfg.TransactionUseCase.FeeAmount,
+		&cfg.TransactionUseCase.FeeDesc,
 	)
-	_, err := uc.Create(ctx, i)
+	_, err := uc.Create(ctx, i, true)
 	require.Nil(t, err)
 }

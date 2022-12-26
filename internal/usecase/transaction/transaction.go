@@ -46,10 +46,15 @@ func NewCustomerTransactionUpdateUseCase(
 func NewCustomerTransactionCreateUseCase(
 	taskExctor task.IExecuteTask[*mail.EmailPayload],
 	repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
+	sk *string,
+	prodOwnerName *string,
+	fee *float64,
+	feeDesc *string,
 ) usecase.ICustomerTransactionCreateUseCase {
 	return &CustomerTransactionCreateUseCase{
 		repoCreate:   repoCreate,
 		taskExecutor: taskExctor,
+		cfUC:         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 	}
 }
 
@@ -108,7 +113,7 @@ func NewCustomerTransactionUseCase(
 	feeDesc *string,
 ) usecase.ICustomerTransactionUseCase {
 	return &CustomerTransactionUseCase{
-		ICustomerTransactionCreateUseCase:              NewCustomerTransactionCreateUseCase(taskExctor, repoCreate),
+		ICustomerTransactionCreateUseCase:              NewCustomerTransactionCreateUseCase(taskExctor, repoCreate, sk, prodOwnerName, fee, feeDesc),
 		ICustomerTransactionValidateCreateInputUseCase: NewCustomerTransactionValidateCreateInputUseCase(repoList, rlba, rlc, sk, prodOwnerName, fee, feeDesc),
 		ICustomerTransactionListUseCase:                NewCustomerTransactionListUseCase(repoList),
 		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),

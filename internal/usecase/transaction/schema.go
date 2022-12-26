@@ -16,6 +16,7 @@ type (
 		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 	CustomerTransactionCreateUseCase struct {
+		cfUC         usecase.ICustomerConfigUseCase
 		repoCreate   repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput]
 		taskExecutor task.IExecuteTask[*mail.EmailPayload]
 	}

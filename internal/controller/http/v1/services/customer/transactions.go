@@ -58,7 +58,7 @@ func (r *transactionRoute) create(ctx iris.Context) {
 		HandleError(ctx, err, r.logger)
 		return
 	}
-	entity, err := r.uc.Create(ctx, in)
+	entity, err := r.uc.Create(ctx, in, createInReq.IsFeePaidByMe)
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
@@ -101,7 +101,7 @@ func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
 			handleBindingError(ctx, err, r.logger, confirmReq, nil)
 			return
 		}
-		err = r.uc.ValidateConfirmInput(ctx, entity, &confirmReq.Token)
+		err = r.uc.ValidateConfirmInput(ctx, entity, &confirmReq.Token, &confirmReq.Token)
 		if err != nil {
 			HandleError(ctx, err, r.logger)
 			return

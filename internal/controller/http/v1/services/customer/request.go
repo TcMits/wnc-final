@@ -38,6 +38,7 @@ type (
 	}
 	transactionConfirmRequest struct {
 		Token string `json:"token" validate:"required"`
+		OTP   string `json:"otp" validate:"required"`
 	}
 )
 

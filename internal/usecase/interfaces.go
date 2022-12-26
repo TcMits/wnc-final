@@ -99,13 +99,13 @@ type (
 		ICustomerBankAccountListUseCase
 	}
 	ICustomerTransactionValidateConfirmInputUseCase interface {
-		ValidateConfirmInput(context.Context, *model.Transaction, *string) error
+		ValidateConfirmInput(context.Context, *model.Transaction, *string, *string) error
 	}
 	ICustomerTransactionConfirmSuccessUseCase interface {
 		ConfirmSuccess(context.Context, *model.Transaction, *string) (*model.Transaction, error)
 	}
 	ICustomerTransactionCreateUseCase interface {
-		Create(context.Context, *model.TransactionCreateInput) (*model.Transaction, error)
+		Create(context.Context, *model.TransactionCreateInput, bool) (*model.Transaction, error)
 	}
 	ICustomerTransactionValidateCreateInputUseCase interface {
 		Validate(context.Context, *model.TransactionCreateInput, bool) (*model.TransactionCreateInput, error)

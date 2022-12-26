@@ -2,12 +2,14 @@ package transaction
 
 import (
 	"github.com/TcMits/wnc-final/internal/repository"
+	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
+	"github.com/TcMits/wnc-final/pkg/tool/mail"
 )
 
 func NewCustomerTransactionListUseCase(
@@ -42,12 +44,12 @@ func NewCustomerTransactionUpdateUseCase(
 }
 
 func NewCustomerTransactionCreateUseCase(
+	taskExctor task.IExecuteTask[*mail.EmailPayload],
 	repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
-	rLBa repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
-	rUBa repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
 ) usecase.ICustomerTransactionCreateUseCase {
 	return &CustomerTransactionCreateUseCase{
-		repoCreate: repoCreate,
+		repoCreate:   repoCreate,
+		taskExecutor: taskExctor,
 	}
 }
 
@@ -92,6 +94,7 @@ func NewCustomerTransactionValidateConfirmInputUseCase(
 }
 
 func NewCustomerTransactionUseCase(
+	taskExctor task.IExecuteTask[*mail.EmailPayload],
 	repoConfirm repository.ITransactionConfirmSuccessRepository,
 	repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
 	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
@@ -105,7 +108,7 @@ func NewCustomerTransactionUseCase(
 	feeDesc *string,
 ) usecase.ICustomerTransactionUseCase {
 	return &CustomerTransactionUseCase{
-		ICustomerTransactionCreateUseCase:              NewCustomerTransactionCreateUseCase(repoCreate, rlba, rUBa),
+		ICustomerTransactionCreateUseCase:              NewCustomerTransactionCreateUseCase(taskExctor, repoCreate),
 		ICustomerTransactionValidateCreateInputUseCase: NewCustomerTransactionValidateCreateInputUseCase(repoList, rlba, rlc, sk, prodOwnerName, fee, feeDesc),
 		ICustomerTransactionListUseCase:                NewCustomerTransactionListUseCase(repoList),
 		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),

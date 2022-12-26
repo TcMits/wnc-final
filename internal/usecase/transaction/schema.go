@@ -2,8 +2,10 @@ package transaction
 
 import (
 	"github.com/TcMits/wnc-final/internal/repository"
+	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
+	"github.com/TcMits/wnc-final/pkg/tool/mail"
 )
 
 type (
@@ -14,7 +16,8 @@ type (
 		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 	CustomerTransactionCreateUseCase struct {
-		repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput]
+		repoCreate   repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput]
+		taskExecutor task.IExecuteTask[*mail.EmailPayload]
 	}
 	CustomerTransactionValidateConfirmInputUseCase struct {
 		cfUC usecase.ICustomerConfigUseCase

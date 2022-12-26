@@ -6,11 +6,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/TcMits/wnc-final/config"
 	entTxc "github.com/TcMits/wnc-final/ent/transaction"
 	"github.com/TcMits/wnc-final/internal/repository"
+	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/transaction"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
+	"github.com/TcMits/wnc-final/pkg/infrastructure/backgroundserver"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/shopspring/decimal"
@@ -403,4 +406,26 @@ func TestConfirmSuccessUseCase(t *testing.T) {
 			tt.expect(t, ctx, c, uc)
 		})
 	}
+}
+
+func TestCreateUseCase(t *testing.T) {
+	t.Parallel()
+	cfg, _ := config.NewConfig()
+	c, _ := datastore.NewClientTestConnection(t)
+	cTask := backgroundserver.NewClient(cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
+	exc := task.GetEmailTaskExecutor(cTask)
+	defer c.Close()
+	ctx := context.Background()
+	i := ent.TransactionFactory()
+	s, _ := ent.CreateFakeBankAccount(ctx, c, nil)
+	r, _ := ent.CreateFakeBankAccount(ctx, c, nil)
+	i.SenderID = s.ID
+	i.ReceiverID = &r.ID
+	ent.CreateFakeTransaction(ctx, c, i)
+	uc := transaction.NewCustomerTransactionCreateUseCase(
+		exc,
+		repository.GetTransactionCreateRepository(c),
+	)
+	_, err := uc.Create(ctx, i)
+	require.Nil(t, err)
 }

@@ -10,9 +10,11 @@ import (
 	"github.com/TcMits/wnc-final/config"
 	v1 "github.com/TcMits/wnc-final/internal/controller/http/v1"
 	"github.com/TcMits/wnc-final/internal/repository"
+	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
+	"github.com/TcMits/wnc-final/pkg/infrastructure/backgroundserver"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/httpserver"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
@@ -28,6 +30,9 @@ func Run(cfg *config.Config) {
 		l.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
 	}
 	defer client.Close()
+	// Task client
+	taskClient := backgroundserver.NewClient(cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
+	defer taskClient.Close()
 
 	// HTTP Server
 	handler := v1.NewHandler()
@@ -72,6 +77,18 @@ func Run(cfg *config.Config) {
 	}
 	httpServer := httpserver.New(handler, httpserver.Port(cfg.HTTP.Port))
 	l.Info("Listening and serving HTTP on %s", httpServer.Addr())
+
+	// Task Worker
+	workerHandler := task.NewHandler()
+	// Register Tasks
+	task.RegisterTask(workerHandler, l, cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.Port)
+
+	workerServer := backgroundserver.NewWorkerServer(workerHandler, cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
+
+	// Starting worker server
+	if err = workerServer.Run(); err != nil {
+		l.Fatal(fmt.Errorf("app - Run - workerServer.Run: %w", err))
+	}
 
 	// Waiting signal
 	interrupt := make(chan os.Signal, 1)

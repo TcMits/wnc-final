@@ -8,6 +8,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
+	"github.com/TcMits/wnc-final/pkg/tool/mail"
 	"github.com/shopspring/decimal"
 )
 
@@ -66,7 +67,22 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.C
 	return nil, usecase.WrapError(fmt.Errorf("unhandled external transaction case"))
 }
 func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateInput) (*model.Transaction, error) {
-	return uc.repoCreate.Create(ctx, i)
+	entity, err := uc.repoCreate.Create(ctx, i)
+	if err != nil {
+		return nil, err
+	}
+	err = uc.taskExecutor.ExecuteTask(ctx, &mail.EmailPayload{
+		Subject: "Sample subject",
+		Message: "Sample message",
+		From:    "lehuy.hl27@gmail.com",
+		To: []string{
+			"19127421@student.hcmus.edu.vn",
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return entity, nil
 }
 
 func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx context.Context, i *model.TransactionCreateInput) error {

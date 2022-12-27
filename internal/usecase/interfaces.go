@@ -133,4 +133,19 @@ type (
 		ICustomerTransactionListMyTxcUseCase
 		ICustomerTransactionGetFirstMyTxUseCase
 	}
+	// debt
+	ICustomerDebtListUseCase interface {
+		iListUseCase[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput]
+	}
+	ICustomerDebtValidateCreateInputUseCase interface {
+		iValidateCreateInput[*model.DebtCreateInput]
+	}
+	ICustomerDebtCreateUseCase interface {
+		iCreateUseCase[*model.Debt, *model.DebtCreateInput]
+	}
+	ICustomerDebtUseCase interface {
+		ICustomerDebtListUseCase
+		ICustomerDebtValidateCreateInputUseCase
+		ICustomerDebtCreateUseCase
+	}
 )

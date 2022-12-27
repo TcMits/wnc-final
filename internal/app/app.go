@@ -10,10 +10,12 @@ import (
 	"github.com/TcMits/wnc-final/config"
 	v1 "github.com/TcMits/wnc-final/internal/controller/http/v1"
 	"github.com/TcMits/wnc-final/internal/repository"
+	"github.com/TcMits/wnc-final/internal/sse"
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
+	"github.com/TcMits/wnc-final/internal/usecase/stream"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/backgroundserver"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/httpserver"
@@ -64,11 +66,21 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeAmount,
 		&cfg.TransactionUseCase.FeeDesc,
 	)
+	cStreamUc := stream.NewCustomerStreamUseCase(
+		repository.GetCustomerListRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		&cfg.TransactionUseCase.FeeAmount,
+		&cfg.TransactionUseCase.FeeDesc,
+	)
 
+	b := sse.NewBroker(l)
 	v1.RegisterV1HTTPServices(handler,
 		CMeUc,
 		CAuthUc,
 		cBankAccountUc,
+		cStreamUc,
+		b,
 		l,
 	)
 
@@ -81,7 +93,7 @@ func Run(cfg *config.Config) {
 	// Task Worker
 	workerHandler := task.NewHandler()
 	// Register Tasks
-	task.RegisterTask(workerHandler, l, cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port)
+	task.RegisterTask(workerHandler, l, cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, b)
 
 	workerServer := backgroundserver.NewWorkerServer(workerHandler, cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
 

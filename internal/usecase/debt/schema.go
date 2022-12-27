@@ -2,6 +2,7 @@ package debt
 
 import (
 	"github.com/TcMits/wnc-final/internal/repository"
+	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
@@ -11,7 +12,9 @@ type (
 		repoList repository.ListModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput]
 	}
 	CustomerDebtCreateUseCase struct {
-		repoCreate repository.CreateModelRepository[*model.Debt, *model.DebtCreateInput]
+		taskExecutor task.IExecuteTask[*task.DebtCreateNotifyPayload]
+		repoCreate   repository.CreateModelRepository[*model.Debt, *model.DebtCreateInput]
+		cGFUC        usecase.ICustomerGetFirstUseCase
 	}
 	CustomerDebtValidateCreateInputUseCase struct {
 		cfUC   usecase.ICustomerConfigUseCase

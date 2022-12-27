@@ -148,4 +148,9 @@ type (
 		ICustomerDebtValidateCreateInputUseCase
 		ICustomerDebtCreateUseCase
 	}
+	// stream
+	ICustomerStreamUseCase interface {
+		ICustomerGetUserUseCase
+		ICustomerConfigUseCase
+	}
 )

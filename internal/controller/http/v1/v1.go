@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer"
+	"github.com/TcMits/wnc-final/internal/sse"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/go-playground/validator/v10"
@@ -19,8 +20,7 @@ func NewHandler() *iris.Application {
 
 	// i18n
 	handler.I18n.DefaultMessageFunc = func(
-		langInput, langMatched, key string, args ...any,
-	) string {
+		langInput, langMatched, key string, args ...any) string {
 		return ""
 	}
 	err := handler.I18n.Load("./locales/*/*")
@@ -52,6 +52,9 @@ func RegisterV1HTTPServices(
 	cMeUc usecase.ICustomerMeUseCase,
 	cAuthUc usecase.ICustomerAuthUseCase,
 	cBankAccountUc usecase.ICustomerBankAccountUseCase,
+	cStreamUc usecase.ICustomerStreamUseCase,
+	// broker
+	b *sse.Broker,
 	// logger
 	l logger.Interface,
 ) {
@@ -61,6 +64,6 @@ func RegisterV1HTTPServices(
 	// services
 	h := handler.Party(_apiSubPath)
 	{
-		customer.RegisterCustomerServices(h, cMeUc, cAuthUc, cBankAccountUc, l)
+		customer.RegisterCustomerServices(h, cMeUc, cAuthUc, cBankAccountUc, cStreamUc, b, l)
 	}
 }

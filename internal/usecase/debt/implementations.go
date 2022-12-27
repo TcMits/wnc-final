@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/TcMits/wnc-final/ent/debt"
+	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
@@ -15,7 +16,21 @@ func (s *CustomerDebtListUseCase) List(ctx context.Context, limit, offset *int, 
 }
 
 func (s *CustomerDebtCreateUseCase) Create(ctx context.Context, i *model.DebtCreateInput) (*model.Debt, error) {
-	return s.repoCreate.Create(ctx, i)
+	entity, err := s.repoCreate.Create(ctx, i)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implemtations.CustomerDebtCreateUseCase.Create: %s", err))
+	}
+	receiver, err := s.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: entity.ReceiverID})
+	if err != nil {
+		return nil, err
+	}
+	err = s.taskExecutor.ExecuteTask(ctx, &task.DebtCreateNotifyPayload{
+		UserID: receiver.ID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return entity, nil
 }
 
 func (s *CustomerDebtValidateCreateInputUseCase) Validate(ctx context.Context, i *model.DebtCreateInput) (*model.DebtCreateInput, error) {

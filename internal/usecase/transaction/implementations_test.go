@@ -22,6 +22,13 @@ import (
 	"github.com/TcMits/wnc-final/ent"
 )
 
+func authenticateCtx(ctx *context.Context, c *ent.Client, user *model.Customer) {
+	if user == nil {
+		user, _ = ent.CreateFakeCustomer(*ctx, c, nil)
+	}
+	*ctx = context.WithValue(*ctx, usecase.UserCtx, user)
+}
+
 func TestListUseCase(t *testing.T) {
 	t.Parallel()
 	c, _ := datastore.NewClientTestConnection(t)
@@ -41,7 +48,7 @@ func TestListMyTxcUseCase(t *testing.T) {
 	defer c.Close()
 	ctx := context.Background()
 	mBA, _ := ent.CreateFakeBankAccount(ctx, c, nil)
-	ctx = context.WithValue(ctx, "user", mBA.QueryCustomer().FirstX(ctx))
+	authenticateCtx(&ctx, c, mBA.QueryCustomer().FirstX(ctx))
 	txc1 := ent.TransactionFactory()
 	txc2 := ent.TransactionFactory()
 	txc1.SenderID = mBA.ID
@@ -62,7 +69,7 @@ func TestGetFirstMyTxcUseCase(t *testing.T) {
 	defer c.Close()
 	ctx := context.Background()
 	mBA, _ := ent.CreateFakeBankAccount(ctx, c, nil)
-	ctx = context.WithValue(ctx, "user", mBA.QueryCustomer().FirstX(ctx))
+	authenticateCtx(&ctx, c, mBA.QueryCustomer().FirstX(ctx))
 	txc1 := ent.TransactionFactory()
 	txc1.SenderID = mBA.ID
 	entity1, _ := ent.CreateFakeTransaction(ctx, c, txc1)
@@ -79,8 +86,7 @@ func TestUpdateUseCase(t *testing.T) {
 	defer c.Close()
 	ctx := context.Background()
 	entity1, _ := ent.CreateFakeTransaction(ctx, c, nil)
-	user := entity1.QuerySender().FirstX(ctx).QueryCustomer().FirstX(ctx)
-	ctx = context.WithValue(ctx, "user", user)
+	authenticateCtx(&ctx, c, entity1.QuerySender().FirstX(ctx).QueryCustomer().FirstX(ctx))
 	uc := transaction.NewCustomerTransactionUpdateUseCase(repository.GetTransactionUpdateRepository(c))
 	entity1, err := uc.Update(ctx, entity1, &model.TransactionUpdateInput{
 		Status: generic.GetPointer(entTxc.StatusSuccess),
@@ -93,18 +99,20 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name   string
-		setUp  func(*testing.T, context.Context, *ent.Client)
+		setUp  func(*testing.T, *context.Context, *ent.Client)
 		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerTransactionValidateCreateInputUseCase)
 	}{
 		{
-			name:  "bank account sender does have draft transactions",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {},
+			name: "bank account sender does have draft transactions",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
+				user := usecase.GetUserAsCustomer(ctx)
 				i1 := ent.BankAccountFactory()
 				i1.IsForPayment = generic.GetPointer(true)
+				i1.CustomerID = user.ID
 				ba, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				user := ba.QueryCustomer().FirstX(ctx)
-				ctx = context.WithValue(ctx, "user", user)
 				i2 := ent.TransactionFactory()
 				i2.SenderID = ba.ID
 				ent.CreateFakeTransaction(ctx, c, i2)
@@ -115,14 +123,16 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 		},
 		{
-			name:  "insufficient balance from sender and fee paid by me",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {},
+			name: "insufficient balance from sender and fee paid by me",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
+				user := usecase.GetUserAsCustomer(ctx)
 				i1 := ent.BankAccountFactory()
 				i1.IsForPayment = generic.GetPointer(true)
+				i1.CustomerID = user.ID
 				ba, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				user := ba.QueryCustomer().FirstX(ctx)
-				ctx = context.WithValue(ctx, "user", user)
 				i2 := ent.TransactionFactory()
 				i2.SenderID = ba.ID
 				_, err := uc.Validate(ctx, i2, true)
@@ -130,14 +140,16 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 		},
 		{
-			name:  "insufficient balance from sender and fee not paid by me",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {},
+			name: "insufficient balance from sender and fee not paid by me",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
+				user := usecase.GetUserAsCustomer(ctx)
 				i1 := ent.BankAccountFactory()
 				i1.IsForPayment = generic.GetPointer(true)
+				i1.CustomerID = user.ID
 				ba, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				user := ba.QueryCustomer().FirstX(ctx)
-				ctx = context.WithValue(ctx, "user", user)
 				i2 := ent.TransactionFactory()
 				i2.SenderID = ba.ID
 				_, err := uc.Validate(ctx, i2, false)
@@ -145,19 +157,21 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 		},
 		{
-			name:  "insufficient balance from receiver and fee not paid by me",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {},
+			name: "insufficient balance from receiver and fee not paid by me",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
+				user := usecase.GetUserAsCustomer(ctx)
 				i1 := ent.BankAccountFactory()
-				i2 := ent.BankAccountFactory()
 				i1.IsForPayment = generic.GetPointer(true)
-				i2.IsForPayment = generic.GetPointer(true)
 				i1.CashIn = float64(100000)
 				i1.CashOut = float64(1)
+				i1.CustomerID = user.ID
+				i2 := ent.BankAccountFactory()
+				i2.IsForPayment = generic.GetPointer(true)
 				sender, _ := ent.CreateFakeBankAccount(ctx, c, i1)
 				receiver, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				user := sender.QueryCustomer().FirstX(ctx)
-				ctx = context.WithValue(ctx, "user", user)
 				i3 := ent.TransactionFactory()
 				i3.SenderID = sender.ID
 				i3.ReceiverID = &receiver.ID
@@ -166,21 +180,23 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 		},
 		{
-			name:  "success",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {},
+			name: "success",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
+				user := usecase.GetUserAsCustomer(ctx)
 				i1 := ent.BankAccountFactory()
-				i2 := ent.BankAccountFactory()
 				i1.IsForPayment = generic.GetPointer(true)
-				i2.IsForPayment = generic.GetPointer(true)
 				i1.CashIn = float64(100000)
 				i1.CashOut = float64(1)
+				i1.CustomerID = user.ID
+				i2 := ent.BankAccountFactory()
+				i2.IsForPayment = generic.GetPointer(true)
 				i2.CashIn = float64(100000)
 				i2.CashOut = float64(1)
 				sender, _ := ent.CreateFakeBankAccount(ctx, c, i1)
 				receiver, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				user := sender.QueryCustomer().FirstX(ctx)
-				ctx = context.WithValue(ctx, "user", user)
 				i3 := ent.TransactionFactory()
 				i3.SenderID = sender.ID
 				i3.ReceiverID = &receiver.ID
@@ -196,7 +212,7 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			defer c.Close()
 			ctx := context.Background()
 			require.NoError(t, c.Schema.Create(ctx))
-			tt.setUp(t, ctx, c)
+			tt.setUp(t, &ctx, c)
 			uc := transaction.NewCustomerTransactionValidateCreateInputUseCase(
 				repository.GetTransactionListRepository(c),
 				repository.GetBankAccountListRepository(c),
@@ -215,14 +231,13 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name   string
-		setUp  func(*testing.T, context.Context, *ent.Client)
+		setUp  func(*testing.T, *context.Context, *ent.Client)
 		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerTransactionValidateConfirmInputUseCase)
 	}{
 		{
 			name: "not draft transaction",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {
-				user, _ := ent.CreateFakeCustomer(ctx, c, nil)
-				ctx = context.WithValue(ctx, "user", user)
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
 				i1 := ent.TransactionFactory()
@@ -234,9 +249,8 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 		},
 		{
 			name: "token invalid: not have field",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {
-				user, _ := ent.CreateFakeCustomer(ctx, c, nil)
-				ctx = context.WithValue(ctx, "user", user)
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
 				tk, _ := usecase.GenerateConfirmTxcToken(
@@ -252,9 +266,8 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 		},
 		{
 			name: "token invalid: have field but invalid type",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {
-				user, _ := ent.CreateFakeCustomer(ctx, c, nil)
-				ctx = context.WithValue(ctx, "user", user)
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
 				tk, _ := usecase.GenerateConfirmTxcToken(
@@ -270,9 +283,8 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 		},
 		{
 			name: "success",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {
-				user, _ := ent.CreateFakeCustomer(ctx, c, nil)
-				ctx = context.WithValue(ctx, "user", user)
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
 				otp := usecase.GenerateOTP(6)
@@ -298,7 +310,7 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 			defer c.Close()
 			ctx := context.Background()
 			require.NoError(t, c.Schema.Create(ctx))
-			tt.setUp(t, ctx, c)
+			tt.setUp(t, &ctx, c)
 			uc := transaction.NewCustomerTransactionValidateConfirmInputUseCase(
 				generic.GetPointer("foo"),
 				generic.GetPointer("foo"),
@@ -314,25 +326,27 @@ func TestConfirmSuccessUseCase(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name   string
-		setUp  func(*testing.T, context.Context, *ent.Client)
+		setUp  func(*testing.T, *context.Context, *ent.Client)
 		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerTransactionConfirmSuccessUseCase)
 	}{
 		{
-			name:  "success and fee paid by me",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {},
+			name: "success and fee paid by me",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionConfirmSuccessUseCase) {
+				user := usecase.GetUserAsCustomer(ctx)
 				i1 := ent.BankAccountFactory()
-				i2 := ent.BankAccountFactory()
 				i1.IsForPayment = generic.GetPointer(true)
-				i2.IsForPayment = generic.GetPointer(true)
 				i1.CashIn = float64(100000)
 				i1.CashOut = float64(1)
+				i1.CustomerID = user.ID
+				i2 := ent.BankAccountFactory()
+				i2.IsForPayment = generic.GetPointer(true)
 				i2.CashIn = float64(100000)
 				i2.CashOut = float64(1)
 				sender, _ := ent.CreateFakeBankAccount(ctx, c, i1)
 				receiver, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				user := sender.QueryCustomer().FirstX(ctx)
-				ctx = context.WithValue(ctx, "user", user)
 				i3 := ent.TransactionFactory()
 				i3.SenderID = sender.ID
 				i3.ReceiverID = &receiver.ID
@@ -362,21 +376,23 @@ func TestConfirmSuccessUseCase(t *testing.T) {
 			},
 		},
 		{
-			name:  "success and fee not paid by me",
-			setUp: func(t *testing.T, ctx context.Context, c *ent.Client) {},
+			name: "success and fee not paid by me",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionConfirmSuccessUseCase) {
+				user := usecase.GetUserAsCustomer(ctx)
 				i1 := ent.BankAccountFactory()
-				i2 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i2.IsForPayment = generic.GetPointer(true)
 				i1.CashIn = float64(100000)
 				i1.CashOut = float64(1)
+				i1.IsForPayment = generic.GetPointer(true)
+				i1.CustomerID = user.ID
+				i2 := ent.BankAccountFactory()
+				i2.IsForPayment = generic.GetPointer(true)
 				i2.CashIn = float64(100000)
 				i2.CashOut = float64(1)
 				sender, _ := ent.CreateFakeBankAccount(ctx, c, i1)
 				receiver, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				user := sender.QueryCustomer().FirstX(ctx)
-				ctx = context.WithValue(ctx, "user", user)
 				i3 := ent.TransactionFactory()
 				i3.SenderID = sender.ID
 				i3.ReceiverID = &receiver.ID
@@ -412,7 +428,7 @@ func TestConfirmSuccessUseCase(t *testing.T) {
 			defer c.Close()
 			ctx := context.Background()
 			require.NoError(t, c.Schema.Create(ctx))
-			tt.setUp(t, ctx, c)
+			tt.setUp(t, &ctx, c)
 			uc := transaction.NewCustomerTransactionConfirmSuccessUseCase(
 				repository.GetTransactionConfirmSuccessRepository(c),
 				generic.GetPointer("foo"),
@@ -427,26 +443,48 @@ func TestConfirmSuccessUseCase(t *testing.T) {
 
 func TestCreateUseCase(t *testing.T) {
 	t.Parallel()
-	cfg, _ := config.NewConfig()
-	c, _ := datastore.NewClientTestConnection(t)
-	cTask := backgroundserver.NewClient(cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
-	exc := task.GetEmailTaskExecutor(cTask)
-	defer c.Close()
-	ctx := context.Background()
-	i := ent.TransactionFactory()
-	s, _ := ent.CreateFakeBankAccount(ctx, c, nil)
-	r, _ := ent.CreateFakeBankAccount(ctx, c, nil)
-	i.SenderID = s.ID
-	i.ReceiverID = &r.ID
-	ent.CreateFakeTransaction(ctx, c, i)
-	uc := transaction.NewCustomerTransactionCreateUseCase(
-		exc,
-		repository.GetTransactionCreateRepository(c),
-		&cfg.App.SecretKey,
-		&cfg.App.Name,
-		&cfg.TransactionUseCase.FeeAmount,
-		&cfg.TransactionUseCase.FeeDesc,
-	)
-	_, err := uc.Create(ctx, i, true)
-	require.Nil(t, err)
+	tests := []struct {
+		name   string
+		setUp  func(*testing.T, *context.Context, *ent.Client)
+		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerTransactionCreateUseCase)
+	}{
+		{
+			name: "success",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+			},
+			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionCreateUseCase) {
+				i := ent.TransactionFactory()
+				s, _ := ent.CreateFakeBankAccount(ctx, c, nil)
+				r, _ := ent.CreateFakeBankAccount(ctx, c, nil)
+				i.SenderID = s.ID
+				i.ReceiverID = &r.ID
+				ent.CreateFakeTransaction(ctx, c, i)
+				_, err := uc.Create(ctx, i, true)
+				require.Nil(t, err)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, _ := datastore.NewClientTestConnection(t)
+			defer c.Close()
+			ctx := context.Background()
+			require.NoError(t, c.Schema.Create(ctx))
+			tt.setUp(t, &ctx, c)
+			cfg, _ := config.NewConfig()
+			cTask := backgroundserver.NewClient(cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
+			defer cTask.Close()
+			exc := task.GetEmailTaskExecutor(cTask)
+			uc := transaction.NewCustomerTransactionCreateUseCase(
+				exc,
+				repository.GetTransactionCreateRepository(c),
+				&cfg.App.SecretKey,
+				&cfg.App.Name,
+				&cfg.TransactionUseCase.FeeAmount,
+				&cfg.TransactionUseCase.FeeDesc,
+			)
+			tt.expect(t, ctx, c, uc)
+		})
+	}
 }

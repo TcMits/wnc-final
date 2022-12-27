@@ -81,7 +81,7 @@ func Run(cfg *config.Config) {
 	// Task Worker
 	workerHandler := task.NewHandler()
 	// Register Tasks
-	task.RegisterTask(workerHandler, l, cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.Port)
+	task.RegisterTask(workerHandler, l, cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port)
 
 	workerServer := backgroundserver.NewWorkerServer(workerHandler, cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
 

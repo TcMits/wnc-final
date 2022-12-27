@@ -15,10 +15,9 @@ func TestSendMail(t *testing.T) {
 	err := mail.SendMail(&mail.EmailPayload{
 		Subject: "Sample subject",
 		Message: "Sample message",
-		From:    "pass email here",
 		To: []string{
 			"pass email here",
 		},
-	}, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.Host, cfg.Mail.Port)
+	}, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.Host, "pass email here", cfg.Mail.Port)
 	require.Nil(t, err)
 }

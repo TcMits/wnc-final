@@ -12,6 +12,12 @@ import (
 	"github.com/TcMits/wnc-final/pkg/tool/password"
 )
 
+type UserCtxType string
+
+const (
+	UserCtx UserCtxType = "user"
+)
+
 func EncodeToString(max int) string {
 	table := [...]byte{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
 	b := make([]byte, max)
@@ -30,6 +36,7 @@ func GenerateOTP(max int) string {
 }
 func MakeValue(ctx context.Context) string {
 	user := GetUserAsCustomer(ctx)
+	fmt.Println(user)
 	return fmt.Sprintf("%v-%v-%v-%v-%v-%v", user.ID.String(), user.JwtTokenKey, user.IsActive, user.PhoneNumber, user.Email, user.Password)
 }
 func MakeOTPValue(ctx context.Context, otp string) string {
@@ -38,7 +45,7 @@ func MakeOTPValue(ctx context.Context, otp string) string {
 }
 
 func GetUserAsCustomer(ctx context.Context) *model.Customer {
-	uAny := ctx.Value("user")
+	uAny := ctx.Value(UserCtx)
 	user, ok := uAny.(*model.Customer)
 	if !ok {
 		return nil

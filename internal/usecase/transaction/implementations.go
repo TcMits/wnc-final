@@ -102,13 +102,11 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 	if err != nil {
 		return nil, err
 	}
+	user := usecase.GetUserAsCustomer(ctx)
 	err = uc.taskExecutor.ExecuteTask(ctx, &mail.EmailPayload{
 		Subject: "Sample subject",
 		Message: fmt.Sprintf("token: %v", tk),
-		From:    "lehuy.hl27@gmail.com",
-		To: []string{
-			"19127421@student.hcmus.edu.vn",
-		},
+		To:      []string{user.Email},
 	})
 	if err != nil {
 		return nil, err

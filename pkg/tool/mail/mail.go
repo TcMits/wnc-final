@@ -7,7 +7,7 @@ import (
 type EmailPayload struct {
 	Subject string
 	Message string
-	From    string
+	From    *string
 	To      []string
 }
 
@@ -16,11 +16,15 @@ func SendMail(
 	e *EmailPayload,
 	authUser,
 	authPassword,
-	host string,
+	host,
+	from string,
 	port int,
 ) error {
 	msg := gomail.NewMessage()
-	msg.SetHeader("From", e.From)
+	if e.From == nil {
+		e.From = &from
+	}
+	msg.SetHeader("From", *e.From)
 	msg.SetHeader("To", e.To...)
 	msg.SetHeader("Subject", e.Subject)
 	msg.SetBody("text/html", e.Message)

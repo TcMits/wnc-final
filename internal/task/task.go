@@ -44,14 +44,14 @@ func (s *EmailTaskExecutor) ExecuteTask(ctx context.Context, pl *mail.EmailPaylo
 	return nil
 }
 
-func mailTaskHandlerWrapper(host, user, password string, port int, l logger.Interface) TaskHandler {
+func mailTaskHandlerWrapper(host, user, password, sender string, port int, l logger.Interface) TaskHandler {
 	return func(ctx context.Context, t *asynq.Task) error {
 		p := new(mail.EmailPayload)
 		if err := json.Unmarshal(t.Payload(), p); err != nil {
 			return err
 		}
 		l.Info("Sending email...")
-		if err := mail.SendMail(p, user, password, host, port); err != nil {
+		if err := mail.SendMail(p, user, password, host, sender, port); err != nil {
 			return err
 		}
 		return nil
@@ -69,6 +69,6 @@ func GetEmailTaskExecutor(c *asynq.Client) IExecuteTask[*mail.EmailPayload] {
 	}
 }
 
-func RegisterTask(handler *asynq.ServeMux, l logger.Interface, host, user, password string, port int) {
-	handler.HandleFunc(typeConfirmEmail, mailTaskHandlerWrapper(host, user, password, port, l))
+func RegisterTask(handler *asynq.ServeMux, l logger.Interface, host, user, password, sender string, port int) {
+	handler.HandleFunc(typeConfirmEmail, mailTaskHandlerWrapper(host, user, password, sender, port, l))
 }

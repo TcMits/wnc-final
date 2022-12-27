@@ -53,10 +53,11 @@ type (
 	}
 
 	Mail struct {
-		Host     string `env-required:"true"                 env:"EMAIL_HOST"`
-		Password string `env-required:"true"                 env:"EMAIL_HOST_PASSWORD"`
-		User     string `env-required:"true"                 env:"EMAIL_HOST_USER"`
-		Port     int    `env-required:"true"                 env:"EMAIL_HOST_PORT"`
+		Host       string `env-required:"true"                 env:"EMAIL_HOST"`
+		SenderName string `env-required:"true"                 env:"EMAIL_HOST_SENDER_NAME"`
+		Password   string `env-required:"true"                 env:"EMAIL_HOST_PASSWORD"`
+		User       string `env-required:"true"                 env:"EMAIL_HOST_USER"`
+		Port       int    `env-required:"true"                 env:"EMAIL_HOST_PORT"`
 	}
 
 	// Usecases.

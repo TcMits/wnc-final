@@ -18,7 +18,7 @@ func (s *CustomerDebtListUseCase) List(ctx context.Context, limit, offset *int, 
 func (s *CustomerDebtCreateUseCase) Create(ctx context.Context, i *model.DebtCreateInput) (*model.Debt, error) {
 	entity, err := s.repoCreate.Create(ctx, i)
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implemtations.CustomerDebtCreateUseCase.Create: %s", err))
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtCreateUseCase.Create: %s", err))
 	}
 	receiver, err := s.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: entity.ReceiverID})
 	if err != nil {
@@ -28,7 +28,7 @@ func (s *CustomerDebtCreateUseCase) Create(ctx context.Context, i *model.DebtCre
 		UserID: receiver.ID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtCreateUseCase.Create: %s", err))
 	}
 	return entity, nil
 }

@@ -22,8 +22,8 @@ type (
 		cGFUC  usecase.ICustomerGetFirstUseCase
 	}
 	CustomerDebtUseCase struct {
-		*CustomerDebtListUseCase
-		*CustomerDebtCreateUseCase
-		*CustomerDebtValidateCreateInputUseCase
+		usecase.ICustomerDebtListUseCase
+		usecase.ICustomerDebtCreateUseCase
+		usecase.ICustomerDebtValidateCreateInputUseCase
 	}
 )

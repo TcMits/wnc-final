@@ -109,7 +109,7 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 		To:      []string{user.Email},
 	})
 	if err != nil {
-		return nil, err
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create"))
 	}
 	return entity, nil
 }

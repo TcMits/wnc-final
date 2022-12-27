@@ -15,7 +15,7 @@ import (
 type UserCtxType string
 
 const (
-	UserCtx UserCtxType = "user"
+	UserCtxKey UserCtxType = "user"
 )
 
 func EncodeToString(max int) string {
@@ -36,7 +36,6 @@ func GenerateOTP(max int) string {
 }
 func MakeValue(ctx context.Context) string {
 	user := GetUserAsCustomer(ctx)
-	fmt.Println(user)
 	return fmt.Sprintf("%v-%v-%v-%v-%v-%v", user.ID.String(), user.JwtTokenKey, user.IsActive, user.PhoneNumber, user.Email, user.Password)
 }
 func MakeOTPValue(ctx context.Context, otp string) string {
@@ -45,7 +44,8 @@ func MakeOTPValue(ctx context.Context, otp string) string {
 }
 
 func GetUserAsCustomer(ctx context.Context) *model.Customer {
-	uAny := ctx.Value(UserCtx)
+	key := ctx.Value(UserCtxKey).(UserCtxType)
+	uAny := ctx.Value(key)
 	user, ok := uAny.(*model.Customer)
 	if !ok {
 		return nil

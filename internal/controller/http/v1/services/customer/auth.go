@@ -49,9 +49,7 @@ func (r *authRoute) login(ctx iris.Context) {
 }
 
 func (r *authRoute) logout(ctx iris.Context) {
-	userAny, _ := ctx.User().GetRaw()
-	user, _ := userAny.(*model.Customer)
-	err := r.uc.Logout(ctx, user)
+	err := r.uc.Logout(ctx)
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return

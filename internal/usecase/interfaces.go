@@ -50,7 +50,7 @@ type (
 		Login(context.Context, LoginInput) (any, error)
 		ValidateLoginInput(context.Context, LoginInput) (LoginInput, error)
 		RenewToken(context.Context, *string) (any, error)
-		Logout(context.Context, ModelType) error
+		Logout(context.Context) error
 	}
 )
 

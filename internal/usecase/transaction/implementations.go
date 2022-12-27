@@ -105,7 +105,7 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 	user := usecase.GetUserAsCustomer(ctx)
 	err = uc.taskExecutor.ExecuteTask(ctx, &mail.EmailPayload{
 		Subject: "Sample subject",
-		Message: fmt.Sprintf("token: %v", tk),
+		Message: fmt.Sprintf("token: %v\notp: %v", tk, otp),
 		To:      []string{user.Email},
 	})
 	if err != nil {

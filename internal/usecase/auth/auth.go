@@ -175,8 +175,8 @@ func (uc *CustomerRenewAccessTokenUseCase) RenewToken(
 
 func (uc *CustomerLogoutUseCase) Logout(
 	ctx context.Context,
-	user *model.Customer,
 ) error {
+	user := usecase.GetUserAsCustomer(ctx)
 	_, err := invalidateToken(ctx, uc.cUUC, user)
 	if err != nil {
 		return usecase.WrapError(err)

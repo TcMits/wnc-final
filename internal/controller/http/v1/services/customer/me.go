@@ -3,7 +3,6 @@ package customer
 import (
 	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer/middleware"
 	"github.com/TcMits/wnc-final/internal/usecase"
-	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/kataras/iris/v12"
 )
@@ -33,7 +32,6 @@ func RegisterMeController(handler iris.Party, l logger.Interface, uc usecase.ICu
 // @Failure     500 {object} errorResponse
 // @Router      /me/ [get]
 func (r *meRoute) detail(ctx iris.Context) {
-	userAny, _ := ctx.User().GetRaw()
-	user, _ := userAny.(*model.Customer)
+	user := middleware.GetUserFromCtxAsCustomer(ctx)
 	ctx.JSON(getResponse(user))
 }

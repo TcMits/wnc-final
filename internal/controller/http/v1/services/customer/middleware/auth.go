@@ -4,6 +4,7 @@ import (
 	goCtx "context"
 	"fmt"
 
+	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
 	goJWT "github.com/golang-jwt/jwt/v4"
@@ -11,6 +12,8 @@ import (
 	"github.com/kataras/iris/v12/context"
 	irisJWT "github.com/kataras/iris/v12/middleware/jwt"
 )
+
+const UserCtxKey usecase.UserCtxType = "iris.user"
 
 func BaseAuthenticator(secretKey *string, userGetter func(goCtx.Context, map[string]any) (any, error), validators ...func(*context.Context, goJWT.MapClaims) error) iris.Handler {
 	return func(ctx *context.Context) {
@@ -38,11 +41,11 @@ func BaseAuthenticator(secretKey *string, userGetter func(goCtx.Context, map[str
 			ctx.StopWithError(iris.StatusInternalServerError, err)
 			return
 		}
+		ctx.Values().Set(string(usecase.UserCtxKey), UserCtxKey)
 		ctx.SetUser(user)
 		for _, v := range validators {
 			err = v(ctx, payload)
 			if err != nil {
-				ctx.Logout()
 				ctx.StatusCode(iris.StatusInvalidToken)
 				return
 			}
@@ -52,11 +55,10 @@ func BaseAuthenticator(secretKey *string, userGetter func(goCtx.Context, map[str
 }
 
 func validateToken(ctx *context.Context, claim goJWT.MapClaims) error {
-	userAny, err := ctx.User().GetRaw()
-	if err != nil {
-		return err
+	user := GetUserFromCtxAsCustomer(ctx)
+	if user == nil {
+		return fmt.Errorf("invalid token")
 	}
-	user, ok := userAny.(*model.Customer)
 	jwt_keyAny := claim["jwt_key"]
 	jwt, ok := jwt_keyAny.(string)
 	if !ok {
@@ -66,6 +68,18 @@ func validateToken(ctx *context.Context, claim goJWT.MapClaims) error {
 		return fmt.Errorf("unauthorized")
 	}
 	return nil
+}
+
+func GetUserFromCtxAsCustomer(ctx *context.Context) *model.Customer {
+	userAny, err := ctx.User().GetRaw()
+	if err != nil {
+		return nil
+	}
+	user, ok := userAny.(*model.Customer)
+	if !ok {
+		return nil
+	}
+	return user
 }
 
 func Authenticator(

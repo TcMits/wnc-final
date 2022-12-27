@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/TcMits/wnc-final/ent/bankaccount"
+	"github.com/TcMits/wnc-final/ent/debt"
 	"github.com/TcMits/wnc-final/ent/transaction"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/password"
@@ -54,6 +55,16 @@ var transactionFactory = factory.NewFactory(
 	return transaction.TransactionTypeInternal, nil
 })
 
+var debtFactory = factory.NewFactory(
+	&DebtCreateInput{},
+).Attr("Status", func(a factory.Args) (interface{}, error) {
+	return generic.GetPointer(debt.StatusPending), nil
+}).Attr("Amount", func(a factory.Args) (interface{}, error) {
+	return decimal.NewFromInt32(1), nil
+}).Attr("Description", func(a factory.Args) (interface{}, error) {
+	return generic.GetPointer("Debt description"), nil
+})
+
 func TransactionFactory() *TransactionCreateInput {
 	return transactionFactory.MustCreate().(*TransactionCreateInput)
 }
@@ -62,6 +73,49 @@ func CustomerFactory() *CustomerCreateInput {
 }
 func BankAccountFactory() *BankAccountCreateInput {
 	return bankAccountFactory.MustCreate().(*BankAccountCreateInput)
+}
+func DebtFactory() *DebtCreateInput {
+	return debtFactory.MustCreate().(*DebtCreateInput)
+}
+
+func CreateFakeDebt(ctx context.Context, c *Client, i *DebtCreateInput) (*Debt, error) {
+	if i == nil {
+		i = DebtFactory()
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	var ent1, ent2 *BankAccount
+	var err error
+	if i.ReceiverID == generic.Zero[uuid.UUID]() {
+		ent1, err = CreateFakeBankAccount(ctx, c, nil)
+		if err != nil {
+			return nil, err
+		}
+		i.ReceiverID = ent1.ID
+	} else {
+		ent1, err = c.BankAccount.Query().Where(bankaccount.ID(i.ReceiverID)).First(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if i.OwnerID == generic.Zero[uuid.UUID]() {
+		ent2, err = CreateFakeBankAccount(ctx, c, nil)
+		if err != nil {
+			return nil, err
+		}
+		i.OwnerID = ent2.ID
+	} else {
+		ent2, err = c.BankAccount.Query().Where(bankaccount.ID(i.OwnerID)).First(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+	i.ReceiverBankAccountNumber = ent1.AccountNumber
+	i.ReceiverName = NormalizeName(ent1.QueryCustomer().FirstX(ctx).FirstName, ent1.QueryCustomer().FirstX(ctx).LastName)
+	i.OwnerBankAccountNumber = ent2.AccountNumber
+	i.OwnerName = NormalizeName(ent2.QueryCustomer().FirstX(ctx).FirstName, ent2.QueryCustomer().FirstX(ctx).LastName)
+	return c.Debt.Create().SetInput(i).Save(ctx)
 }
 
 func CreateFakeCustomer(ctx context.Context, c *Client, i *CustomerCreateInput) (*Customer, error) {

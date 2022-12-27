@@ -34,12 +34,19 @@ func (s *CustomerDebtCreateUseCase) Create(ctx context.Context, i *model.DebtCre
 }
 
 func (s *CustomerDebtValidateCreateInputUseCase) Validate(ctx context.Context, i *model.DebtCreateInput) (*model.DebtCreateInput, error) {
-	ownerBA, err := s.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{ID: generic.GetPointer(i.OwnerID)})
+	user := usecase.GetUserAsCustomer(ctx)
+	ownerBA, err := s.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
+		ID:         generic.GetPointer(i.OwnerID),
+		CustomerID: generic.GetPointer(user.ID),
+	})
 	if err != nil {
 		return nil, err
 	}
 	if ownerBA == nil {
 		return nil, usecase.WrapError(fmt.Errorf("invalid owner"))
+	}
+	if !ownerBA.IsForPayment {
+		return nil, usecase.WrapError(fmt.Errorf("bank account owner not for payment"))
 	}
 	owner, err := s.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: generic.GetPointer(ownerBA.CustomerID)})
 	if err != nil {
@@ -54,6 +61,9 @@ func (s *CustomerDebtValidateCreateInputUseCase) Validate(ctx context.Context, i
 	}
 	if receiverBA == nil {
 		return nil, usecase.WrapError(fmt.Errorf("invalid receiver"))
+	}
+	if !receiverBA.IsForPayment {
+		return nil, usecase.WrapError(fmt.Errorf("bank account receiver not for payment"))
 	}
 	receiver, err := s.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: generic.GetPointer(receiverBA.CustomerID)})
 	if err != nil {

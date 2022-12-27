@@ -130,7 +130,11 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx co
 }
 
 func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.TransactionCreateInput, error) {
-	ba, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{ID: &i.SenderID})
+	user := usecase.GetUserAsCustomer(ctx)
+	ba, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
+		ID:         &i.SenderID,
+		CustomerID: generic.GetPointer(user.ID),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +183,6 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 	i.Status = generic.GetPointer(transaction.StatusDraft)
 	i.SenderBankAccountNumber = ba.AccountNumber
 	i.SenderBankName = *uc.cfUC.GetProductOwnerName()
-	user := usecase.GetUserAsCustomer(ctx)
 	i.SenderName = user.GetName()
 	return i, nil
 }

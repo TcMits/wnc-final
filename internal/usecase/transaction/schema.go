@@ -33,11 +33,11 @@ type (
 		cfUC   usecase.ICustomerConfigUseCase
 		tCRepo repository.ITransactionConfirmSuccessRepository
 	}
-	CustomerTransactionListMyTxcUseCase struct {
+	CustomerTransactionListMineUseCase struct {
 		tLUC usecase.ICustomerTransactionListUseCase
 	}
-	CustomerTransactionGetFirstMyTxcUseCase struct {
-		tLMTUC usecase.ICustomerTransactionListMyTxcUseCase
+	CustomerTransactionGetFirstMineUseCase struct {
+		tLMTUC usecase.ICustomerTransactionListMineUseCase
 	}
 	CustomerTransactionValidateCreateInputUseCase struct {
 		cfUC   usecase.ICustomerConfigUseCase
@@ -53,7 +53,7 @@ type (
 		usecase.ICustomerGetUserUseCase
 		usecase.ICustomerTransactionConfirmSuccessUseCase
 		usecase.ICustomerTransactionValidateConfirmInputUseCase
-		usecase.ICustomerTransactionListMyTxcUseCase
-		usecase.ICustomerTransactionGetFirstMyTxUseCase
+		usecase.ICustomerTransactionListMineUseCase
+		usecase.ICustomerTransactionGetFirstMineUseCase
 	}
 )

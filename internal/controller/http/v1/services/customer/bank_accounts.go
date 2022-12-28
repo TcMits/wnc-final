@@ -43,7 +43,7 @@ func (r *bankAccountRoute) update(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	updateInReq := new(bankAccountUpdateRequest)
+	updateInReq := new(bankAccountUpdateReq)
 	if err := ctx.ReadBody(updateInReq); err != nil {
 		handleBindingError(ctx, err, r.logger, updateInReq, nil)
 		return

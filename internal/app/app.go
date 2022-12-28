@@ -14,8 +14,10 @@ import (
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
+	"github.com/TcMits/wnc-final/internal/usecase/debt"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/internal/usecase/stream"
+	"github.com/TcMits/wnc-final/internal/usecase/transaction"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/backgroundserver"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/httpserver"
@@ -66,6 +68,35 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeAmount,
 		&cfg.TransactionUseCase.FeeDesc,
 	)
+	cTxcUc := transaction.NewCustomerTransactionUseCase(
+		task.GetEmailTaskExecutor(taskClient),
+		repository.GetTransactionConfirmSuccessRepository(client),
+		repository.GetTransactionCreateRepository(client),
+		repository.GetTransactionListRepository(client),
+		repository.GetTransactionUpdateRepository(client),
+		repository.GetCustomerListRepository(client),
+		repository.GetBankAccountListRepository(client),
+		repository.GetBankAccountUpdateRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		&cfg.TransactionUseCase.FeeDesc,
+		&cfg.Mail.ConfirmEmailSubject,
+		&cfg.Mail.FrontendURL,
+		&cfg.Mail.ConfirmEmailTemplate,
+		&cfg.TransactionUseCase.FeeAmount,
+		cfg.Mail.OTPTimeout,
+	)
+	cDUc := debt.NewCustomerDebtUseCase(
+		repository.GetDebtListRepository(client),
+		repository.GetDebtCreateRepository(client),
+		repository.GetCustomerListRepository(client),
+		repository.GetBankAccountListRepository(client),
+		task.GetDebtTaskExecutor(taskClient),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		&cfg.TransactionUseCase.FeeDesc,
+		&cfg.TransactionUseCase.FeeAmount,
+	)
 	cStreamUc := stream.NewCustomerStreamUseCase(
 		repository.GetCustomerListRepository(client),
 		&cfg.App.SecretKey,
@@ -80,6 +111,8 @@ func Run(cfg *config.Config) {
 		CAuthUc,
 		cBankAccountUc,
 		cStreamUc,
+		cTxcUc,
+		cDUc,
 		b,
 		l,
 	)

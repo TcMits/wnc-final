@@ -61,3 +61,9 @@ func DebtTaskHandlerWrapper(b sse.INotify, l logger.Interface) TaskHandler {
 		return nil
 	}
 }
+
+func GetDebtTaskExecutor(c *asynq.Client) IExecuteTask[*DebtCreateNotifyPayload] {
+	return &DebtCreateTaskExecutor{
+		client: c,
+	}
+}

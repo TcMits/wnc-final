@@ -20,6 +20,8 @@ func RegisterCustomerServices(
 	aUc usecase.ICustomerAuthUseCase,
 	cbac usecase.ICustomerBankAccountUseCase,
 	sUc usecase.ICustomerStreamUseCase,
+	cTxcUc usecase.ICustomerTransactionUseCase,
+	cDUc usecase.ICustomerDebtUseCase,
 	// broker
 	broker *sse.Broker,
 	// logger
@@ -42,6 +44,8 @@ func RegisterCustomerServices(
 		{
 			RegisterMeController(h, l, cUc)
 			RegisterBankAccountController(h, l, cbac)
+			RegisterTransactionController(h, l, cTxcUc)
+			RegisterDebtController(h, l, cDUc)
 		}
 	}
 }

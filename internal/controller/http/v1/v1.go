@@ -53,6 +53,8 @@ func RegisterV1HTTPServices(
 	cAuthUc usecase.ICustomerAuthUseCase,
 	cBankAccountUc usecase.ICustomerBankAccountUseCase,
 	cStreamUc usecase.ICustomerStreamUseCase,
+	cTxcUc usecase.ICustomerTransactionUseCase,
+	cDUc usecase.ICustomerDebtUseCase,
 	// broker
 	b *sse.Broker,
 	// logger
@@ -64,6 +66,6 @@ func RegisterV1HTTPServices(
 	// services
 	h := handler.Party(_apiSubPath)
 	{
-		customer.RegisterCustomerServices(h, cMeUc, cAuthUc, cBankAccountUc, cStreamUc, b, l)
+		customer.RegisterCustomerServices(h, cMeUc, cAuthUc, cBankAccountUc, cStreamUc, cTxcUc, cDUc, b, l)
 	}
 }

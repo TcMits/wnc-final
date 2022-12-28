@@ -31,7 +31,7 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	entities, err := r.uc.ListMyTxc(ctx, &req.Limit, &req.Offset, nil, nil)
+	entities, err := r.uc.ListMine(ctx, &req.Limit, &req.Offset, nil, nil)
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
@@ -39,7 +39,7 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 	ctx.JSON(getResponses(entities))
 }
 func (r *transactionRoute) create(ctx iris.Context) {
-	createInReq := new(transactionCreateRequest)
+	createInReq := new(transactionCreateReq)
 	if err := ctx.ReadBody(createInReq); err != nil {
 		handleBindingError(ctx, err, r.logger, createInReq, nil)
 		return
@@ -51,7 +51,6 @@ func (r *transactionRoute) create(ctx iris.Context) {
 		ReceiverID:                createInReq.ReceiverID,
 		Amount:                    createInReq.Amount,
 		Description:               &createInReq.Description,
-		SenderID:                  *createInReq.SenderID,
 	}
 	in, err := r.uc.Validate(ctx, in, createInReq.IsFeePaidByMe)
 	if err != nil {
@@ -72,7 +71,7 @@ func (r *transactionRoute) detail(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	entity, err := r.uc.GetFirstMyTxc(ctx, nil, &model.TransactionWhereInput{ID: req.id})
+	entity, err := r.uc.GetFirstMine(ctx, nil, &model.TransactionWhereInput{ID: req.id})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
@@ -90,13 +89,13 @@ func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	entity, err := r.uc.GetFirstMyTxc(ctx, nil, &model.TransactionWhereInput{ID: req.id})
+	entity, err := r.uc.GetFirstMine(ctx, nil, &model.TransactionWhereInput{ID: req.id})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
 	}
 	if entity != nil {
-		confirmReq := new(transactionConfirmRequest)
+		confirmReq := new(transactionConfirmReq)
 		if err := ctx.ReadBody(confirmReq); err != nil {
 			handleBindingError(ctx, err, r.logger, confirmReq, nil)
 			return

@@ -60,9 +60,9 @@ func TestListMyTxcUseCase(t *testing.T) {
 	ent.CreateFakeTransaction(ctx, c, txc1)
 	ent.CreateFakeTransaction(ctx, c, txc2)
 	ent.CreateFakeTransaction(ctx, c, nil)
-	uc := transaction.NewCustomerTransactionListMyTxcUseCase(repository.GetTransactionListRepository(c))
+	uc := transaction.NewCustomerTransactionListMineUseCase(repository.GetTransactionListRepository(c))
 	l, o := 3, 0
-	result, err := uc.ListMyTxc(ctx, &l, &o, nil, nil)
+	result, err := uc.ListMine(ctx, &l, &o, nil, nil)
 	require.Nil(t, err)
 	require.Equal(t, 2, len(result))
 }
@@ -78,8 +78,8 @@ func TestGetFirstMyTxcUseCase(t *testing.T) {
 	txc1.SenderID = mBA.ID
 	entity1, _ := ent.CreateFakeTransaction(ctx, c, txc1)
 	ent.CreateFakeTransaction(ctx, c, nil)
-	uc := transaction.NewCustomerTransactionGetFirstMyTxUseCase(repository.GetTransactionListRepository(c))
-	result, err := uc.GetFirstMyTxc(ctx, nil, nil)
+	uc := transaction.NewCustomerTransactionGetFirstMineUseCase(repository.GetTransactionListRepository(c))
+	result, err := uc.GetFirstMine(ctx, nil, nil)
 	require.Nil(t, err)
 	require.Equal(t, entity1.ID, result.ID)
 }

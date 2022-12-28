@@ -22,18 +22,18 @@ func NewCustomerTransactionListUseCase(
 	}
 }
 
-func NewCustomerTransactionListMyTxcUseCase(
+func NewCustomerTransactionListMineUseCase(
 	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
-) usecase.ICustomerTransactionListMyTxcUseCase {
-	return &CustomerTransactionListMyTxcUseCase{
+) usecase.ICustomerTransactionListMineUseCase {
+	return &CustomerTransactionListMineUseCase{
 		tLUC: NewCustomerTransactionListUseCase(repoList),
 	}
 }
-func NewCustomerTransactionGetFirstMyTxUseCase(
+func NewCustomerTransactionGetFirstMineUseCase(
 	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
-) usecase.ICustomerTransactionGetFirstMyTxUseCase {
-	return &CustomerTransactionGetFirstMyTxcUseCase{
-		tLMTUC: NewCustomerTransactionListMyTxcUseCase(repoList),
+) usecase.ICustomerTransactionGetFirstMineUseCase {
+	return &CustomerTransactionGetFirstMineUseCase{
+		tLMTUC: NewCustomerTransactionListMineUseCase(repoList),
 	}
 }
 
@@ -132,7 +132,7 @@ func NewCustomerTransactionUseCase(
 		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 		ICustomerGetUserUseCase:                        me.NewCustomerGetUserUseCase(rlc),
 		ICustomerTransactionConfirmSuccessUseCase:      NewCustomerTransactionConfirmSuccessUseCase(repoConfirm, sk, prodOwnerName, fee, feeDesc),
-		ICustomerTransactionListMyTxcUseCase:           NewCustomerTransactionListMyTxcUseCase(repoList),
-		ICustomerTransactionGetFirstMyTxUseCase:        NewCustomerTransactionGetFirstMyTxUseCase(repoList),
+		ICustomerTransactionListMineUseCase:            NewCustomerTransactionListMineUseCase(repoList),
+		ICustomerTransactionGetFirstMineUseCase:        NewCustomerTransactionGetFirstMineUseCase(repoList),
 	}
 }

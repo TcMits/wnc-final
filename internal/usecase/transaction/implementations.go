@@ -148,17 +148,14 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx co
 func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.TransactionCreateInput, error) {
 	user := usecase.GetUserAsCustomer(ctx)
 	ba, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
-		ID:         &i.SenderID,
-		CustomerID: generic.GetPointer(user.ID),
+		IsForPayment: generic.GetPointer(true),
+		CustomerID:   generic.GetPointer(user.ID),
 	})
 	if err != nil {
 		return nil, err
 	}
 	if ba == nil {
 		return nil, usecase.WrapError(fmt.Errorf("bank account sender is invalid"))
-	}
-	if !ba.IsForPayment {
-		return nil, usecase.WrapError(fmt.Errorf("bank account sender is not for payment"))
 	}
 	err = uc.doesHaveDraftTxc(ctx, i)
 	if err != nil {
@@ -197,6 +194,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 		i.ReceiverName = other.GetName()
 	}
 	i.Status = generic.GetPointer(transaction.StatusDraft)
+	i.SenderID = ba.ID
 	i.SenderBankAccountNumber = ba.AccountNumber
 	i.SenderBankName = *uc.cfUC.GetProductOwnerName()
 	i.SenderName = user.GetName()
@@ -207,7 +205,7 @@ func (uc *CustomerTransactionListUseCase) List(ctx context.Context, limit, offse
 	return uc.repoList.List(ctx, limit, offset, o, w)
 }
 
-func (uc *CustomerTransactionListMyTxcUseCase) ListMyTxc(ctx context.Context, limit, offset *int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) ([]*model.Transaction, error) {
+func (uc *CustomerTransactionListMineUseCase) ListMine(ctx context.Context, limit, offset *int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) ([]*model.Transaction, error) {
 	user := usecase.GetUserAsCustomer(ctx)
 	if w == nil {
 		w = new(model.TransactionWhereInput)
@@ -219,9 +217,9 @@ func (uc *CustomerTransactionListMyTxcUseCase) ListMyTxc(ctx context.Context, li
 	return uc.tLUC.List(ctx, limit, offset, o, w)
 }
 
-func (uc *CustomerTransactionGetFirstMyTxcUseCase) GetFirstMyTxc(ctx context.Context, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (*model.Transaction, error) {
+func (uc *CustomerTransactionGetFirstMineUseCase) GetFirstMine(ctx context.Context, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (*model.Transaction, error) {
 	l, of := 1, 0
-	entities, err := uc.tLMTUC.ListMyTxc(ctx, &l, &of, o, w)
+	entities, err := uc.tLMTUC.ListMine(ctx, &l, &of, o, w)
 	if err != nil {
 		return nil, err
 	}

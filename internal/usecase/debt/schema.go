@@ -21,9 +21,19 @@ type (
 		bAGFUC usecase.ICustomerBankAccountGetFirstUseCase
 		cGFUC  usecase.ICustomerGetFirstUseCase
 	}
+	CustomerDebtListMineUseCase struct {
+		dLUC usecase.ICustomerDebtListUseCase
+	}
+	CustomerDebtGetFirstMineUseCase struct {
+		dLMUC usecase.ICustomerDebtListMineUseCase
+	}
 	CustomerDebtUseCase struct {
+		usecase.ICustomerConfigUseCase
+		usecase.ICustomerGetUserUseCase
 		usecase.ICustomerDebtListUseCase
 		usecase.ICustomerDebtCreateUseCase
 		usecase.ICustomerDebtValidateCreateInputUseCase
+		usecase.ICustomerDebtGetFirstMineUseCase
+		usecase.ICustomerDebtListMineUseCase
 	}
 )

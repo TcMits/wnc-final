@@ -38,8 +38,8 @@ func (s *CustomerDebtCreateUseCase) Create(ctx context.Context, i *model.DebtCre
 func (s *CustomerDebtValidateCreateInputUseCase) Validate(ctx context.Context, i *model.DebtCreateInput) (*model.DebtCreateInput, error) {
 	user := usecase.GetUserAsCustomer(ctx)
 	ownerBA, err := s.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
-		ID:         generic.GetPointer(i.OwnerID),
-		CustomerID: generic.GetPointer(user.ID),
+		IsForPayment: generic.GetPointer(true),
+		CustomerID:   generic.GetPointer(user.ID),
 	})
 	if err != nil {
 		return nil, err
@@ -70,10 +70,35 @@ func (s *CustomerDebtValidateCreateInputUseCase) Validate(ctx context.Context, i
 	}
 	i.Status = generic.GetPointer(debt.StatusPending)
 	i.OwnerBankAccountNumber = ownerBA.AccountNumber
+	i.OwnerID = ownerBA.ID
 	i.OwnerBankName = *s.cfUC.GetProductOwnerName()
 	i.OwnerName = owner.GetName()
 	i.ReceiverBankAccountNumber = receiverBA.AccountNumber
 	i.ReceiverBankName = *s.cfUC.GetProductOwnerName()
 	i.ReceiverName = receiver.GetName()
 	return i, nil
+}
+
+func (uc *CustomerDebtListMineUseCase) ListMine(ctx context.Context, limit, offset *int, o *model.DebtOrderInput, w *model.DebtWhereInput) ([]*model.Debt, error) {
+	user := usecase.GetUserAsCustomer(ctx)
+	if w == nil {
+		w = new(model.DebtWhereInput)
+	}
+	w.Or = []*model.DebtWhereInput{
+		{HasReceiverWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}}},
+		{HasOwnerWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}}},
+	}
+	return uc.dLUC.List(ctx, limit, offset, o, w)
+}
+
+func (uc *CustomerDebtGetFirstMineUseCase) GetFirstMine(ctx context.Context, o *model.DebtOrderInput, w *model.DebtWhereInput) (*model.Debt, error) {
+	l, of := 1, 0
+	entities, err := uc.dLMUC.ListMine(ctx, &l, &of, o, w)
+	if err != nil {
+		return nil, err
+	}
+	if len(entities) > 0 {
+		return entities[0], nil
+	}
+	return nil, nil
 }

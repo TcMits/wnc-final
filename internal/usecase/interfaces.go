@@ -113,11 +113,11 @@ type (
 	ICustomerTransactionListUseCase interface {
 		iListUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
-	ICustomerTransactionGetFirstMyTxUseCase interface {
-		GetFirstMyTxc(context.Context, *model.TransactionOrderInput, *model.TransactionWhereInput) (*model.Transaction, error)
+	ICustomerTransactionGetFirstMineUseCase interface {
+		GetFirstMine(context.Context, *model.TransactionOrderInput, *model.TransactionWhereInput) (*model.Transaction, error)
 	}
-	ICustomerTransactionListMyTxcUseCase interface {
-		ListMyTxc(context.Context, *int, *int, *model.TransactionOrderInput, *model.TransactionWhereInput) ([]*model.Transaction, error)
+	ICustomerTransactionListMineUseCase interface {
+		ListMine(context.Context, *int, *int, *model.TransactionOrderInput, *model.TransactionWhereInput) ([]*model.Transaction, error)
 	}
 	ICustomerTransactionUpdateUseCase interface {
 		iUpdateUseCase[*model.Transaction, *model.TransactionUpdateInput]
@@ -130,8 +130,8 @@ type (
 		ICustomerTransactionValidateCreateInputUseCase
 		ICustomerTransactionConfirmSuccessUseCase
 		ICustomerTransactionValidateConfirmInputUseCase
-		ICustomerTransactionListMyTxcUseCase
-		ICustomerTransactionGetFirstMyTxUseCase
+		ICustomerTransactionListMineUseCase
+		ICustomerTransactionGetFirstMineUseCase
 	}
 	// debt
 	ICustomerDebtListUseCase interface {
@@ -143,10 +143,20 @@ type (
 	ICustomerDebtCreateUseCase interface {
 		iCreateUseCase[*model.Debt, *model.DebtCreateInput]
 	}
+	ICustomerDebtGetFirstMineUseCase interface {
+		GetFirstMine(context.Context, *model.DebtOrderInput, *model.DebtWhereInput) (*model.Debt, error)
+	}
+	ICustomerDebtListMineUseCase interface {
+		ListMine(context.Context, *int, *int, *model.DebtOrderInput, *model.DebtWhereInput) ([]*model.Debt, error)
+	}
 	ICustomerDebtUseCase interface {
+		ICustomerGetUserUseCase
+		ICustomerConfigUseCase
 		ICustomerDebtListUseCase
 		ICustomerDebtValidateCreateInputUseCase
 		ICustomerDebtCreateUseCase
+		ICustomerDebtGetFirstMineUseCase
+		ICustomerDebtListMineUseCase
 	}
 	// stream
 	ICustomerStreamUseCase interface {

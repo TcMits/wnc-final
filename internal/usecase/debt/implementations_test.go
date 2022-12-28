@@ -70,45 +70,6 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 		},
 		{
-			name: "back account owner not owned",
-			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				authenticateCtx(ctx, c, nil)
-			},
-			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCreateInputUseCase) {
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i2 := ent.BankAccountFactory()
-				i2.IsForPayment = generic.GetPointer(true)
-				ownerBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				i3 := ent.DebtFactory()
-				i3.OwnerID = ownerBA.ID
-				i3.ReceiverID = receiverBA.ID
-				_, err := uc.Validate(ctx, i3)
-				require.ErrorContains(t, err, "invalid owner")
-			},
-		},
-		{
-			name: "back account owner not for payment",
-			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				authenticateCtx(ctx, c, nil)
-			},
-			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCreateInputUseCase) {
-				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.CustomerID = user.ID
-				i2 := ent.BankAccountFactory()
-				i2.IsForPayment = generic.GetPointer(true)
-				ownerBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				i3 := ent.DebtFactory()
-				i3.OwnerID = ownerBA.ID
-				i3.ReceiverID = receiverBA.ID
-				_, err := uc.Validate(ctx, i3)
-				require.ErrorContains(t, err, "owner not for payment")
-			},
-		},
-		{
 			name: "back account receiver not for payment",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)

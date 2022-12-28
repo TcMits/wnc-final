@@ -3,6 +3,7 @@ package customer
 import (
 	"time"
 
+	"github.com/TcMits/wnc-final/ent/debt"
 	"github.com/TcMits/wnc-final/ent/transaction"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
@@ -59,6 +60,23 @@ type (
 		TransactionType           transaction.TransactionType `json:"transaction_type"`
 		Description               string                      `json:"description"`
 	}
+	debtResp struct {
+		ID                        uuid.UUID       `json:"id"`
+		CreateTime                time.Time       `json:"create_time"`
+		UpdateTime                time.Time       `json:"update_time"`
+		OwnerBankAccountNumber    string          `json:"owner_bank_account_number"`
+		OwnerBankName             string          `json:"owner_bank_name"`
+		OwnerName                 string          `json:"owner_name"`
+		OwnerID                   *uuid.UUID      `json:"owner_id"`
+		ReceiverBankAccountNumber string          `json:"receiver_bank_account_number"`
+		ReceiverBankName          string          `json:"receiver_bank_name"`
+		ReceiverName              string          `json:"receiver_name"`
+		ReceiverID                *uuid.UUID      `json:"receiver_id"`
+		TransactionID             *uuid.UUID      `json:"transaction_id"`
+		Status                    debt.Status     `json:"status"`
+		Description               string          `json:"description"`
+		Amount                    decimal.Decimal `json:"amount"`
+	}
 	tokenPairResponse struct {
 		AccessToken  *string `json:"access_token"`
 		RefreshToken *string `json:"refresh_token"`
@@ -111,6 +129,24 @@ func getResponse(entity any) any {
 			Amount:                    rs.Amount,
 			TransactionType:           rs.TransactionType,
 			Description:               rs.Description,
+		}
+	case *model.Debt:
+		rs, _ := entity.(*model.Debt)
+		result = &debtResp{
+			ID:                        rs.ID,
+			CreateTime:                rs.CreateTime,
+			UpdateTime:                rs.UpdateTime,
+			Status:                    rs.Status,
+			ReceiverBankAccountNumber: rs.ReceiverBankAccountNumber,
+			ReceiverBankName:          rs.ReceiverBankName,
+			ReceiverName:              rs.ReceiverName,
+			ReceiverID:                rs.ReceiverID,
+			OwnerBankAccountNumber:    rs.OwnerBankAccountNumber,
+			OwnerName:                 rs.OwnerName,
+			OwnerID:                   rs.OwnerID,
+			Amount:                    rs.Amount,
+			Description:               rs.Description,
+			TransactionID:             rs.TransactionID,
 		}
 	case *jwt.TokenPair:
 		rs, _ := entity.(*jwt.TokenPair)

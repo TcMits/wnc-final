@@ -11,7 +11,7 @@ import (
 
 type TaskHandler = func(context.Context, *asynq.Task) error
 
-func newTask[T any](pl T, typeTask string) (*asynq.Task, error) {
+func NewTask[T any](pl T, typeTask string) (*asynq.Task, error) {
 	payload, err := json.Marshal(pl)
 	if err != nil {
 		return nil, err
@@ -25,6 +25,6 @@ func NewHandler() *asynq.ServeMux {
 }
 
 func RegisterTask(handler *asynq.ServeMux, l logger.Interface, host, user, password, sender string, port int, b sse.INotify) {
-	handler.HandleFunc(typeConfirmEmail, mailTaskHandlerWrapper(host, user, password, sender, port, l))
-	handler.HandleFunc(typeDebtCreateNotify, debtTaskHandlerWrapper(b, l))
+	handler.HandleFunc(typeConfirmEmail, MailTaskHandlerWrapper(host, user, password, sender, port, l))
+	handler.HandleFunc(typeDebtCreateNotify, DebtTaskHandlerWrapper(b, l))
 }

@@ -23,7 +23,7 @@ func (s *EmailTaskExecutor) ExecuteTask(ctx context.Context, pl *mail.EmailPaylo
 	if pl == nil {
 		pl = new(mail.EmailPayload)
 	}
-	task, err := newTask(pl, typeConfirmEmail)
+	task, err := NewTask(pl, typeConfirmEmail)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (s *EmailTaskExecutor) ExecuteTask(ctx context.Context, pl *mail.EmailPaylo
 	return nil
 }
 
-func mailTaskHandlerWrapper(host, user, password, sender string, port int, l logger.Interface) TaskHandler {
+func MailTaskHandlerWrapper(host, user, password, sender string, port int, l logger.Interface) TaskHandler {
 	return func(ctx context.Context, t *asynq.Task) error {
 		p := new(mail.EmailPayload)
 		if err := json.Unmarshal(t.Payload(), p); err != nil {

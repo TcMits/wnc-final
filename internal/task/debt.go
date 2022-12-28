@@ -28,7 +28,7 @@ func (s *DebtCreateTaskExecutor) ExecuteTask(ctx context.Context, pl *DebtCreate
 	if pl == nil {
 		pl = new(DebtCreateNotifyPayload)
 	}
-	task, err := newTask(pl, typeDebtCreateNotify)
+	task, err := NewTask(pl, typeDebtCreateNotify)
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func (s *DebtCreateTaskExecutor) ExecuteTask(ctx context.Context, pl *DebtCreate
 	return nil
 }
 
-func debtTaskHandlerWrapper(b sse.INotify, l logger.Interface) TaskHandler {
+func DebtTaskHandlerWrapper(b sse.INotify, l logger.Interface) TaskHandler {
 	return func(ctx context.Context, t *asynq.Task) error {
 		p := new(DebtCreateNotifyPayload)
 		if err := json.Unmarshal(t.Payload(), p); err != nil {

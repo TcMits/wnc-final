@@ -16,7 +16,7 @@ import (
 func (uc *CustomerTransactionUpdateUseCase) Update(ctx context.Context, e *model.Transaction, i *model.TransactionUpdateInput) (*model.Transaction, error) {
 	e, err := uc.repoUpdate.Update(ctx, e, i)
 	if err != nil {
-		return e, usecase.WrapError(err)
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionUpdateUseCase.Update: %s", err))
 	}
 	return e, nil
 }
@@ -24,7 +24,7 @@ func (uc *CustomerTransactionValidateConfirmInputUseCase) ValidateConfirmInput(c
 	if e.Status == transaction.StatusDraft {
 		pl, err := usecase.ParseConfirmTxcToken(ctx, *token, *uc.cfUC.GetSecret())
 		if err != nil {
-			return usecase.WrapError(err)
+			return usecase.WrapError(fmt.Errorf("invalid token: token expired"))
 		}
 		iFPBMAny, ok := pl["is_fee_paid_by_me"]
 		if !ok {
@@ -73,7 +73,7 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.C
 		}
 		e, err := uc.tCRepo.ConfirmSuccess(ctx, e, ni)
 		if err != nil {
-			return nil, usecase.WrapError(err)
+			return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionConfirmSuccessUseCase.ConfirmSuccess: %s", err))
 		}
 		return e, nil
 	}
@@ -83,12 +83,12 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.C
 func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.Transaction, error) {
 	entity, err := uc.repoCreate.Create(ctx, i)
 	if err != nil {
-		return nil, err
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
 	}
 	otp := usecase.GenerateOTP(6)
 	otpHashValue, err := usecase.GenerateHashInfo(usecase.MakeOTPValue(ctx, otp))
 	if err != nil {
-		return nil, err
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
 	}
 	tk, err := usecase.GenerateConfirmTxcToken(
 		ctx,
@@ -100,7 +100,7 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 		time.Minute*5,
 	)
 	if err != nil {
-		return nil, err
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
 	}
 	user := usecase.GetUserAsCustomer(ctx)
 	err = uc.taskExecutor.ExecuteTask(ctx, &mail.EmailPayload{
@@ -109,7 +109,7 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 		To:      []string{user.Email},
 	})
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create"))
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
 	}
 	return entity, nil
 }
@@ -121,7 +121,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx co
 		Status:        generic.GetPointer(transaction.StatusDraft),
 	})
 	if err != nil {
-		return usecase.WrapError(err)
+		return usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.doesHaveDraftTxc: %s", err))
 	}
 	if len(entities) > 0 {
 		return usecase.WrapError(fmt.Errorf("there is a draft transaction to be processed. Cannot create a new transaction"))
@@ -207,7 +207,7 @@ func (uc *CustomerTransactionGetFirstMyTxcUseCase) GetFirstMyTxc(ctx context.Con
 	l, of := 1, 0
 	entities, err := uc.tLMTUC.ListMyTxc(ctx, &l, &of, o, w)
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.GetFirstMyTxc: %s", err))
+		return nil, err
 	}
 	if len(entities) > 0 {
 		return entities[0], nil

@@ -25,6 +25,17 @@ func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.I
 	handler.Options("/token", func(_ iris.Context) {})
 }
 
+// @Summary     Login
+// @Description Login
+// @ID          login
+// @Tags  	    login
+// @Accept      json
+// @Produce     json
+// @Param       payload body loginRequest true "Login"
+// @Success     200 {object} tokenPairResponse
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /login [post]
 func (r *authRoute) login(ctx iris.Context) {
 	request := new(loginRequest)
 	if err := ctx.ReadJSON(request); err != nil {
@@ -48,6 +59,16 @@ func (r *authRoute) login(ctx iris.Context) {
 	ctx.JSON(getResponse(res))
 }
 
+// @Summary     Logout
+// @Description Logout
+// @ID          logout
+// @Tags  	    logout
+// @Accept      json
+// @Produce     json
+// @Success     204  ""
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /me [Delete]
 func (r *authRoute) logout(ctx iris.Context) {
 	err := r.uc.Logout(ctx)
 	if err != nil {
@@ -57,6 +78,17 @@ func (r *authRoute) logout(ctx iris.Context) {
 	ctx.StatusCode(iris.StatusNoContent)
 }
 
+// @Summary     Renew token
+// @Description Renew token
+// @ID          renewtoken
+// @Tags  	    renewtoken
+// @Accept      json
+// @Produce     json
+// @Param       payload body renewTokenRequest true "Renew token"
+// @Success     200 {object} tokenPairResponse
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /token [post]
 func (r *authRoute) renewToken(ctx iris.Context) {
 	request := new(renewTokenRequest)
 	if err := ctx.ReadJSON(request); err != nil {

@@ -24,6 +24,17 @@ func RegisterDebtController(handler iris.Party, l logger.Interface, uc usecase.I
 	handler.Options("/debts", func(_ iris.Context) {})
 }
 
+// @Summary     Get a debt
+// @Description Get a debt
+// @ID          debt-get
+// @Tags  	    debts
+// @Accept      json
+// @Produce     json
+// @Param       id path uuid true "ID of debt"
+// @Success     200 {object} debtResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /debts/{id} [get]
 func (s *debtRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {
@@ -41,6 +52,16 @@ func (s *debtRoute) detail(ctx iris.Context) {
 		ctx.StatusCode(iris.StatusNoContent)
 	}
 }
+
+// @Summary     Show debt
+// @Description Show debt
+// @ID          debt-listing
+// @Tags  	    debt
+// @Accept      json
+// @Produce     json
+// @Success     200 {object} debtResp
+// @Failure     500 {object} errorResponse
+// @Router      /debts [get]
 func (s *debtRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -54,6 +75,18 @@ func (s *debtRoute) listing(ctx iris.Context) {
 	}
 	ctx.JSON(getResponses(entities))
 }
+
+// @Summary     Create a debt
+// @Description Create a debt
+// @ID          debt-create
+// @Tags  	    debt
+// @Accept      json
+// @Produce     json
+// @Param       payload body debtCreateReq true "Create a debt"
+// @Success     201 {object} debtResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /debts [post]
 func (s *debtRoute) create(ctx iris.Context) {
 	createInReq := new(debtCreateReq)
 	if err := ctx.ReadBody(createInReq); err != nil {

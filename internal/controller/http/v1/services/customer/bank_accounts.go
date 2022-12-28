@@ -24,6 +24,15 @@ func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc us
 	handler.Options("/bank-accounts", func(_ iris.Context) {})
 }
 
+// @Summary     Show bank accounts
+// @Description Show bank accounts
+// @ID          bankaccount-listing
+// @Tags  	    bankaccounts
+// @Accept      json
+// @Produce     json
+// @Success     200 {object} bankAccountResp
+// @Failure     500 {object} errorResponse
+// @Router      /bank-accounts [get]
 func (r *bankAccountRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -37,6 +46,18 @@ func (r *bankAccountRoute) listing(ctx iris.Context) {
 	}
 	ctx.JSON(getResponses(entities))
 }
+
+// @Summary     Update a bank account
+// @Description Update a bank account
+// @ID          bankaccount-update
+// @Tags  	    bankaccounts
+// @Accept      json
+// @Produce     json
+// @Param       payload body bankAccountUpdateReq true "Update a bank account"
+// @Success     200 {object} bankAccountResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /bank-accounts/{id} [put]
 func (r *bankAccountRoute) update(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {

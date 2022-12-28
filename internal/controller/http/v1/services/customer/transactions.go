@@ -25,6 +25,15 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 	handler.Options("/transactions", func(_ iris.Context) {})
 }
 
+// @Summary     Show transactions
+// @Description Show transactions
+// @ID          transaction-listing
+// @Tags  	    transaction
+// @Accept      json
+// @Produce     json
+// @Success     200 {object} transactionResp
+// @Failure     500 {object} errorResponse
+// @Router      /transactions [get]
 func (r *transactionRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -38,6 +47,18 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 	}
 	ctx.JSON(getResponses(entities))
 }
+
+// @Summary     Create a transaction
+// @Description Create a transaction
+// @ID          transaction-create
+// @Tags  	    transaction
+// @Accept      json
+// @Produce     json
+// @Param       payload body transactionCreateReq true "Create a transaction"
+// @Success     201 {object} transactionResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /transactions [post]
 func (r *transactionRoute) create(ctx iris.Context) {
 	createInReq := new(transactionCreateReq)
 	if err := ctx.ReadBody(createInReq); err != nil {
@@ -65,6 +86,17 @@ func (r *transactionRoute) create(ctx iris.Context) {
 	ctx.JSON(getResponse(entity))
 }
 
+// @Summary     Get a transaction
+// @Description Get a transaction
+// @ID          transaction-get
+// @Tags  	    transaction
+// @Accept      json
+// @Produce     json
+// @Param       id path uuid true "ID of transaction"
+// @Success     200 {object} transactionResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /transactions/{id} [get]
 func (r *transactionRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {
@@ -83,6 +115,17 @@ func (r *transactionRoute) detail(ctx iris.Context) {
 	}
 }
 
+// @Summary     Confirm success
+// @Description Confirm success a transaction
+// @ID          transaction-confirmsuccess
+// @Tags  	    transaction
+// @Accept      json
+// @Produce     json
+// @Param       payload body transactionConfirmReq true "Confirm a transaction"
+// @Success     200 {object} transactionResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /transactions/{id} [put]
 func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {

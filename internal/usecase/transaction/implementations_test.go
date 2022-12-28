@@ -16,6 +16,8 @@ import (
 	"github.com/TcMits/wnc-final/pkg/infrastructure/backgroundserver"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
+	"github.com/TcMits/wnc-final/pkg/tool/mail"
+	"github.com/golang/mock/gomock"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
 
@@ -477,9 +479,12 @@ func TestCreateUseCase(t *testing.T) {
 			cfg, _ := config.NewConfig()
 			cTask := backgroundserver.NewClient(cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
 			defer cTask.Close()
-			exc := task.GetEmailTaskExecutor(cTask)
+			mockCtl := gomock.NewController(t)
+			defer mockCtl.Finish()
+			taskExecutorMock := task.NewMockIExecuteTask[*mail.EmailPayload](mockCtl)
+			taskExecutorMock.EXPECT().ExecuteTask(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 			uc := transaction.NewCustomerTransactionCreateUseCase(
-				exc,
+				taskExecutorMock,
 				repository.GetTransactionCreateRepository(c),
 				&cfg.App.SecretKey,
 				&cfg.App.Name,

@@ -9,6 +9,7 @@ require (
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang-jwt/jwt/v4 v4.4.3
+	github.com/golang/mock v1.1.1
 	github.com/google/uuid v1.3.0
 	github.com/hibiken/asynq v0.23.0
 	github.com/ilyakaznacheev/cleanenv v1.4.1

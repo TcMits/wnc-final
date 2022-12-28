@@ -3,6 +3,11 @@ app:
   version: '1.0.0'
   secret_key: 'dummy'
 
+mail:
+  confirm_email_template: 'templates/transaction_confirm.html'
+  confirm_email_subject: 'Confirm transaction'
+  frontend_url: 'http://front.end'
+  otp_timeout: '60s'
 
 http:
   port: '8080'

@@ -1,6 +1,8 @@
 package transaction
 
 import (
+	"time"
+
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
@@ -16,9 +18,13 @@ type (
 		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 	CustomerTransactionCreateUseCase struct {
-		cfUC         usecase.ICustomerConfigUseCase
-		repoCreate   repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput]
-		taskExecutor task.IExecuteTask[*mail.EmailPayload]
+		cfUC                  usecase.ICustomerConfigUseCase
+		repoCreate            repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput]
+		taskExecutor          task.IExecuteTask[*mail.EmailPayload]
+		txcConfirmSubjectMail *string
+		txcConfirmMailTemp    *string
+		frontendUrl           *string
+		otpTimeout            time.Duration
 	}
 	CustomerTransactionValidateConfirmInputUseCase struct {
 		cfUC usecase.ICustomerConfigUseCase

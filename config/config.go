@@ -53,11 +53,15 @@ type (
 	}
 
 	Mail struct {
-		Host       string `env-required:"true"                 env:"EMAIL_HOST"`
-		SenderName string `env-required:"true"                 env:"EMAIL_HOST_SENDER_NAME"`
-		Password   string `env-required:"true"                 env:"EMAIL_HOST_PASSWORD"`
-		User       string `env-required:"true"                 env:"EMAIL_HOST_USER"`
-		Port       int    `env-required:"true"                 env:"EMAIL_HOST_PORT"`
+		Host                 string        `env-required:"true"                 env:"EMAIL_HOST"`
+		SenderName           string        `env-required:"true"                 env:"EMAIL_HOST_SENDER_NAME"`
+		Password             string        `env-required:"true"                 env:"EMAIL_HOST_PASSWORD"`
+		User                 string        `env-required:"true"                 env:"EMAIL_HOST_USER"`
+		Port                 int           `env-required:"true"                 env:"EMAIL_HOST_PORT"`
+		ConfirmEmailTemplate string        `yaml:"confirm_email_template" env:"EMAIL_CONFIRM_TEMPLATE"`
+		ConfirmEmailSubject  string        `yaml:"confirm_email_subject" env:"EMAIL_CONFIRM_SUBJECT"`
+		FrontendURL          string        `yaml:"frontend_url" env:"EMAIL_FRONTEND_URL"`
+		OTPTimeout           time.Duration `yaml:"otp_timeout" env:"EMAIL_OTP_TIMEOUT"`
 	}
 
 	// Usecases.
@@ -71,11 +75,15 @@ type (
 	}
 )
 
+func GetRootDir() string {
+	_, b, _, _ := runtime.Caller(0)
+	return filepath.Join(filepath.Dir(b), "..")
+}
+
 // NewConfig returns app config.
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
-	_, b, _, _ := runtime.Caller(0)
-	path := filepath.Join(filepath.Dir(b), "config.yml")
+	path := filepath.Join(GetRootDir(), "config/config.yml")
 	err := cleanenv.ReadConfig(path, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
@@ -85,6 +93,12 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	postConfig(cfg)
 
 	return cfg, nil
+}
+
+func postConfig(c *Config) {
+	path := filepath.Join(GetRootDir(), c.ConfirmEmailTemplate)
+	c.Mail.ConfirmEmailTemplate = path
 }

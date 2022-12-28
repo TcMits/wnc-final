@@ -223,8 +223,8 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 				repository.GetCustomerListRepository(c),
 				generic.GetPointer("foo"),
 				generic.GetPointer("foo"),
-				generic.GetPointer(float64(1000)),
 				generic.GetPointer("foo"),
+				generic.GetPointer(float64(1000)),
 			)
 			tt.expect(t, ctx, c, uc)
 		})
@@ -488,8 +488,12 @@ func TestCreateUseCase(t *testing.T) {
 				repository.GetTransactionCreateRepository(c),
 				&cfg.App.SecretKey,
 				&cfg.App.Name,
-				&cfg.TransactionUseCase.FeeAmount,
 				&cfg.TransactionUseCase.FeeDesc,
+				&cfg.Mail.ConfirmEmailSubject,
+				&cfg.Mail.FrontendURL,
+				&cfg.Mail.ConfirmEmailTemplate,
+				&cfg.TransactionUseCase.FeeAmount,
+				cfg.Mail.OTPTimeout,
 			)
 			tt.expect(t, ctx, c, uc)
 		})

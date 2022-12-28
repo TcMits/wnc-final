@@ -1,6 +1,8 @@
 package transaction
 
 import (
+	"time"
+
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
@@ -46,15 +48,22 @@ func NewCustomerTransactionUpdateUseCase(
 func NewCustomerTransactionCreateUseCase(
 	taskExctor task.IExecuteTask[*mail.EmailPayload],
 	repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
-	sk *string,
-	prodOwnerName *string,
+	sk,
+	prodOwnerName,
+	feeDesc,
+	confirmSubjectMail,
+	frontendUrl,
+	confirmEmailTemplate *string,
 	fee *float64,
-	feeDesc *string,
+	otpTimeout time.Duration,
 ) usecase.ICustomerTransactionCreateUseCase {
 	return &CustomerTransactionCreateUseCase{
-		repoCreate:   repoCreate,
-		taskExecutor: taskExctor,
-		cfUC:         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		repoCreate:            repoCreate,
+		taskExecutor:          taskExctor,
+		cfUC:                  config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		frontendUrl:           frontendUrl,
+		txcConfirmSubjectMail: confirmSubjectMail,
+		txcConfirmMailTemp:    confirmEmailTemplate,
 	}
 }
 
@@ -62,10 +71,10 @@ func NewCustomerTransactionValidateCreateInputUseCase(
 	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
 	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
-	sk *string,
-	prodOwnerName *string,
-	fee *float64,
+	sk,
+	prodOwnerName,
 	feeDesc *string,
+	fee *float64,
 ) usecase.ICustomerTransactionValidateCreateInputUseCase {
 	return &CustomerTransactionValidateCreateInputUseCase{
 		tLUC:   NewCustomerTransactionListUseCase(repoList),
@@ -107,14 +116,18 @@ func NewCustomerTransactionUseCase(
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	rUBa repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
-	sk *string,
-	prodOwnerName *string,
+	sk,
+	prodOwnerName,
+	feeDesc,
+	confirmEmailSubject,
+	frontendUrl,
+	confirmEmailTemplate *string,
 	fee *float64,
-	feeDesc *string,
+	otpTimeout time.Duration,
 ) usecase.ICustomerTransactionUseCase {
 	return &CustomerTransactionUseCase{
-		ICustomerTransactionCreateUseCase:              NewCustomerTransactionCreateUseCase(taskExctor, repoCreate, sk, prodOwnerName, fee, feeDesc),
-		ICustomerTransactionValidateCreateInputUseCase: NewCustomerTransactionValidateCreateInputUseCase(repoList, rlba, rlc, sk, prodOwnerName, fee, feeDesc),
+		ICustomerTransactionCreateUseCase:              NewCustomerTransactionCreateUseCase(taskExctor, repoCreate, sk, prodOwnerName, feeDesc, confirmEmailTemplate, confirmEmailSubject, frontendUrl, fee, otpTimeout),
+		ICustomerTransactionValidateCreateInputUseCase: NewCustomerTransactionValidateCreateInputUseCase(repoList, rlba, rlc, sk, prodOwnerName, feeDesc, fee),
 		ICustomerTransactionListUseCase:                NewCustomerTransactionListUseCase(repoList),
 		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 		ICustomerGetUserUseCase:                        me.NewCustomerGetUserUseCase(rlc),

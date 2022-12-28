@@ -14,7 +14,7 @@ type (
 	}
 
 	Broker struct {
-		Notifier       chan MessagePayload
+		notifier       chan MessagePayload
 		newClients     chan chan MessagePayload
 		closingClients chan chan MessagePayload
 		clients        map[chan MessagePayload]bool
@@ -24,7 +24,7 @@ type (
 
 func NewBroker(l logger.Interface) *Broker {
 	b := &Broker{
-		Notifier:       make(chan MessagePayload, 1),
+		notifier:       make(chan MessagePayload, 1),
 		newClients:     make(chan chan MessagePayload),
 		closingClients: make(chan chan MessagePayload),
 		clients:        make(map[chan MessagePayload]bool),
@@ -34,7 +34,15 @@ func NewBroker(l logger.Interface) *Broker {
 	return b
 }
 func (b *Broker) Notify(pl *MessagePayload) error {
-	b.Notifier <- *pl
+	b.notifier <- *pl
+	return nil
+}
+func (b *Broker) AddClient(c chan MessagePayload) error {
+	b.newClients <- c
+	return nil
+}
+func (b *Broker) RemoveClient(c chan MessagePayload) error {
+	b.closingClients <- c
 	return nil
 }
 func (b *Broker) listen() {
@@ -48,7 +56,7 @@ func (b *Broker) listen() {
 			delete(b.clients, s)
 			b.logger.Info("Removed client. %d registered clients", len(b.clients))
 
-		case event := <-b.Notifier:
+		case event := <-b.notifier:
 			for clientMessageChan := range b.clients {
 				clientMessageChan <- event
 			}
@@ -69,10 +77,10 @@ func (b *Broker) ServeHTTP(ctx iris.Context) {
 
 	messageChan := make(chan MessagePayload)
 
-	b.newClients <- messageChan
+	b.AddClient(messageChan)
 
 	ctx.OnClose(func(iris.Context) {
-		b.closingClients <- messageChan
+		b.RemoveClient(messageChan)
 	})
 	user := middleware.GetUserFromCtxAsCustomer(ctx)
 	for {

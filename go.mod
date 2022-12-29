@@ -3,6 +3,7 @@ module github.com/TcMits/wnc-final
 go 1.19
 
 require (
+
 	entgo.io/contrib v0.3.3
 	entgo.io/ent v0.11.4
 	github.com/bluele/factory-go v0.0.1
@@ -18,7 +19,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
 	github.com/rs/zerolog v1.28.0
-	github.com/shopspring/decimal v1.2.0
+	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.1
 	github.com/swaggo/swag v1.8.9
 	golang.org/x/crypto v0.4.0

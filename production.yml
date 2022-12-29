@@ -9,6 +9,12 @@ services:
         env_file:
             - ./.envs/.production/.golang.sample
             - ./.envs/.production/.postgres.sample
+        environment:
+            - EMAIL_HOST=smtp.gmail.com
+            - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+            - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+            - EMAIL_HOST_PORT=587
+            - EMAIL_HOST_SENDER_NAME=${EMAIL_HOST_SENDER_NAME}
         depends_on:
             postgres:
                 condition: service_healthy

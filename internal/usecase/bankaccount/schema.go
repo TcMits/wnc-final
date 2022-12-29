@@ -19,11 +19,20 @@ type (
 	CustomerBankAccountGetFirstUseCase struct {
 		bALUC usecase.ICustomerBankAccountListUseCase
 	}
+	CustomerBankAccountListMineUseCase struct {
+		bALUC usecase.ICustomerBankAccountListUseCase
+	}
+	CustomerBankAccountGetFirstMineUseCase struct {
+		bALMUC usecase.ICustomerBankAccountListMineUseCase
+	}
 	CustomerBankAccountUseCase struct {
 		usecase.ICustomerBankAccountUpdateUseCase
 		usecase.ICustomerBankAccountValidateUpdateInputUseCase
 		usecase.ICustomerBankAccountListUseCase
 		usecase.ICustomerConfigUseCase
 		usecase.ICustomerGetUserUseCase
+		usecase.ICustomerBankAccountGetFirstMineUseCase
+		usecase.ICustomerBankAccountListMineUseCase
+		usecase.ICustomerBankAccountGetFirstUseCase
 	}
 )

@@ -6,6 +6,7 @@ import (
 
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
+	"github.com/TcMits/wnc-final/pkg/tool/generic"
 )
 
 func (uc *CustomerBankAccountUpdateUseCase) Update(ctx context.Context, m *model.BankAccount, i *model.BankAccountUpdateInput) (*model.BankAccount, error) {
@@ -49,6 +50,27 @@ func (uc *CustomerBankAccountGetFirstUseCase) GetFirst(ctx context.Context, o *m
 	entities, err := uc.bALUC.List(ctx, &l, &of, o, w)
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.GetFirst: %s", err))
+	}
+	if len(entities) > 0 {
+		return entities[0], nil
+	}
+	return nil, nil
+}
+
+func (uc *CustomerBankAccountListMineUseCase) ListMine(ctx context.Context, limit, offset *int, o *model.BankAccountOrderInput, w *model.BankAccountWhereInput) ([]*model.BankAccount, error) {
+	user := usecase.GetUserAsCustomer(ctx)
+	if w == nil {
+		w = new(model.BankAccountWhereInput)
+	}
+	w.CustomerID = generic.GetPointer(user.ID)
+	return uc.bALUC.List(ctx, limit, offset, o, w)
+}
+
+func (uc *CustomerBankAccountGetFirstMineUseCase) GetFirstMine(ctx context.Context, o *model.BankAccountOrderInput, w *model.BankAccountWhereInput) (*model.BankAccount, error) {
+	l, of := 1, 0
+	entities, err := uc.bALMUC.ListMine(ctx, &l, &of, o, w)
+	if err != nil {
+		return nil, err
 	}
 	if len(entities) > 0 {
 		return entities[0], nil

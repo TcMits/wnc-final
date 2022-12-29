@@ -28,7 +28,7 @@ func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.I
 // @Summary     Login
 // @Description Login
 // @ID          login
-// @Tags  	    login
+// @Tags  	    Login
 // @Accept      json
 // @Produce     json
 // @Param       payload body loginRequest true "Login"
@@ -62,13 +62,14 @@ func (r *authRoute) login(ctx iris.Context) {
 // @Summary     Logout
 // @Description Logout
 // @ID          logout
-// @Tags  	    logout
+// @Tags  	    Logout
+// @Security 	Bearer
 // @Accept      json
 // @Produce     json
 // @Success     204  ""
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /me [Delete]
+// @Router      /login [Delete]
 func (r *authRoute) logout(ctx iris.Context) {
 	err := r.uc.Logout(ctx)
 	if err != nil {
@@ -81,7 +82,7 @@ func (r *authRoute) logout(ctx iris.Context) {
 // @Summary     Renew token
 // @Description Renew token
 // @ID          renewtoken
-// @Tags  	    renewtoken
+// @Tags  	    Renew token
 // @Accept      json
 // @Produce     json
 // @Param       payload body renewTokenRequest true "Renew token"

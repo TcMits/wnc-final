@@ -66,7 +66,15 @@ func (b *Broker) listen() {
 func (b *Broker) ServeHTTP(ctx iris.Context) {
 	flusher, ok := ctx.ResponseWriter().Flusher()
 	if !ok {
-		ctx.StopWithText(iris.StatusHTTPVersionNotSupported, "Streaming unsupported!")
+		ctx.StopWithJSON(iris.StatusHTTPVersionNotSupported, struct {
+			Message string `json:"message"`
+			Code    string `json:"code"`
+			Detail  string `json:"detail"`
+		}{
+			Message: "Streaming unsupported!",
+			Detail:  "The HTTP version not support text/event-stream content type ",
+			Code:    "UNKNOWN",
+		})
 		return
 	}
 

@@ -24,7 +24,8 @@ func RegisterMeController(handler iris.Party, l logger.Interface, uc usecase.ICu
 // @Summary     Get profile
 // @Description Get profile
 // @ID          me
-// @Tags  	    me
+// @Tags  	    Me
+// @Security 	Bearer
 // @Accept      json
 // @Produce     json
 // @Success     200 {object} meResponse

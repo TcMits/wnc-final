@@ -32,20 +32,6 @@ func NewHandler() *iris.Application {
 	return handler
 }
 
-// @title Swagger Example API
-// @version 1.0
-// @description This is a sample server.
-// @termsOfService http://swagger.io/terms/
-
-// @contact.name API Support
-// @contact.url http://www.swagger.io/support
-// @contact.email support@swagger.io
-
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host localhost:8080
-// @BasePath /api
 func RegisterV1HTTPServices(
 	handler iris.Party,
 	// adding more usecases here
@@ -63,9 +49,5 @@ func RegisterV1HTTPServices(
 	handler.UseRouter(recover.New())
 	RegisterHealthCheckController(handler)
 
-	// services
-	h := handler.Party(_apiSubPath)
-	{
-		customer.RegisterCustomerServices(h, cMeUc, cAuthUc, cBankAccountUc, cStreamUc, cTxcUc, cDUc, b, l)
-	}
+	customer.RegisterCustomerServices(handler, cMeUc, cAuthUc, cBankAccountUc, cStreamUc, cTxcUc, cDUc, b, l)
 }

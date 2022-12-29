@@ -23,6 +23,16 @@ func RegisterStreamController(handler iris.Party, l logger.Interface, broker *ss
 	handler.Get("/stream", middleware.Authenticator(r.uc.GetSecret(), r.uc.GetUser), r.serve)
 }
 
+// @Summary     Receive events
+// @Description Receive events
+// @ID          event
+// @Tags  	    Event
+// @Security 	Bearer
+// @Accept      json
+// @Produce     json
+// @Success     204 ""
+// @Failure     505 {object} errorResponse
+// @Router      /stream [get]
 func (s *streamRoute) serve(ctx iris.Context) {
 	s.broker.ServeHTTP(ctx)
 }

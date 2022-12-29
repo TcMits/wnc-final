@@ -42,6 +42,14 @@ type (
 		AccountNumber string    `json:"account_number"`
 		IsForPayment  bool      `json:"is_for_payment"`
 	}
+	guestBankAccountResp struct {
+		ID            uuid.UUID `json:"id"`
+		CreateTime    time.Time `json:"create_time"`
+		UpdateTime    time.Time `json:"update_time"`
+		CustomerID    uuid.UUID `json:"customer_id"`
+		AccountNumber string    `json:"account_number"`
+		IsForPayment  bool      `json:"is_for_payment"`
+	}
 	transactionResp struct {
 		ID                        uuid.UUID                   `json:"id"`
 		CreateTime                time.Time                   `json:"create_time"`
@@ -85,7 +93,7 @@ type (
 	// reference on docs
 )
 
-func getResponse(entity any) any {
+func getDefaultResponse(entity any) any {
 	var result any
 	switch entity.(type) {
 	case *model.Customer:
@@ -160,11 +168,34 @@ func getResponse(entity any) any {
 	return result
 }
 
-func getResponses[ModelType any](entities []ModelType) any {
+func getGuestBankAccountResp(entity any) any {
+	e := entity.(*model.BankAccount)
+	return &guestBankAccountResp{
+		ID:            e.ID,
+		CreateTime:    e.CreateTime,
+		UpdateTime:    e.UpdateTime,
+		CustomerID:    e.CustomerID,
+		AccountNumber: e.AccountNumber,
+		IsForPayment:  e.IsForPayment,
+	}
+}
+
+func getResponse(entity any, args ...func(any) any) any {
+	var result any = entity
+	if len(args) == 0 {
+		args = append(args, getDefaultResponse)
+	}
+	for _, t := range args {
+		result = t(result)
+	}
+	return result
+}
+
+func getResponses[ModelType any](entities []ModelType, args ...func(any) any) any {
 	fr := make([]any, 0, len(entities))
 
 	for _, entity := range entities {
-		fr = append(fr, getResponse(entity))
+		fr = append(fr, getResponse(entity, args...))
 	}
 	return &EntitiesResponseTemplate[any]{Results: fr}
 }

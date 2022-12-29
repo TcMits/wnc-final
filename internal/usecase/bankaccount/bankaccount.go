@@ -40,6 +40,21 @@ func NewCustomerBankAccountUpdateUseCase(
 	}
 }
 
+func NewCustomerBankAccountListMineUseCase(
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.ICustomerBankAccountListMineUseCase {
+	return &CustomerBankAccountListMineUseCase{
+		bALUC: NewCustomerBankAccountListUseCase(repoList),
+	}
+}
+func NewCustomerBankAccountGetFirstMineUseCase(
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.ICustomerBankAccountGetFirstMineUseCase {
+	return &CustomerBankAccountGetFirstMineUseCase{
+		bALMUC: NewCustomerBankAccountListMineUseCase(repoList),
+	}
+}
+
 func NewCustomerBankAccountUseCase(
 	repoUpdate repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
 	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
@@ -55,5 +70,8 @@ func NewCustomerBankAccountUseCase(
 		ICustomerBankAccountListUseCase:                NewCustomerBankAccountListUseCase(repoList),
 		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 		ICustomerGetUserUseCase:                        me.NewCustomerGetUserUseCase(rlc),
+		ICustomerBankAccountGetFirstMineUseCase:        NewCustomerBankAccountGetFirstMineUseCase(repoList),
+		ICustomerBankAccountListMineUseCase:            NewCustomerBankAccountListMineUseCase(repoList),
+		ICustomerBankAccountGetFirstUseCase:            NewCustomerBankAccountGetFirstUseCase(repoList),
 	}
 }

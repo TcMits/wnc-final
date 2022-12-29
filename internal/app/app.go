@@ -106,7 +106,8 @@ func Run(cfg *config.Config) {
 	)
 
 	b := sse.NewBroker(l)
-	v1.RegisterV1HTTPServices(handler,
+	v1.RegisterV1HTTPServices(
+		handler,
 		CMeUc,
 		CAuthUc,
 		cBankAccountUc,

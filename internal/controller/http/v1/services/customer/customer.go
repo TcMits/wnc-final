@@ -10,9 +10,23 @@ import (
 )
 
 const (
-	_customerV1SubPath = "/customer/v1"
+	_customerV1SubPath = "/api/customer/v1"
 )
 
+// @title Swagger Example API
+// @version 1.0
+// @description This is a sample server.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api/customer/v1
 func RegisterCustomerServices(
 	handler iris.Party,
 	// adding more usecases here

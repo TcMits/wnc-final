@@ -91,12 +91,21 @@ type (
 	ICustomerBankAccountValidateUpdateInputUseCase interface {
 		iValidateUpdateInput[*model.BankAccount, *model.BankAccountUpdateInput]
 	}
+	ICustomerBankAccountGetFirstMineUseCase interface {
+		GetFirstMine(context.Context, *model.BankAccountOrderInput, *model.BankAccountWhereInput) (*model.BankAccount, error)
+	}
+	ICustomerBankAccountListMineUseCase interface {
+		ListMine(context.Context, *int, *int, *model.BankAccountOrderInput, *model.BankAccountWhereInput) ([]*model.BankAccount, error)
+	}
 	ICustomerBankAccountUseCase interface {
 		ICustomerGetUserUseCase
 		ICustomerConfigUseCase
 		ICustomerBankAccountUpdateUseCase
 		ICustomerBankAccountValidateUpdateInputUseCase
 		ICustomerBankAccountListUseCase
+		ICustomerBankAccountGetFirstMineUseCase
+		ICustomerBankAccountListMineUseCase
+		ICustomerBankAccountGetFirstUseCase
 	}
 	ICustomerTransactionValidateConfirmInputUseCase interface {
 		ValidateConfirmInput(context.Context, *model.Transaction, *string, *string) error

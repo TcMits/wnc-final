@@ -20,7 +20,7 @@ require (
 	github.com/rs/zerolog v1.28.0
 	github.com/shopspring/decimal v1.2.0
 	github.com/stretchr/testify v1.8.1
-	github.com/swaggo/swag v1.8.8
+	github.com/swaggo/swag v1.8.9
 	golang.org/x/crypto v0.4.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
@@ -28,13 +28,11 @@ require (
 require (
 	ariga.io/atlas v0.8.3 // indirect
 	github.com/99designs/gqlgen v0.17.5-0.20220428154617-9250f9ac1f90 // indirect
-	github.com/BurntSushi/toml v1.2.0 // indirect
+	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/CloudyKit/jet/v6 v6.1.0 // indirect
 	github.com/Joker/jade v1.1.3 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/PuerkitoBio/purell v1.1.1 // indirect
-	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/Shopify/goreferrer v0.0.0-20220729165902-8cddb4f5de06 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
@@ -50,9 +48,9 @@ require (
 	github.com/flosch/pongo2/v4 v4.0.2 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
-	github.com/go-openapi/jsonreference v0.19.6 // indirect
-	github.com/go-openapi/spec v0.20.4 // indirect
-	github.com/go-openapi/swag v0.19.15 // indirect
+	github.com/go-openapi/jsonreference v0.20.0 // indirect
+	github.com/go-openapi/spec v0.20.7 // indirect
+	github.com/go-openapi/swag v0.22.3 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
@@ -103,7 +101,7 @@ require (
 	github.com/yosssi/ace v0.0.5 // indirect
 	github.com/zclconf/go-cty v1.12.1 // indirect
 	golang.org/x/mod v0.7.0 // indirect
-	golang.org/x/net v0.3.0 // indirect
+	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/time v0.3.0 // indirect

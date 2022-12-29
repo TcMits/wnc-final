@@ -27,10 +27,11 @@ func RegisterDebtController(handler iris.Party, l logger.Interface, uc usecase.I
 // @Summary     Get a debt
 // @Description Get a debt
 // @ID          debt-get
-// @Tags  	    debts
+// @Tags  	    Debt
+// @Security 	Bearer
 // @Accept      json
 // @Produce     json
-// @Param       id path uuid true "ID of debt"
+// @Param       id path string true "ID of debt"
 // @Success     200 {object} debtResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
@@ -56,7 +57,8 @@ func (s *debtRoute) detail(ctx iris.Context) {
 // @Summary     Show debt
 // @Description Show debt
 // @ID          debt-listing
-// @Tags  	    debt
+// @Tags  	    Debt
+// @Security 	Bearer
 // @Accept      json
 // @Produce     json
 // @Success     200 {object} debtResp
@@ -79,7 +81,8 @@ func (s *debtRoute) listing(ctx iris.Context) {
 // @Summary     Create a debt
 // @Description Create a debt
 // @ID          debt-create
-// @Tags  	    debt
+// @Tags  	    Debt
+// @Security 	Bearer
 // @Accept      json
 // @Produce     json
 // @Param       payload body debtCreateReq true "Create a debt"

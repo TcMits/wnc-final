@@ -1,8 +1,6 @@
 #!/bin/bash
 
 set -o errexit
-set -o pipefail
-set -o nounset
 
 sudo apt-get update
 sudo apt-get install \

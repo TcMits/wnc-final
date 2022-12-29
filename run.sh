@@ -20,6 +20,3 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 sudo groupadd docker
 usermod -aG docker ${USER}
 su -s ${USER}
-
-docker compose -f production.yml build
-docker compose -f production.yml up --detach

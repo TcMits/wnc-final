@@ -11,7 +11,7 @@ import (
 
 func TestSendMail(t *testing.T) {
 	t.Parallel()
-	cfg, _ := config.NewConfig()
+	cfg, _ := config.NewConfigForTest()
 	err := mail.SendMail(&mail.EmailPayload{
 		Subject: "Sample subject",
 		Message: "Sample message",

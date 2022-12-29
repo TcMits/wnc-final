@@ -83,7 +83,23 @@ func GetRootDir() string {
 // NewConfig returns app config.
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
-	path := filepath.Join(GetRootDir(), "config/config.yml")
+	err := cleanenv.ReadConfig("./config/config.yml", cfg)
+	if err != nil {
+		fmt.Println(err)
+		return nil, fmt.Errorf("config error: %w", err)
+	}
+
+	err = cleanenv.ReadEnv(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
+}
+
+func NewConfigForTest() (*Config, error) {
+	cfg := &Config{}
+	path := filepath.Join(GetRootDir(), "/config/config.yml")
 	err := cleanenv.ReadConfig(path, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("config error: %w", err)

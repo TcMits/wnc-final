@@ -476,7 +476,7 @@ func TestCreateUseCase(t *testing.T) {
 			ctx := context.Background()
 			require.NoError(t, c.Schema.Create(ctx))
 			tt.setUp(t, &ctx, c)
-			cfg, _ := config.NewConfig()
+			cfg, _ := config.NewConfigForTest()
 			cTask := backgroundserver.NewClient(cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
 			defer cTask.Close()
 			mockCtl := gomock.NewController(t)

@@ -11,7 +11,6 @@ services:
             - .:/wnc-final:z
         env_file:
             - ./.envs/.local/.golang
-            - ./.envs/.local/.asynq
             - ./.envs/.local/.postgres
         command: /start
         depends_on:
@@ -49,7 +48,7 @@ services:
         image: hibiken/asynqmon 
         container_name: asynq_monitor_dev
         env_file:
-            - ./.envs/.local/.asynq
+            - ./.envs/.local/.golang
         ports:
             - 8081:8081
         depends_on:

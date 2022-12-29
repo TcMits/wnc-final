@@ -6,6 +6,7 @@ import (
 
 	"github.com/TcMits/wnc-final/config"
 	"github.com/TcMits/wnc-final/ent"
+	"github.com/TcMits/wnc-final/ent/customer"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/TcMits/wnc-final/pkg/tool/password"
@@ -32,7 +33,9 @@ func createUser(client *ent.Client) {
 	if err != nil {
 		log.Fatalf("failed creating user: %v", err)
 	}
-	if _, err := client.Customer.Create().SetUsername("superuser").SetPassword(hashPw).SetEmail("su@gmail.com").SetPhoneNumber("+84923456789").SetIsActive(true).Save(context.Background()); err != nil {
-		log.Fatalf("failed creating user: %v", err)
+	if len(client.Customer.Query().Where(customer.Username("superuser")).AllX(context.Background())) == 0 {
+		if _, err := client.Customer.Create().SetUsername("superuser").SetPassword(hashPw).SetEmail("su@gmail.com").SetPhoneNumber("+84923456789").SetIsActive(true).Save(context.Background()); err != nil {
+			log.Fatalf("failed creating user: %v", err)
+		}
 	}
 }

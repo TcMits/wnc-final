@@ -7,15 +7,18 @@ services:
             dockerfile: ./compose/production/golang/Dockerfile
         image: golang
         env_file:
-            - ./.envs/.production/.golang
-            - ./.envs/.production/.postgres
+            - ./.envs/.production/.golang.sample
+            - ./.envs/.production/.postgres.sample
         depends_on:
             postgres:
                 condition: service_healthy
+        depends_on:
+            - redis
         ports:
-            - 8080:8080
+            - 80:8080
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:8080/ping/"]
+        restart: always
 
     postgres:
         build:
@@ -28,12 +31,26 @@ services:
               source: db
               target: /var/lib/postgresql/data
         env_file:
-            - ./.envs/.production/.postgres
+            - ./.envs/.production/.postgres.sample
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
             interval: 10s
             timeout: 5s
             retries: 5
+    redis:
+        image: redis:alpine
+        ports:
+            - 6379:6379
+        container_name: redis_db_dev
 
+    asynq-monitor:
+        image: hibiken/asynqmon 
+        container_name: asynq_monitor_dev
+        env_file:
+            - ./.envs/.production/.golang.sample
+        ports:
+            - 8081:8081
+        depends_on:
+            - redis
 volumes:
     db:

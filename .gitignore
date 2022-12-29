@@ -31,3 +31,5 @@ ent-clean-template
 
 .envs/.production/*
 !.envs/.production/*.sample
+
+.envs/.local/.golang

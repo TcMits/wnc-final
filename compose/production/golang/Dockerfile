@@ -36,5 +36,10 @@ COPY --from=builder /bin/migrate /migrate
 COPY --from=builder /bin/createuser /createuser
 COPY --from=builder /app/config /config
 COPY --from=builder /app/locales /locales
+COPY --from=builder /app/compose/production/golang/start /start
+COPY --from=builder /app/templates/ /templates
 
-CMD ["/app"]
+RUN sed -i 's/\r$//g' /start
+RUN chmod +x /start
+
+CMD ["/start"]

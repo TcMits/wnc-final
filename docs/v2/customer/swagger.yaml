@@ -1,0 +1,747 @@
+basePath: /api/customer/v1
+definitions:
+  customer.bankAccountResp:
+    properties:
+      account_number:
+        type: string
+      cash_in:
+        type: number
+      cash_out:
+        type: number
+      create_time:
+        type: string
+      customer_id:
+        type: string
+      id:
+        type: string
+      is_for_payment:
+        type: boolean
+      update_time:
+        type: string
+    type: object
+  customer.bankAccountUpdateReq:
+    properties:
+      is_for_payment:
+        type: boolean
+    required:
+    - is_for_payment
+    type: object
+  customer.debtCreateReq:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+      receiver_bank_account_number:
+        type: string
+      receiver_id:
+        type: string
+      receiver_name:
+        type: string
+    required:
+    - amount
+    - description
+    - receiver_bank_account_number
+    - receiver_id
+    - receiver_name
+    type: object
+  customer.debtResp:
+    properties:
+      amount:
+        type: number
+      create_time:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      owner_bank_account_number:
+        type: string
+      owner_bank_name:
+        type: string
+      owner_id:
+        type: string
+      owner_name:
+        type: string
+      receiver_bank_account_number:
+        type: string
+      receiver_bank_name:
+        type: string
+      receiver_id:
+        type: string
+      receiver_name:
+        type: string
+      status:
+        $ref: '#/definitions/debt.Status'
+      transaction_id:
+        type: string
+      update_time:
+        type: string
+    type: object
+  customer.errorResponse:
+    properties:
+      code:
+        type: string
+      detail:
+        type: string
+      message:
+        type: string
+    type: object
+  customer.guestBankAccountResp:
+    properties:
+      account_number:
+        type: string
+      create_time:
+        type: string
+      customer_id:
+        type: string
+      id:
+        type: string
+      is_for_payment:
+        type: boolean
+      update_time:
+        type: string
+    type: object
+  customer.loginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  customer.meResponse:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      phone_number:
+        type: string
+      username:
+        type: string
+    type: object
+  customer.renewTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  customer.tokenPairResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  customer.transactionConfirmReq:
+    properties:
+      otp:
+        type: string
+      token:
+        type: string
+    required:
+    - otp
+    - token
+    type: object
+  customer.transactionCreateReq:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+      is_fee_paid_by_me:
+        type: boolean
+      receiver_bank_account_number:
+        type: string
+      receiver_bank_name:
+        type: string
+      receiver_id:
+        type: string
+      receiver_name:
+        type: string
+    required:
+    - amount
+    - description
+    - is_fee_paid_by_me
+    - receiver_bank_account_number
+    - receiver_bank_name
+    - receiver_id
+    - receiver_name
+    type: object
+  customer.transactionResp:
+    properties:
+      amount:
+        type: number
+      create_time:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      receiver_bank_account_number:
+        type: string
+      receiver_bank_name:
+        type: string
+      receiver_id:
+        type: string
+      receiver_name:
+        type: string
+      sender_bank_account_number:
+        type: string
+      sender_bank_name:
+        type: string
+      sender_id:
+        type: string
+      sender_name:
+        type: string
+      source_transaction_id:
+        type: string
+      status:
+        $ref: '#/definitions/transaction.Status'
+      transaction_type:
+        $ref: '#/definitions/transaction.TransactionType'
+      update_time:
+        type: string
+    type: object
+  debt.Status:
+    enum:
+    - pending
+    - pending
+    - cancelled
+    - fulfilled
+    type: string
+    x-enum-varnames:
+    - DefaultStatus
+    - StatusPending
+    - StatusCancelled
+    - StatusFulfilled
+  transaction.Status:
+    enum:
+    - draft
+    - draft
+    - verified
+    - success
+    type: string
+    x-enum-varnames:
+    - DefaultStatus
+    - StatusDraft
+    - StatusVerified
+    - StatusSuccess
+  transaction.TransactionType:
+    enum:
+    - internal
+    - external
+    type: string
+    x-enum-varnames:
+    - TransactionTypeInternal
+    - TransactionTypeExternal
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /bank-accounts:
+    get:
+      consumes:
+      - application/json
+      description: Show bank accounts
+      operationId: bankaccount-listing
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.bankAccountResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show bank accounts
+      tags:
+      - Bank account
+  /bank-accounts/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a guest bank account
+      operationId: guestbankaccount-get
+      parameters:
+      - description: ID of bank account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.guestBankAccountResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a guest bank account
+      tags:
+      - Guest bank account
+    put:
+      consumes:
+      - application/json
+      description: Update a bank account
+      operationId: bankaccount-update
+      parameters:
+      - description: Update a bank account
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.bankAccountUpdateReq'
+      - description: ID of bank account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.bankAccountResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Update a bank account
+      tags:
+      - Bank account
+  /bank-accounts/guest:
+    get:
+      consumes:
+      - application/json
+      description: Show guest bank accounts
+      operationId: guestbankaccount-listing
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.guestBankAccountResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show guest bank accounts
+      tags:
+      - Guest bank account
+  /bank-accounts/guest/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a bank account
+      operationId: bankaccount-get
+      parameters:
+      - description: ID of bank account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.bankAccountResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a bank account
+      tags:
+      - Bank account
+  /debts:
+    get:
+      consumes:
+      - application/json
+      description: Show debt
+      operationId: debt-listing
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.debtResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show debt
+      tags:
+      - Debt
+    post:
+      consumes:
+      - application/json
+      description: Create a debt
+      operationId: debt-create
+      parameters:
+      - description: Create a debt
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.debtCreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/customer.debtResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Create a debt
+      tags:
+      - Debt
+  /debts/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a debt
+      operationId: debt-get
+      parameters:
+      - description: ID of debt
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.debtResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a debt
+      tags:
+      - Debt
+  /login:
+    delete:
+      consumes:
+      - application/json
+      description: Logout
+      operationId: logout
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Logout
+      tags:
+      - Logout
+    post:
+      consumes:
+      - application/json
+      description: Login
+      operationId: login
+      parameters:
+      - description: Login
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.tokenPairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      summary: Login
+      tags:
+      - Login
+  /me/:
+    get:
+      consumes:
+      - application/json
+      description: Get profile
+      operationId: me
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.meResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get profile
+      tags:
+      - Me
+  /stream:
+    get:
+      consumes:
+      - application/json
+      description: Receive events
+      operationId: event
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "505":
+          description: HTTP Version Not Supported
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Receive events
+      tags:
+      - Event
+  /token:
+    post:
+      consumes:
+      - application/json
+      description: Renew token
+      operationId: renewtoken
+      parameters:
+      - description: Renew token
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.renewTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.tokenPairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      summary: Renew token
+      tags:
+      - Renew token
+  /transactions:
+    get:
+      consumes:
+      - application/json
+      description: Show transactions
+      operationId: transaction-listing
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.transactionResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show transactions
+      tags:
+      - Transaction
+    post:
+      consumes:
+      - application/json
+      description: Create a transaction
+      operationId: transaction-create
+      parameters:
+      - description: Create a transaction
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.transactionCreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/customer.transactionResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Create a transaction
+      tags:
+      - Transaction
+  /transactions/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a transaction
+      operationId: transaction-get
+      parameters:
+      - description: ID of transaction
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.transactionResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a transaction
+      tags:
+      - Transaction
+    put:
+      consumes:
+      - application/json
+      description: Confirm success a transaction
+      operationId: transaction-confirmsuccess
+      parameters:
+      - description: Confirm a transaction
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.transactionConfirmReq'
+      - description: ID of transaction
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.transactionResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Confirm success
+      tags:
+      - Transaction
+swagger: "2.0"

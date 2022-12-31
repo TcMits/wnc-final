@@ -41,5 +41,5 @@ COPY --from=builder /app/templates/ /templates
 
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
-
+EXPOSE 8080
 CMD ["/start"]

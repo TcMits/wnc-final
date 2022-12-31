@@ -9,19 +9,11 @@ services:
         env_file:
             - ./.envs/.production/.golang.sample
             - ./.envs/.production/.postgres.sample
-        environment:
-            - EMAIL_HOST=smtp.gmail.com
-            - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
-            - EMAIL_HOST_USER=${EMAIL_HOST_USER}
-            - EMAIL_HOST_PORT=587
-            - EMAIL_HOST_SENDER_NAME=${EMAIL_HOST_SENDER_NAME}
         depends_on:
             postgres:
                 condition: service_healthy
         depends_on:
             - redis
-        ports:
-            - 80:8080
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:8080/ping/"]
         restart: always
@@ -58,5 +50,17 @@ services:
             - 8081:8081
         depends_on:
             - redis
+
+    nginx:
+        build:
+            context: .
+            dockerfile: ./compose/production/nginx/Dockerfile
+        restart: always
+        ports:
+            - 80:80
+            - 443:443
+        depends_on:
+            - golang
+        
 volumes:
     db:

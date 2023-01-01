@@ -12,12 +12,11 @@ import (
 type (
 	// Config -.
 	Config struct {
-		App   `yaml:"app"`
-		HTTP  `yaml:"http"`
-		Log   `yaml:"logger"`
-		PG    `yaml:"postgres"`
-		Redis `yaml:"redis"`
-		Mail  `yaml:"mail"`
+		App  `yaml:"app"`
+		HTTP `yaml:"http"`
+		Log  `yaml:"logger"`
+		PG   `yaml:"postgres"`
+		Mail `yaml:"mail"`
 		AuthUseCase
 		TransactionUseCase
 	}
@@ -43,13 +42,6 @@ type (
 	PG struct {
 		PoolMax int    `env-required:"true" yaml:"pool_max" env:"PG_POOL_MAX" env-default:"90"`
 		URL     string `env-required:"true"                 env:"PG_URL"`
-	}
-
-	// Redis -.
-	Redis struct {
-		URL      string `env-required:"true"                 env:"REDIS_DB_URL"`
-		Password string `env-required:"true"                 env:"REDIS_DB_PASSWORD"`
-		DB       int    `env-required:"true"                 env:"REDIS_DB"`
 	}
 
 	Mail struct {

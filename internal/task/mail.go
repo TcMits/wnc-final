@@ -2,20 +2,19 @@ package task
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/TcMits/wnc-final/pkg/tool/mail"
-	"github.com/hibiken/asynq"
-)
-
-const (
-	typeConfirmEmail = "email:confirm"
 )
 
 type (
 	EmailTaskExecutor struct {
-		client *asynq.Client
+		host     string
+		user     string
+		password string
+		sender   string
+		port     int
+		l        logger.Interface
 	}
 )
 
@@ -23,32 +22,23 @@ func (s *EmailTaskExecutor) ExecuteTask(ctx context.Context, pl *mail.EmailPaylo
 	if pl == nil {
 		pl = new(mail.EmailPayload)
 	}
-	task, err := NewTask(pl, typeConfirmEmail)
-	if err != nil {
-		return err
-	}
-	_, err = s.client.EnqueueContext(ctx, task)
-	if err != nil {
-		return err
-	}
+	go mailTaskHandler(s.host, s.user, s.password, s.sender, s.port, s.l, pl)
 	return nil
 }
-
-func MailTaskHandlerWrapper(host, user, password, sender string, port int, l logger.Interface) TaskHandler {
-	return func(ctx context.Context, t *asynq.Task) error {
-		p := new(mail.EmailPayload)
-		if err := json.Unmarshal(t.Payload(), p); err != nil {
-			return err
-		}
-		l.Info("Sending email...")
-		if err := mail.SendMail(p, user, password, host, sender, port); err != nil {
-			return err
-		}
-		return nil
+func mailTaskHandler(host, user, password, sender string, port int, l logger.Interface, p *mail.EmailPayload) {
+	if err := mail.SendMail(p, user, password, host, sender, port); err != nil {
+		l.Warn("Sending email failed due to: %s", err)
 	}
+	l.Info("Sending email successfully...")
 }
-func GetEmailTaskExecutor(c *asynq.Client) IExecuteTask[*mail.EmailPayload] {
+
+func GetEmailTaskExecutor(host, user, password, sender string, port int, l logger.Interface) IExecuteTask[*mail.EmailPayload] {
 	return &EmailTaskExecutor{
-		client: c,
+		host:     host,
+		user:     user,
+		password: password,
+		sender:   sender,
+		port:     port,
+		l:        l,
 	}
 }

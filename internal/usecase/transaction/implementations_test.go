@@ -13,7 +13,6 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/transaction"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
-	"github.com/TcMits/wnc-final/pkg/infrastructure/backgroundserver"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/mail"
@@ -477,8 +476,6 @@ func TestCreateUseCase(t *testing.T) {
 			require.NoError(t, c.Schema.Create(ctx))
 			tt.setUp(t, &ctx, c)
 			cfg, _ := config.NewConfigForTest()
-			cTask := backgroundserver.NewClient(cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
-			defer cTask.Close()
 			mockCtl := gomock.NewController(t)
 			defer mockCtl.Finish()
 			taskExecutorMock := task.NewMockIExecuteTask[*mail.EmailPayload](mockCtl)

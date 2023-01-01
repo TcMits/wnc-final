@@ -7,56 +7,19 @@ services:
             dockerfile: ./compose/production/golang/Dockerfile
         image: golang
         env_file:
-            - ./.envs/.production/.golang.sample
-            - ./.envs/.production/.postgres.sample
-        environment:
-            - EMAIL_HOST=smtp.gmail.com
-            - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
-            - EMAIL_HOST_USER=${EMAIL_HOST_USER}
-            - EMAIL_HOST_PORT=587
-            - EMAIL_HOST_SENDER_NAME=${EMAIL_HOST_SENDER_NAME}
-        depends_on:
-            postgres:
-                condition: service_healthy
-        depends_on:
-            - redis
-        ports:
-            - 80:8080
+            - ./.envs/.production/.golang
+            - ./.envs/.production/.sqlite
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:8080/ping/"]
         restart: always
 
-    postgres:
+    nginx:
         build:
             context: .
-            dockerfile: ./compose/production/postgres/Dockerfile
-        image: postgres_db
-        command: postgres
-        volumes:
-            - type: volume
-              source: db
-              target: /var/lib/postgresql/data
-        env_file:
-            - ./.envs/.production/.postgres.sample
-        healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
-    redis:
-        image: redis:alpine
+            dockerfile: ./compose/production/nginx/Dockerfile
+        restart: always
         ports:
-            - 6379:6379
-        container_name: redis_db_dev
-
-    asynq-monitor:
-        image: hibiken/asynqmon 
-        container_name: asynq_monitor_dev
-        env_file:
-            - ./.envs/.production/.golang.sample
-        ports:
-            - 8081:8081
+            - 80:80
+            - 443:443
         depends_on:
-            - redis
-volumes:
-    db:
+            - golang

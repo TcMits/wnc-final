@@ -18,7 +18,6 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/internal/usecase/stream"
 	"github.com/TcMits/wnc-final/internal/usecase/transaction"
-	"github.com/TcMits/wnc-final/pkg/infrastructure/backgroundserver"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/httpserver"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
@@ -29,17 +28,17 @@ func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 
 	// Repository
-	client, err := datastore.NewClient(cfg.PG.URL, cfg.PG.PoolMax)
+	client, err := datastore.NewClient(cfg.Sqlite.URL, cfg.Sqlite.PoolMax)
 	if err != nil {
 		l.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
 	}
 	defer client.Close()
-	// Task client
-	taskClient := backgroundserver.NewClient(cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
-	defer taskClient.Close()
 
 	// HTTP Server
 	handler := v1.NewHandler()
+
+	// Broker Server sent event
+	b := sse.NewBroker(l)
 
 	// Usecase
 	CMeUc := me.NewCustomerMeUseCase(
@@ -69,7 +68,7 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeDesc,
 	)
 	cTxcUc := transaction.NewCustomerTransactionUseCase(
-		task.GetEmailTaskExecutor(taskClient),
+		task.GetEmailTaskExecutor(cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, l),
 		repository.GetTransactionConfirmSuccessRepository(client),
 		repository.GetTransactionCreateRepository(client),
 		repository.GetTransactionListRepository(client),
@@ -91,7 +90,7 @@ func Run(cfg *config.Config) {
 		repository.GetDebtCreateRepository(client),
 		repository.GetCustomerListRepository(client),
 		repository.GetBankAccountListRepository(client),
-		task.GetDebtTaskExecutor(taskClient),
+		task.GetDebtTaskExecutor(b, l),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 		&cfg.TransactionUseCase.FeeDesc,
@@ -105,7 +104,6 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeDesc,
 	)
 
-	b := sse.NewBroker(l)
 	v1.RegisterV1HTTPServices(
 		handler,
 		CMeUc,
@@ -123,18 +121,6 @@ func Run(cfg *config.Config) {
 	}
 	httpServer := httpserver.New(handler, httpserver.Port(cfg.HTTP.Port))
 	l.Info("Listening and serving HTTP on %s", httpServer.Addr())
-
-	// Task Worker
-	workerHandler := task.NewHandler()
-	// Register Tasks
-	task.RegisterTask(workerHandler, l, cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, b)
-
-	workerServer := backgroundserver.NewWorkerServer(workerHandler, cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
-
-	// Starting worker server
-	if err = workerServer.Run(); err != nil {
-		l.Fatal(fmt.Errorf("app - Run - workerServer.Run: %w", err))
-	}
 
 	// Waiting signal
 	interrupt := make(chan os.Signal, 1)

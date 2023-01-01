@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDebtTaskHandler(t *testing.T) {
+func TestDebtCreateTaskExecutor(t *testing.T) {
 	t.Parallel()
 	mockCtl := gomock.NewController(t)
 	defer mockCtl.Finish()
@@ -22,8 +22,7 @@ func TestDebtTaskHandler(t *testing.T) {
 		UserID: uuid.New(),
 	}
 	l := logger.New(logger.DebugLevel)
-	tsk, _ := task.NewTask(pl, "foo")
-	handler := task.DebtTaskHandlerWrapper(b, l)
-	err := handler(context.Background(), tsk)
+	handler := task.GetDebtTaskExecutor(b, l)
+	err := handler.ExecuteTask(context.Background(), pl)
 	require.Nil(t, err)
 }

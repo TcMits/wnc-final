@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
     golang:
-        build:
+        build: 
             context: .
             dockerfile: ./compose/local/golang/Dockerfile
         image: golang_dev
@@ -11,48 +11,8 @@ services:
             - .:/wnc-final:z
         env_file:
             - ./.envs/.local/.golang
-            - ./.envs/.local/.postgres
+            - ./.envs/.local/.sqlite
         command: /start
-        depends_on:
-            postgres:
-                condition: service_healthy
-        depends_on:
-            - redis
         ports:
             - 8080:8080
         restart: always
-
-    postgres:
-        build:
-            context: .
-            dockerfile: ./compose/local/postgres/Dockerfile
-        image: postgres_db_dev
-        container_name: postgres_db_dev
-        command: postgres -c log_destination=stderr -c log_connections=on -c max_connections=100 -c log_disconnections=on
-        volumes:
-            - db:/var/lib/postgresql/data:Z
-        env_file:
-            - ./.envs/.local/.postgres
-        healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
-    redis:
-        image: redis:alpine
-        ports:
-            - 6379:6379
-        container_name: redis_db_dev
-
-    asynq-monitor:
-        image: hibiken/asynqmon 
-        container_name: asynq_monitor_dev
-        env_file:
-            - ./.envs/.local/.golang
-        ports:
-            - 8081:8081
-        depends_on:
-            - redis
-        
-volumes:
-    db:

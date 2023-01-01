@@ -30,7 +30,7 @@ type (
 
 	// HTTP -.
 	HTTP struct {
-		Port string `env-required:"true" yaml:"port" env:"HTTP_PORT"`
+		Port string `env-required:"true" yaml:"port" env:"PORT"`
 	}
 
 	// Log -.

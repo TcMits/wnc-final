@@ -34,3 +34,5 @@ ent-clean-template
 
 .envs/.local/.golang
 .envs/.local/.postgres
+
+db.*

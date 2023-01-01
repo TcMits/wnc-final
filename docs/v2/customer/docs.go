@@ -657,7 +657,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/customer.transactionResp"
+                            "$ref": "#/definitions/customer.transactionCreateResp"
                         }
                     },
                     "400": {
@@ -1047,6 +1047,62 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "receiver_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "customer.transactionCreateResp": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "create_time": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "receiver_bank_account_number": {
+                    "type": "string"
+                },
+                "receiver_bank_name": {
+                    "type": "string"
+                },
+                "receiver_id": {
+                    "type": "string"
+                },
+                "receiver_name": {
+                    "type": "string"
+                },
+                "sender_bank_account_number": {
+                    "type": "string"
+                },
+                "sender_bank_name": {
+                    "type": "string"
+                },
+                "sender_id": {
+                    "type": "string"
+                },
+                "sender_name": {
+                    "type": "string"
+                },
+                "source_transaction_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/transaction.Status"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "transaction_type": {
+                    "$ref": "#/definitions/transaction.TransactionType"
+                },
+                "update_time": {
                     "type": "string"
                 }
             }

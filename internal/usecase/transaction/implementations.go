@@ -10,7 +10,6 @@ import (
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/mail"
 	"github.com/TcMits/wnc-final/pkg/tool/template"
-	"github.com/TcMits/wnc-final/pkg/tool/url"
 	"github.com/shopspring/decimal"
 )
 
@@ -81,7 +80,7 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.C
 	return nil, usecase.WrapError(fmt.Errorf("unhandled external transaction case"))
 }
 
-func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.Transaction, error) {
+func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.TransactionCreateResp, error) {
 	entity, err := uc.repoCreate.Create(ctx, i)
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
@@ -103,15 +102,11 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
 	}
-	redirectUrl, err := url.JoinQueryString(uc.frontendUrl, map[string]string{
-		"token": tk,
-	})
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
 	}
 	user := usecase.GetUserAsCustomer(ctx)
 	msg, err := template.RenderToStr(*uc.txcConfirmMailTemp, map[string]string{
-		"link":    *redirectUrl,
 		"otp":     otp,
 		"name":    user.GetName(),
 		"expires": fmt.Sprintf("%.0f", uc.otpTimeout.Minutes()),
@@ -127,7 +122,10 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
 	}
-	return entity, nil
+	return &model.TransactionCreateResp{
+		Transaction: entity,
+		Token:       tk,
+	}, nil
 }
 
 func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx context.Context, i *model.TransactionCreateInput) error {

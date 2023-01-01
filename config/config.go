@@ -12,11 +12,11 @@ import (
 type (
 	// Config -.
 	Config struct {
-		App  `yaml:"app"`
-		HTTP `yaml:"http"`
-		Log  `yaml:"logger"`
-		PG   `yaml:"postgres"`
-		Mail `yaml:"mail"`
+		App    `yaml:"app"`
+		HTTP   `yaml:"http"`
+		Log    `yaml:"logger"`
+		Sqlite `yaml:"sqlite"`
+		Mail   `yaml:"mail"`
 		AuthUseCase
 		TransactionUseCase
 	}
@@ -38,10 +38,10 @@ type (
 		Level string `env-required:"true" yaml:"log_level" env:"LOG_LEVEL"`
 	}
 
-	// PG -.
-	PG struct {
-		PoolMax int    `env-required:"true" yaml:"pool_max" env:"PG_POOL_MAX" env-default:"90"`
-		URL     string `env-required:"true"                 env:"PG_URL"`
+	// Sqlite -.
+	Sqlite struct {
+		PoolMax int    `env-required:"true" yaml:"pool_max" env:"SQLITE_POOL_MAX" env-default:"90"`
+		URL     string `env-required:"true"                 env:"SQLITE_URL"`
 	}
 
 	Mail struct {

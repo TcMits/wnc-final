@@ -1,0 +1,1 @@
+SQLITE_URL=file:ent?mode=memory&cache=shared&_fk=1

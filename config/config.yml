@@ -15,6 +15,6 @@ http:
 logger:
   log_level: 'info'
 
-postgres:
+sqlite:
   pool_max: 90
 

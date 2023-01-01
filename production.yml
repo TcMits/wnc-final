@@ -8,7 +8,6 @@ services:
         image: golang
         env_file:
             - ./.envs/.production/.golang.sample
-            - ./.envs/.production/.postgres.sample
         depends_on:
             postgres:
                 condition: service_healthy
@@ -17,24 +16,6 @@ services:
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:8080/ping/"]
         restart: always
-
-    postgres:
-        build:
-            context: .
-            dockerfile: ./compose/production/postgres/Dockerfile
-        image: postgres_db
-        command: postgres
-        volumes:
-            - type: volume
-              source: db
-              target: /var/lib/postgresql/data
-        env_file:
-            - ./.envs/.production/.postgres.sample
-        healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
 
     nginx:
         build:
@@ -46,6 +27,3 @@ services:
             - 443:443
         depends_on:
             - golang
-        
-volumes:
-    db:

@@ -15,22 +15,19 @@ import (
 
 // Open new connection.
 func Open(databaseUrl string, maxPoolSize int) (*ent.Client, error) {
-	db, err := sql.Open("pgx", databaseUrl)
+	db, err := sql.Open("sqlite3", databaseUrl)
 	if err != nil {
 		return nil, err
 	}
 	db.SetMaxOpenConns(maxPoolSize)
 
 	// Create an ent.Driver from `db`.
-	drv := entsql.OpenDB(dialect.Postgres, db)
+	drv := entsql.OpenDB(dialect.SQLite, db)
 	return ent.NewClient(ent.Driver(drv)), nil
 }
 
 // NewClient returns an orm client.
 func NewClient(url string, poolMax int) (*ent.Client, error) {
-	var entOptions []ent.Option
-	entOptions = append(entOptions, ent.Debug())
-
 	return Open(url, poolMax)
 }
 

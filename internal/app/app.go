@@ -28,7 +28,7 @@ func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 
 	// Repository
-	client, err := datastore.NewClient(cfg.PG.URL, cfg.PG.PoolMax)
+	client, err := datastore.NewClient(cfg.Sqlite.URL, cfg.Sqlite.PoolMax)
 	if err != nil {
 		l.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
 	}

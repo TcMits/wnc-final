@@ -19,6 +19,7 @@ func RegisterDebtController(handler iris.Party, l logger.Interface, uc usecase.I
 		logger: l,
 	}
 	handler.Put("/debts/cancel/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.cancel)
+	handler.Put("/debts/fulfill/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.fulfill)
 	handler.Get("/debts/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.detail)
 	handler.Get("/debts", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.listing)
 	handler.Post("/debts", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.create)
@@ -125,6 +126,7 @@ func (s *debtRoute) create(ctx iris.Context) {
 // @Accept      json
 // @Produce     json
 // @Param       id path string true "ID of debt"
+// @Param       payload body debtCancelReq true "Cancel a debt"
 // @Success     200 {object} debtResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
@@ -157,6 +159,45 @@ func (s *debtRoute) cancel(ctx iris.Context) {
 		return
 	}
 	entity, err = s.uc.Cancel(ctx, entity, i)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	ctx.JSON(getResponse(entity))
+}
+
+// @Summary     Fulfill a debt
+// @Description Fulfill a debt
+// @ID          debt-fulfill
+// @Tags  	    Debt
+// @Security 	Bearer
+// @Accept      json
+// @Produce     json
+// @Param       id path string true "ID of debt"
+// @Success     200 {object} debtResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /debts/fulfill/{id} [put]
+func (s *debtRoute) fulfill(ctx iris.Context) {
+	req := new(detailRequest)
+	if err := ctx.ReadParams(req); err != nil {
+		handleBindingError(ctx, err, s.logger, req, nil)
+		return
+	}
+	entity, err := s.uc.GetFirstMine(ctx, nil, &model.DebtWhereInput{ID: req.id})
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	if entity == nil {
+		ctx.StatusCode(iris.StatusNoContent)
+	}
+	i, err := s.uc.ValidateFulfill(ctx, entity, nil)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	entity, err = s.uc.Fulfill(ctx, entity, i)
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return

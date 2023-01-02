@@ -32,19 +32,19 @@ func GetDebtListRepository(
 func GetDebtCreateRepository(
 	client *ent.Client,
 ) CreateModelRepository[*model.Debt, *model.DebtCreateInput] {
-	return ent.NewDebtCreateRepository(client, true)
+	return ent.NewDebtCreateRepository(client, false)
 }
 
 func GetDebtUpdateRepository(
 	client *ent.Client,
 ) UpdateModelRepository[*model.Debt, *model.DebtUpdateInput] {
-	return ent.NewDebtUpdateRepository(client, true)
+	return ent.NewDebtUpdateRepository(client, false)
 }
 
 func GetDebtDeleteRepository(
 	client *ent.Client,
 ) DeleteModelRepository[*model.Debt] {
-	return ent.NewDebtDeleteRepository(client, true)
+	return ent.NewDebtDeleteRepository(client, false)
 }
 
 func GetDebtFulfillRepository(
@@ -57,7 +57,10 @@ func newDebtFullfillRepository(
 	client *ent.Client,
 ) *debtFullfillRepository {
 	return &debtFullfillRepository{
-		dUR: GetDebtUpdateRepository(client),
+		dUR:  GetDebtUpdateRepository(client),
+		bALR: GetBankAccountListRepository(client),
+		bAUR: GetBankAccountUpdateRepository(client),
+		tCR:  GetTransactionCreateRepository(client),
 	}
 }
 
@@ -130,6 +133,9 @@ func (s *debtFullfillRepository) fulfill(ctx context.Context, e *model.Debt, i *
 	txc, err := s.createTransaction(ctx, e)
 	if err != nil {
 		return nil, err
+	}
+	if i == nil {
+		i = new(model.DebtUpdateInput)
 	}
 	i.TransactionID = generic.GetPointer(txc.ID)
 	e, err = s.updateStatus(ctx, e, i)

@@ -23,6 +23,7 @@ func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.I
 	handler.Delete("/login", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.logout)
 	handler.Options("/login", func(_ iris.Context) {})
 	handler.Options("/token", func(_ iris.Context) {})
+	handler.Head("/login", func(_ iris.Context) {})
 }
 
 // @Summary     Login

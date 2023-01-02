@@ -18,7 +18,7 @@ func TestDebtCreateTaskExecutor(t *testing.T) {
 	defer mockCtl.Finish()
 	b := sse.NewMockINotify(mockCtl)
 	b.EXPECT().Notify(gomock.Any()).Return(nil).AnyTimes()
-	pl := &task.DebtCreateNotifyPayload{
+	pl := &task.DebtNotifyPayload{
 		UserID: uuid.New(),
 	}
 	l := logger.New(logger.DebugLevel)

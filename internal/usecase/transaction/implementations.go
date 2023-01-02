@@ -10,7 +10,6 @@ import (
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/mail"
 	"github.com/TcMits/wnc-final/pkg/tool/template"
-	"github.com/TcMits/wnc-final/pkg/tool/url"
 	"github.com/shopspring/decimal"
 )
 
@@ -81,7 +80,7 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.C
 	return nil, usecase.WrapError(fmt.Errorf("unhandled external transaction case"))
 }
 
-func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.Transaction, error) {
+func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.TransactionCreateResp, error) {
 	entity, err := uc.repoCreate.Create(ctx, i)
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
@@ -103,15 +102,11 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
 	}
-	redirectUrl, err := url.JoinQueryString(uc.frontendUrl, map[string]string{
-		"token": tk,
-	})
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
 	}
 	user := usecase.GetUserAsCustomer(ctx)
 	msg, err := template.RenderToStr(*uc.txcConfirmMailTemp, map[string]string{
-		"link":    *redirectUrl,
 		"otp":     otp,
 		"name":    user.GetName(),
 		"expires": fmt.Sprintf("%.0f", uc.otpTimeout.Minutes()),
@@ -127,7 +122,10 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
 	}
-	return entity, nil
+	return &model.TransactionCreateResp{
+		Transaction: entity,
+		Token:       tk,
+	}, nil
 }
 
 func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx context.Context, i *model.TransactionCreateInput) error {
@@ -161,13 +159,16 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 	if err != nil {
 		return nil, err
 	}
-	am, _ := i.Amount.Float64()
 	if isFeePaidByMe {
-		if err = ba.IsBalanceSufficient(am + *uc.cfUC.GetFeeAmount()); err != nil {
-			return nil, usecase.WrapError(err)
+		if ok, err := ba.IsBalanceSufficient(i.Amount.Abs().InexactFloat64() + *uc.cfUC.GetFeeAmount()); err != nil {
+			return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.Validate: %s", err))
+		} else if !ok {
+			return nil, usecase.WrapError(fmt.Errorf("insufficient balance sender"))
 		}
-	} else if err = ba.IsBalanceSufficient(am); err != nil {
-		return nil, usecase.WrapError(err)
+	} else if ok, err := ba.IsBalanceSufficient(i.Amount.Abs().InexactFloat64()); err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.Validate: %s", err))
+	} else if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("insufficient balance sender"))
 	}
 	if i.TransactionType == transaction.TransactionTypeInternal {
 		baOther, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{ID: i.ReceiverID})
@@ -181,8 +182,10 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 			return nil, usecase.WrapError(fmt.Errorf("bank account receiver is not for payment"))
 		}
 		if !isFeePaidByMe {
-			if err = baOther.IsBalanceSufficient(*uc.cfUC.GetFeeAmount()); err != nil {
-				return nil, usecase.WrapError(err)
+			if ok, err := baOther.IsBalanceSufficient(*uc.cfUC.GetFeeAmount()); err != nil {
+				return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.Validate: %s", err))
+			} else if !ok {
+				return nil, usecase.WrapError(fmt.Errorf("insufficient balance receiver"))
 			}
 		}
 		other, err := uc.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: &baOther.CustomerID})

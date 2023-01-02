@@ -8,4 +8,8 @@ type (
 	TransactionWhereInput  = ent.TransactionWhereInput
 	TransactionCreateInput = ent.TransactionCreateInput
 	TransactionUpdateInput = ent.TransactionUpdateInput
+	TransactionCreateResp  struct {
+		*Transaction
+		Token string
+	}
 )

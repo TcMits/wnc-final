@@ -88,6 +88,8 @@ func Run(cfg *config.Config) {
 	cDUc := debt.NewCustomerDebtUseCase(
 		repository.GetDebtListRepository(client),
 		repository.GetDebtCreateRepository(client),
+		repository.GetDebtUpdateRepository(client),
+		repository.GetDebtFulfillRepository(client),
 		repository.GetCustomerListRepository(client),
 		repository.GetBankAccountListRepository(client),
 		task.GetDebtTaskExecutor(b, l),

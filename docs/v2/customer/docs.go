@@ -337,6 +337,115 @@ const docTemplate = `{
                 }
             }
         },
+        "/debts/cancel/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Cancel a debt",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Debt"
+                ],
+                "summary": "Cancel a debt",
+                "operationId": "debt-cancel",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of debt",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Cancel a debt",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.debtCancelReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.debtResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/debts/fulfill/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Fulfill a debt",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Debt"
+                ],
+                "summary": "Fulfill a debt",
+                "operationId": "debt-fulfill",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of debt",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.debtResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/debts/{id}": {
             "get": {
                 "security": [
@@ -657,7 +766,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/customer.transactionResp"
+                            "$ref": "#/definitions/customer.transactionCreateResp"
                         }
                     },
                     "400": {
@@ -821,6 +930,17 @@ const docTemplate = `{
             "properties": {
                 "is_for_payment": {
                     "type": "boolean"
+                }
+            }
+        },
+        "customer.debtCancelReq": {
+            "type": "object",
+            "required": [
+                "description"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
                 }
             }
         },
@@ -1047,6 +1167,62 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "receiver_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "customer.transactionCreateResp": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "create_time": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "receiver_bank_account_number": {
+                    "type": "string"
+                },
+                "receiver_bank_name": {
+                    "type": "string"
+                },
+                "receiver_id": {
+                    "type": "string"
+                },
+                "receiver_name": {
+                    "type": "string"
+                },
+                "sender_bank_account_number": {
+                    "type": "string"
+                },
+                "sender_bank_name": {
+                    "type": "string"
+                },
+                "sender_id": {
+                    "type": "string"
+                },
+                "sender_name": {
+                    "type": "string"
+                },
+                "source_transaction_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/transaction.Status"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "transaction_type": {
+                    "$ref": "#/definitions/transaction.TransactionType"
+                },
+                "update_time": {
                     "type": "string"
                 }
             }

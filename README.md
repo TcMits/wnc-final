@@ -27,9 +27,9 @@ Generate locale files:
 goi18n extract -sourceLanguage=en-US -outdir=./locales/en-US/ -format=yaml ./
 ```
 
-Generate docs files:
+Generate docs customer app files:
 ```sh
-swag init -g ./internal/controller/http/v1/v1.go -o ./docs/v2
+swag init -g ./internal/controller/http/v1/services/customer/customer.go -o ./docs/v2/customer/
 ```
 
 Convert OpenApi v2 to v3 (yaml):

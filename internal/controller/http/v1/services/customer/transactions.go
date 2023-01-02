@@ -57,7 +57,7 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 // @Accept      json
 // @Produce     json
 // @Param       payload body transactionCreateReq true "Create a transaction"
-// @Success     201 {object} transactionResp
+// @Success     201 {object} transactionCreateResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
 // @Router      /transactions [post]

@@ -130,12 +130,12 @@ func (uc *CustomerValidateLoginInputUseCase) ValidateLoginInput(
 ) (*model.CustomerLoginInput, error) {
 	entityAny, err := uc.gUUC.GetUser(ctx, map[string]any{"username": *input.Username})
 	if err != nil {
-		return nil, usecase.WrapError(err)
+		return nil, err
+	}
+	if entityAny == nil {
+		return nil, usecase.WrapError(fmt.Errorf("invalid username"))
 	}
 	entity := entityAny.(*model.Customer)
-	if err != nil {
-		return nil, usecase.WrapError(err)
-	}
 	err = password.ValidatePassword(entity.Password, *input.Password)
 	if err != nil {
 		return nil, usecase.WrapError(wrapper.NewValidationError(fmt.Errorf("password is invalid")))

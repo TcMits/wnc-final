@@ -68,6 +68,10 @@ type (
 		TransactionType           transaction.TransactionType `json:"transaction_type"`
 		Description               string                      `json:"description"`
 	}
+	transactionCreateResp struct {
+		*transactionResp
+		Token string `json:"token"`
+	}
 	debtResp struct {
 		ID                        uuid.UUID       `json:"id"`
 		CreateTime                time.Time       `json:"create_time"`
@@ -137,6 +141,28 @@ func getDefaultResponse(entity any) any {
 			Amount:                    rs.Amount,
 			TransactionType:           rs.TransactionType,
 			Description:               rs.Description,
+		}
+	case *model.TransactionCreateResp:
+		rs, _ := entity.(*model.TransactionCreateResp)
+		result = &transactionCreateResp{
+			transactionResp: &transactionResp{
+				ID:                        rs.Transaction.ID,
+				CreateTime:                rs.Transaction.CreateTime,
+				UpdateTime:                rs.Transaction.UpdateTime,
+				SourceTransactionID:       rs.Transaction.SourceTransactionID,
+				Status:                    rs.Transaction.Status,
+				ReceiverBankAccountNumber: rs.Transaction.ReceiverBankAccountNumber,
+				ReceiverBankName:          rs.Transaction.ReceiverBankName,
+				ReceiverName:              rs.Transaction.ReceiverName,
+				ReceiverID:                rs.Transaction.ReceiverID,
+				SenderBankAccountNumber:   rs.Transaction.SenderBankAccountNumber,
+				SenderName:                rs.Transaction.SenderName,
+				SenderID:                  rs.Transaction.SenderID,
+				Amount:                    rs.Transaction.Amount,
+				TransactionType:           rs.Transaction.TransactionType,
+				Description:               rs.Transaction.Description,
+			},
+			Token: rs.Token,
 		}
 	case *model.Debt:
 		rs, _ := entity.(*model.Debt)

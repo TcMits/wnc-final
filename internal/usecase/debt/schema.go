@@ -12,7 +12,7 @@ type (
 		repoList repository.ListModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput]
 	}
 	CustomerDebtCreateUseCase struct {
-		taskExecutor task.IExecuteTask[*task.DebtCreateNotifyPayload]
+		taskExecutor task.IExecuteTask[*task.DebtNotifyPayload]
 		repoCreate   repository.CreateModelRepository[*model.Debt, *model.DebtCreateInput]
 		cGFUC        usecase.ICustomerGetFirstUseCase
 	}
@@ -27,6 +27,26 @@ type (
 	CustomerDebtGetFirstMineUseCase struct {
 		dLMUC usecase.ICustomerDebtListMineUseCase
 	}
+	CustomerDebtUpdateUseCase struct {
+		repoUpdate repository.UpdateModelRepository[*model.Debt, *model.DebtUpdateInput]
+	}
+	CustomerDebtValidateCancelUseCase struct {
+		cGFUC usecase.ICustomerGetFirstUseCase
+	}
+	CustomerDebtCancelUseCase struct {
+		taskExecutor task.IExecuteTask[*task.DebtNotifyPayload]
+		dUUc         usecase.ICustomerDebtUpdateUseCase
+		cGFUC        usecase.ICustomerGetFirstUseCase
+	}
+	CustomerDebtValidateFulfillUseCase struct {
+		cGFUC  usecase.ICustomerGetFirstUseCase
+		bAGFUC usecase.ICustomerBankAccountGetFirstUseCase
+	}
+	CustomerDebtFulfillUseCase struct {
+		repoFulfill  usecase.ICustomerDebtFulfillUseCase
+		taskExecutor task.IExecuteTask[*task.DebtNotifyPayload]
+		cGFUC        usecase.ICustomerGetFirstUseCase
+	}
 	CustomerDebtUseCase struct {
 		usecase.ICustomerConfigUseCase
 		usecase.ICustomerGetUserUseCase
@@ -35,5 +55,9 @@ type (
 		usecase.ICustomerDebtValidateCreateInputUseCase
 		usecase.ICustomerDebtGetFirstMineUseCase
 		usecase.ICustomerDebtListMineUseCase
+		usecase.ICustomerDebtValidateCancelUseCase
+		usecase.ICustomerDebtCancelUseCase
+		usecase.ICustomerDebtValidateFulfillUseCase
+		usecase.ICustomerDebtFulfillUseCase
 	}
 )

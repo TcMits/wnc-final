@@ -54,7 +54,9 @@ func (useCase *CustomerGetUserUseCase) GetUser(ctx context.Context, input map[st
 		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))
 	}
 	u, err := useCase.gFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{
-		Username: &username,
+		Or: []*model.CustomerWhereInput{
+			{Username: &username}, {PhoneNumber: &username}, {Email: &username},
+		},
 	})
 	if err != nil {
 		return nil, err

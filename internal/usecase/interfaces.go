@@ -35,14 +35,14 @@ type (
 	iDetailUseCase[ModelType any] interface {
 		Detail(context.Context, *uuid.UUID) (ModelType, error)
 	}
-	iDeleteUseCase interface {
-		Delete(context.Context, *uuid.UUID) error
+	iDeleteUseCase[ModelType any] interface {
+		Delete(context.Context, ModelType) error
 	}
 	iEntityUseCase[ModelType, ModelOrderInput, ModelWhereInput, ModelCreateInput any] interface {
 		iListUseCase[ModelType, ModelOrderInput, ModelWhereInput]
 		iCreateUseCase[ModelType, ModelCreateInput]
 		iDetailUseCase[ModelType]
-		iDeleteUseCase
+		iDeleteUseCase[ModelType]
 	}
 	iAuthenticationUseCase[LoginInput, ModelType any] interface {
 		IGetUserUseCase
@@ -114,7 +114,7 @@ type (
 		ConfirmSuccess(context.Context, *model.Transaction, *string) (*model.Transaction, error)
 	}
 	ICustomerTransactionCreateUseCase interface {
-		Create(context.Context, *model.TransactionCreateInput, bool) (*model.Transaction, error)
+		Create(context.Context, *model.TransactionCreateInput, bool) (*model.TransactionCreateResp, error)
 	}
 	ICustomerTransactionValidateCreateInputUseCase interface {
 		Validate(context.Context, *model.TransactionCreateInput, bool) (*model.TransactionCreateInput, error)
@@ -152,6 +152,21 @@ type (
 	ICustomerDebtCreateUseCase interface {
 		iCreateUseCase[*model.Debt, *model.DebtCreateInput]
 	}
+	ICustomerDebtUpdateUseCase interface {
+		iUpdateUseCase[*model.Debt, *model.DebtUpdateInput]
+	}
+	ICustomerDebtValidateCancelUseCase interface {
+		ValidateCancel(context.Context, *model.Debt, *model.DebtUpdateInput) (*model.DebtUpdateInput, error)
+	}
+	ICustomerDebtCancelUseCase interface {
+		Cancel(context.Context, *model.Debt, *model.DebtUpdateInput) (*model.Debt, error)
+	}
+	ICustomerDebtValidateFulfillUseCase interface {
+		ValidateFulfill(context.Context, *model.Debt, *model.DebtUpdateInput) (*model.DebtUpdateInput, error)
+	}
+	ICustomerDebtFulfillUseCase interface {
+		Fulfill(context.Context, *model.Debt, *model.DebtUpdateInput) (*model.Debt, error)
+	}
 	ICustomerDebtGetFirstMineUseCase interface {
 		GetFirstMine(context.Context, *model.DebtOrderInput, *model.DebtWhereInput) (*model.Debt, error)
 	}
@@ -166,6 +181,10 @@ type (
 		ICustomerDebtCreateUseCase
 		ICustomerDebtGetFirstMineUseCase
 		ICustomerDebtListMineUseCase
+		ICustomerDebtValidateCancelUseCase
+		ICustomerDebtCancelUseCase
+		ICustomerDebtValidateFulfillUseCase
+		ICustomerDebtFulfillUseCase
 	}
 	// stream
 	ICustomerStreamUseCase interface {

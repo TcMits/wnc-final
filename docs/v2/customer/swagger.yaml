@@ -26,6 +26,13 @@ definitions:
     required:
     - is_for_payment
     type: object
+  customer.debtCancelReq:
+    properties:
+      description:
+        type: string
+    required:
+    - description
+    type: object
   customer.debtCreateReq:
     properties:
       amount:
@@ -177,6 +184,43 @@ definitions:
     - receiver_bank_name
     - receiver_id
     - receiver_name
+    type: object
+  customer.transactionCreateResp:
+    properties:
+      amount:
+        type: number
+      create_time:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      receiver_bank_account_number:
+        type: string
+      receiver_bank_name:
+        type: string
+      receiver_id:
+        type: string
+      receiver_name:
+        type: string
+      sender_bank_account_number:
+        type: string
+      sender_bank_name:
+        type: string
+      sender_id:
+        type: string
+      sender_name:
+        type: string
+      source_transaction_id:
+        type: string
+      status:
+        $ref: '#/definitions/transaction.Status'
+      token:
+        type: string
+      transaction_type:
+        $ref: '#/definitions/transaction.TransactionType'
+      update_time:
+        type: string
     type: object
   customer.transactionResp:
     properties:
@@ -490,6 +534,76 @@ paths:
       summary: Get a debt
       tags:
       - Debt
+  /debts/cancel/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Cancel a debt
+      operationId: debt-cancel
+      parameters:
+      - description: ID of debt
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Cancel a debt
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.debtCancelReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.debtResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Cancel a debt
+      tags:
+      - Debt
+  /debts/fulfill/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Fulfill a debt
+      operationId: debt-fulfill
+      parameters:
+      - description: ID of debt
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.debtResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Fulfill a debt
+      tags:
+      - Debt
   /login:
     delete:
       consumes:
@@ -661,7 +775,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/customer.transactionResp'
+            $ref: '#/definitions/customer.transactionCreateResp'
         "400":
           description: Bad Request
           schema:

@@ -161,6 +161,12 @@ type (
 	ICustomerDebtCancelUseCase interface {
 		Cancel(context.Context, *model.Debt, *model.DebtUpdateInput) (*model.Debt, error)
 	}
+	ICustomerDebtValidateFulfillUseCase interface {
+		ValidateFulfill(context.Context, *model.Debt, *model.DebtUpdateInput) (*model.DebtUpdateInput, error)
+	}
+	ICustomerDebtFulfillUseCase interface {
+		Fulfill(context.Context, *model.Debt, *model.DebtUpdateInput) (*model.Debt, error)
+	}
 	ICustomerDebtGetFirstMineUseCase interface {
 		GetFirstMine(context.Context, *model.DebtOrderInput, *model.DebtWhereInput) (*model.Debt, error)
 	}
@@ -177,6 +183,8 @@ type (
 		ICustomerDebtListMineUseCase
 		ICustomerDebtValidateCancelUseCase
 		ICustomerDebtCancelUseCase
+		ICustomerDebtValidateFulfillUseCase
+		ICustomerDebtFulfillUseCase
 	}
 	// stream
 	ICustomerStreamUseCase interface {

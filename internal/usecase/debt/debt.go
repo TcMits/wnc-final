@@ -81,10 +81,24 @@ func NewCustomerDebtValidateCancelUseCase(
 ) usecase.ICustomerDebtValidateCancelUseCase {
 	return &CustomerDebtValidateCancelUseCase{cGFUC: customer.NewCustomerGetFirstUseCase(rlc)}
 }
+func NewCustomerDebtValidateFulfillUseCase(
+	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.ICustomerDebtValidateFulfillUseCase {
+	return &CustomerDebtValidateFulfillUseCase{cGFUC: customer.NewCustomerGetFirstUseCase(rlc), bAGFUC: bankaccount.NewCustomerBankAccountGetFirstUseCase(rlba)}
+}
+func NewCustomerDebtFulfillUseCase(
+	repoFulfill repository.IDebtFullfillRepository,
+	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+	taskExctor task.IExecuteTask[*task.DebtNotifyPayload],
+) usecase.ICustomerDebtFulfillUseCase {
+	return &CustomerDebtFulfillUseCase{repoFulfill: repoFulfill, cGFUC: customer.NewCustomerGetFirstUseCase(rlc), taskExecutor: taskExctor}
+}
 func NewCustomerDebtUseCase(
 	repoList repository.ListModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput],
 	repoCreate repository.CreateModelRepository[*model.Debt, *model.DebtCreateInput],
 	repoUpdate repository.UpdateModelRepository[*model.Debt, *model.DebtUpdateInput],
+	repoFulfill repository.IDebtFullfillRepository,
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	taskExctor task.IExecuteTask[*task.DebtNotifyPayload],
@@ -103,5 +117,7 @@ func NewCustomerDebtUseCase(
 		ICustomerDebtListMineUseCase:            NewCustomerDebtListMineUseCase(repoList),
 		ICustomerDebtCancelUseCase:              NewCustomerDebtCancelUseCase(repoUpdate, taskExctor, rlc),
 		ICustomerDebtValidateCancelUseCase:      NewCustomerDebtValidateCancelUseCase(rlc),
+		ICustomerDebtValidateFulfillUseCase:     NewCustomerDebtValidateFulfillUseCase(rlc, rlba),
+		ICustomerDebtFulfillUseCase:             NewCustomerDebtFulfillUseCase(repoFulfill, rlc, taskExctor),
 	}
 }

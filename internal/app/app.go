@@ -89,6 +89,7 @@ func Run(cfg *config.Config) {
 		repository.GetDebtListRepository(client),
 		repository.GetDebtCreateRepository(client),
 		repository.GetDebtUpdateRepository(client),
+		repository.GetDebtFulfillRepository(client),
 		repository.GetCustomerListRepository(client),
 		repository.GetBankAccountListRepository(client),
 		task.GetDebtTaskExecutor(b, l),

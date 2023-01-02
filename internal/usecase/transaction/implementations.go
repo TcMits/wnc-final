@@ -159,13 +159,16 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 	if err != nil {
 		return nil, err
 	}
-	am, _ := i.Amount.Float64()
 	if isFeePaidByMe {
-		if err = ba.IsBalanceSufficient(am + *uc.cfUC.GetFeeAmount()); err != nil {
-			return nil, usecase.WrapError(err)
+		if ok, err := ba.IsBalanceSufficient(i.Amount.Abs().InexactFloat64() + *uc.cfUC.GetFeeAmount()); err != nil {
+			return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.Validate: %s", err))
+		} else if !ok {
+			return nil, usecase.WrapError(fmt.Errorf("insufficient balance sender"))
 		}
-	} else if err = ba.IsBalanceSufficient(am); err != nil {
-		return nil, usecase.WrapError(err)
+	} else if ok, err := ba.IsBalanceSufficient(i.Amount.Abs().InexactFloat64()); err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.Validate: %s", err))
+	} else if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("insufficient balance sender"))
 	}
 	if i.TransactionType == transaction.TransactionTypeInternal {
 		baOther, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{ID: i.ReceiverID})
@@ -179,8 +182,10 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 			return nil, usecase.WrapError(fmt.Errorf("bank account receiver is not for payment"))
 		}
 		if !isFeePaidByMe {
-			if err = baOther.IsBalanceSufficient(*uc.cfUC.GetFeeAmount()); err != nil {
-				return nil, usecase.WrapError(err)
+			if ok, err := baOther.IsBalanceSufficient(*uc.cfUC.GetFeeAmount()); err != nil {
+				return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.Validate: %s", err))
+			} else if !ok {
+				return nil, usecase.WrapError(fmt.Errorf("insufficient balance receiver"))
 			}
 		}
 		other, err := uc.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: &baOther.CustomerID})

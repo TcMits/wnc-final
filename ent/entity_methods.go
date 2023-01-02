@@ -11,12 +11,12 @@ func (s *BankAccount) GetBalance() float64 {
 	return s.CashIn - s.CashOut
 }
 
-func (s *BankAccount) IsBalanceSufficient(amount float64) error {
+func (s *BankAccount) IsBalanceSufficient(amount float64) (bool, error) {
 	bl := s.GetBalance()
 	if amount > bl {
-		return fmt.Errorf("insufficient balance")
+		return false, nil
 	}
-	return nil
+	return true, nil
 }
 
 func (s *Customer) GetName() string {

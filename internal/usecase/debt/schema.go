@@ -38,6 +38,15 @@ type (
 		dUUc         usecase.ICustomerDebtUpdateUseCase
 		cGFUC        usecase.ICustomerGetFirstUseCase
 	}
+	CustomerDebtValidateFulfillUseCase struct {
+		cGFUC  usecase.ICustomerGetFirstUseCase
+		bAGFUC usecase.ICustomerBankAccountGetFirstUseCase
+	}
+	CustomerDebtFulfillUseCase struct {
+		repoFulfill  usecase.ICustomerDebtFulfillUseCase
+		taskExecutor task.IExecuteTask[*task.DebtNotifyPayload]
+		cGFUC        usecase.ICustomerGetFirstUseCase
+	}
 	CustomerDebtUseCase struct {
 		usecase.ICustomerConfigUseCase
 		usecase.ICustomerGetUserUseCase
@@ -48,5 +57,7 @@ type (
 		usecase.ICustomerDebtListMineUseCase
 		usecase.ICustomerDebtValidateCancelUseCase
 		usecase.ICustomerDebtCancelUseCase
+		usecase.ICustomerDebtValidateFulfillUseCase
+		usecase.ICustomerDebtFulfillUseCase
 	}
 )

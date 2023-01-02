@@ -28,3 +28,9 @@ type (
 		ConfirmSuccess(context.Context, *model.Transaction, *model.TransactionCreateInput) (*model.Transaction, error)
 	}
 )
+
+type (
+	IDebtFullfillRepository interface {
+		Fulfill(context.Context, *model.Debt, *model.DebtUpdateInput) (*model.Debt, error)
+	}
+)

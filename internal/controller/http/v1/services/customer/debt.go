@@ -18,6 +18,7 @@ func RegisterDebtController(handler iris.Party, l logger.Interface, uc usecase.I
 		uc:     uc,
 		logger: l,
 	}
+	handler.Put("/debts/cancel/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.cancel)
 	handler.Get("/debts/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.detail)
 	handler.Get("/debts", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.listing)
 	handler.Post("/debts", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.create)
@@ -109,6 +110,53 @@ func (s *debtRoute) create(ctx iris.Context) {
 		return
 	}
 	entity, err := s.uc.Create(ctx, in)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	ctx.JSON(getResponse(entity))
+}
+
+// @Summary     Cancel a debt
+// @Description Cancel a debt
+// @ID          debt-cancel
+// @Tags  	    Debt
+// @Security 	Bearer
+// @Accept      json
+// @Produce     json
+// @Param       id path string true "ID of debt"
+// @Success     200 {object} debtResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /debts/cancel/{id} [put]
+func (s *debtRoute) cancel(ctx iris.Context) {
+	req := new(detailRequest)
+	if err := ctx.ReadParams(req); err != nil {
+		handleBindingError(ctx, err, s.logger, req, nil)
+		return
+	}
+	updateInReq := new(debtCancelReq)
+	if err := ctx.ReadBody(updateInReq); err != nil {
+		handleBindingError(ctx, err, s.logger, updateInReq, nil)
+		return
+	}
+	entity, err := s.uc.GetFirstMine(ctx, nil, &model.DebtWhereInput{ID: req.id})
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	if entity == nil {
+		ctx.StatusCode(iris.StatusNoContent)
+	}
+	i := &model.DebtUpdateInput{
+		Description: &updateInReq.Description,
+	}
+	i, err = s.uc.ValidateCancel(ctx, entity, i)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	entity, err = s.uc.Cancel(ctx, entity, i)
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return

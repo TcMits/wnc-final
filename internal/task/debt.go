@@ -15,14 +15,14 @@ type (
 		b sse.INotify
 		l logger.Interface
 	}
-	DebtCreateNotifyPayload struct {
+	DebtNotifyPayload struct {
 		UserID uuid.UUID
 	}
 )
 
-func (s *DebtCreateTaskExecutor) ExecuteTask(ctx context.Context, pl *DebtCreateNotifyPayload) error {
+func (s *DebtCreateTaskExecutor) ExecuteTask(ctx context.Context, pl *DebtNotifyPayload) error {
 	if pl == nil {
-		pl = new(DebtCreateNotifyPayload)
+		pl = new(DebtNotifyPayload)
 	}
 	go func() {
 		msgpl := new(sse.MessagePayload)
@@ -42,7 +42,7 @@ func (s *DebtCreateTaskExecutor) ExecuteTask(ctx context.Context, pl *DebtCreate
 	return nil
 }
 
-func GetDebtTaskExecutor(b sse.INotify, l logger.Interface) IExecuteTask[*DebtCreateNotifyPayload] {
+func GetDebtTaskExecutor(b sse.INotify, l logger.Interface) IExecuteTask[*DebtNotifyPayload] {
 	return &DebtCreateTaskExecutor{
 		b: b,
 		l: l,

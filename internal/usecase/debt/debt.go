@@ -16,10 +16,16 @@ func NewCustomerDebtListUseCase(
 ) usecase.ICustomerDebtListUseCase {
 	return &CustomerDebtListUseCase{repoList: repoList}
 }
+func NewCustomerDebtUpdateUseCase(
+	repoUpdate repository.UpdateModelRepository[*model.Debt, *model.DebtUpdateInput],
+) usecase.ICustomerDebtUpdateUseCase {
+	return &CustomerDebtUpdateUseCase{repoUpdate: repoUpdate}
+}
+
 func NewCustomerDebtCreateUseCase(
 	repoCreate repository.CreateModelRepository[*model.Debt, *model.DebtCreateInput],
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
-	taskExctor task.IExecuteTask[*task.DebtCreateNotifyPayload],
+	taskExctor task.IExecuteTask[*task.DebtNotifyPayload],
 	sk *string,
 	prodOwnerName *string,
 	fee *float64,
@@ -59,12 +65,29 @@ func NewCustomerDebtGetFirstMineUseCase(
 		dLMUC: NewCustomerDebtListMineUseCase(repoList),
 	}
 }
+func NewCustomerDebtCancelUseCase(
+	repoUpdate repository.UpdateModelRepository[*model.Debt, *model.DebtUpdateInput],
+	taskExctor task.IExecuteTask[*task.DebtNotifyPayload],
+	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+) usecase.ICustomerDebtCancelUseCase {
+	return &CustomerDebtCancelUseCase{
+		taskExecutor: taskExctor,
+		dUUc:         NewCustomerDebtUpdateUseCase(repoUpdate),
+		cGFUC:        customer.NewCustomerGetFirstUseCase(rlc),
+	}
+}
+func NewCustomerDebtValidateCancelUseCase(
+	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+) usecase.ICustomerDebtValidateCancelUseCase {
+	return &CustomerDebtValidateCancelUseCase{cGFUC: customer.NewCustomerGetFirstUseCase(rlc)}
+}
 func NewCustomerDebtUseCase(
 	repoList repository.ListModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput],
 	repoCreate repository.CreateModelRepository[*model.Debt, *model.DebtCreateInput],
+	repoUpdate repository.UpdateModelRepository[*model.Debt, *model.DebtUpdateInput],
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
-	taskExctor task.IExecuteTask[*task.DebtCreateNotifyPayload],
+	taskExctor task.IExecuteTask[*task.DebtNotifyPayload],
 	sk,
 	prodOwnerName,
 	feeDesc *string,
@@ -78,5 +101,7 @@ func NewCustomerDebtUseCase(
 		ICustomerGetUserUseCase:                 me.NewCustomerGetUserUseCase(rlc),
 		ICustomerDebtGetFirstMineUseCase:        NewCustomerDebtGetFirstMineUseCase(repoList),
 		ICustomerDebtListMineUseCase:            NewCustomerDebtListMineUseCase(repoList),
+		ICustomerDebtCancelUseCase:              NewCustomerDebtCancelUseCase(repoUpdate, taskExctor, rlc),
+		ICustomerDebtValidateCancelUseCase:      NewCustomerDebtValidateCancelUseCase(rlc),
 	}
 }

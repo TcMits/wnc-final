@@ -46,6 +46,9 @@ type (
 		Description               *string         `json:"description" validate:"required"`
 		Amount                    decimal.Decimal `json:"amount" validate:"required"`
 	}
+	debtCancelReq struct {
+		Description string `json:"description" validate:"required"`
+	}
 )
 
 func newListRequest() *listRequest {

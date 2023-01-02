@@ -144,7 +144,7 @@ func TestCreateUseCase(t *testing.T) {
 			tt.setUp(t, &ctx, c)
 			mockCtl := gomock.NewController(t)
 			defer mockCtl.Finish()
-			taskExecutorMock := task.NewMockIExecuteTask[*task.DebtCreateNotifyPayload](mockCtl)
+			taskExecutorMock := task.NewMockIExecuteTask[*task.DebtNotifyPayload](mockCtl)
 			taskExecutorMock.EXPECT().ExecuteTask(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 			uc := debt.NewCustomerDebtCreateUseCase(
 				repository.GetDebtCreateRepository(c),
@@ -154,6 +154,120 @@ func TestCreateUseCase(t *testing.T) {
 				generic.GetPointer("foo"),
 				generic.GetPointer(float64(1000)),
 				generic.GetPointer("foo"),
+			)
+			tt.expect(t, ctx, c, uc)
+		})
+	}
+}
+
+func TestValidateCancelUseCase(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		setUp  func(*testing.T, *context.Context, *ent.Client)
+		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerDebtValidateCancelUseCase)
+	}{
+		{
+			name: "not pending debt",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+			},
+			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCancelUseCase) {
+				user := usecase.GetUserAsCustomer(ctx)
+				i1 := ent.BankAccountFactory()
+				i1.IsForPayment = generic.GetPointer(true)
+				i1.CustomerID = user.ID
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
+				i2 := ent.DebtFactory()
+				i2.ReceiverID = receiverBA.ID
+				i2.Status = generic.GetPointer(entDebt.StatusCancelled)
+				e1, _ := ent.CreateFakeDebt(ctx, c, i2)
+				_, err := uc.ValidateCancel(ctx, e1, nil)
+				require.ErrorContains(t, err, "cannot cancel")
+			},
+		},
+		{
+			name: "success",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+			},
+			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCancelUseCase) {
+				user := usecase.GetUserAsCustomer(ctx)
+				i1 := ent.BankAccountFactory()
+				i1.IsForPayment = generic.GetPointer(true)
+				i1.CustomerID = user.ID
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
+				i2 := ent.DebtFactory()
+				i2.ReceiverID = receiverBA.ID
+				e1, _ := ent.CreateFakeDebt(ctx, c, i2)
+				res, err := uc.ValidateCancel(ctx, e1, nil)
+				require.Nil(t, err)
+				require.NotNil(t, res)
+				require.Equal(t, res.Status.String(), entDebt.StatusCancelled.String())
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, _ := datastore.NewClientTestConnection(t)
+			defer c.Close()
+			ctx := context.Background()
+			require.NoError(t, c.Schema.Create(ctx))
+			tt.setUp(t, &ctx, c)
+			uc := debt.NewCustomerDebtValidateCancelUseCase(
+				repository.GetCustomerListRepository(c),
+			)
+			tt.expect(t, ctx, c, uc)
+		})
+	}
+}
+
+func TestCancelUseCase(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		setUp  func(*testing.T, *context.Context, *ent.Client)
+		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerDebtCancelUseCase)
+	}{
+		{
+			name: "success",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+			},
+			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtCancelUseCase) {
+				user := usecase.GetUserAsCustomer(ctx)
+				i1 := ent.BankAccountFactory()
+				i1.IsForPayment = generic.GetPointer(true)
+				i1.CustomerID = user.ID
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
+				i2 := ent.DebtFactory()
+				i2.ReceiverID = receiverBA.ID
+				e1, _ := ent.CreateFakeDebt(ctx, c, i2)
+				i3 := &model.DebtUpdateInput{
+					Status: generic.GetPointer(entDebt.StatusCancelled),
+				}
+				res, err := uc.Cancel(ctx, e1, i3)
+				require.Nil(t, err)
+				require.NotNil(t, res)
+				require.Equal(t, res.Status.String(), entDebt.StatusCancelled.String())
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, _ := datastore.NewClientTestConnection(t)
+			defer c.Close()
+			ctx := context.Background()
+			require.NoError(t, c.Schema.Create(ctx))
+			tt.setUp(t, &ctx, c)
+			mockCtl := gomock.NewController(t)
+			defer mockCtl.Finish()
+			taskExecutorMock := task.NewMockIExecuteTask[*task.DebtNotifyPayload](mockCtl)
+			taskExecutorMock.EXPECT().ExecuteTask(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+			uc := debt.NewCustomerDebtCancelUseCase(
+				repository.GetDebtUpdateRepository(c),
+				taskExecutorMock,
+				repository.GetCustomerListRepository(c),
 			)
 			tt.expect(t, ctx, c, uc)
 		})

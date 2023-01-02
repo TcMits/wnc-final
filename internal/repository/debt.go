@@ -14,11 +14,17 @@ func GetDebtListRepository(
 func GetDebtCreateRepository(
 	client *ent.Client,
 ) CreateModelRepository[*model.Debt, *model.DebtCreateInput] {
-	return ent.NewDebtCreateRepository(client, false)
+	return ent.NewDebtCreateRepository(client, true)
 }
 
 func GetDebtUpdateRepository(
 	client *ent.Client,
 ) UpdateModelRepository[*model.Debt, *model.DebtUpdateInput] {
-	return ent.NewDebtUpdateRepository(client, false)
+	return ent.NewDebtUpdateRepository(client, true)
+}
+
+func GetDebtDeleteRepository(
+	client *ent.Client,
+) DeleteModelRepository[*model.Debt] {
+	return ent.NewDebtDeleteRepository(client, true)
 }

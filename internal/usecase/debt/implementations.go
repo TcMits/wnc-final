@@ -14,6 +14,9 @@ import (
 func (s *CustomerDebtListUseCase) List(ctx context.Context, limit, offset *int, o *model.DebtOrderInput, w *model.DebtWhereInput) ([]*model.Debt, error) {
 	return s.repoList.List(ctx, limit, offset, o, w)
 }
+func (s *CustomerDebtUpdateUseCase) Update(ctx context.Context, e *model.Debt, i *model.DebtUpdateInput) (*model.Debt, error) {
+	return s.repoUpdate.Update(ctx, e, i)
+}
 
 func (s *CustomerDebtCreateUseCase) Create(ctx context.Context, i *model.DebtCreateInput) (*model.Debt, error) {
 	entity, err := s.repoCreate.Create(ctx, i)
@@ -26,7 +29,7 @@ func (s *CustomerDebtCreateUseCase) Create(ctx context.Context, i *model.DebtCre
 	if err != nil {
 		return nil, err
 	}
-	err = s.taskExecutor.ExecuteTask(ctx, &task.DebtCreateNotifyPayload{
+	err = s.taskExecutor.ExecuteTask(ctx, &task.DebtNotifyPayload{
 		UserID: receiver.ID,
 	})
 	if err != nil {
@@ -101,4 +104,58 @@ func (uc *CustomerDebtGetFirstMineUseCase) GetFirstMine(ctx context.Context, o *
 		return entities[0], nil
 	}
 	return nil, nil
+}
+
+func (uc *CustomerDebtCancelUseCase) getTarget(ctx context.Context, e *model.Debt) (*model.Customer, error) {
+	target, err := uc.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{
+		HasBankAccountsWith: []*model.BankAccountWhereInput{{ID: e.OwnerID}},
+	})
+	if err != nil {
+		return nil, err
+	}
+	user := usecase.GetUserAsCustomer(ctx)
+	if target.ID == user.ID {
+		target, err = uc.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{
+			HasBankAccountsWith: []*model.BankAccountWhereInput{{ID: e.ReceiverID}},
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	return target, nil
+}
+func (uc *CustomerDebtValidateCancelUseCase) ValidateCancel(ctx context.Context, e *model.Debt, i *model.DebtUpdateInput) (*model.DebtUpdateInput, error) {
+	user := usecase.GetUserAsCustomer(ctx)
+	owner, err := uc.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{
+		HasBankAccountsWith: []*model.BankAccountWhereInput{{ID: e.OwnerID}}})
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtValidateCancelUseCase.ValidateCancel: %s", err))
+	}
+	if owner.ID != user.ID {
+		if e.Status.String() != debt.StatusPending.String() {
+			return nil, usecase.WrapError(fmt.Errorf("cannot cancel %s debt", e.Status.String()))
+		}
+	}
+	if i == nil {
+		i = new(model.DebtUpdateInput)
+	}
+	i.Status = generic.GetPointer(debt.StatusCancelled)
+	return i, nil
+}
+func (uc *CustomerDebtCancelUseCase) Cancel(ctx context.Context, e *model.Debt, i *model.DebtUpdateInput) (*model.Debt, error) {
+	e, err := uc.dUUc.Update(ctx, e, i)
+	if err != nil {
+		return nil, err
+	}
+	target, err := uc.getTarget(ctx, e)
+	if err != nil {
+		return nil, err
+	}
+	err = uc.taskExecutor.ExecuteTask(ctx, &task.DebtNotifyPayload{
+		UserID: target.ID,
+	})
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtCancelUseCase.Cancel: %s", err))
+	}
+	return e, nil
 }

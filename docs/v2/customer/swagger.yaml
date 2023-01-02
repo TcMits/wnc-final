@@ -527,6 +527,38 @@ paths:
       summary: Get a debt
       tags:
       - Debt
+  /debts/cancel/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Cancel a debt
+      operationId: debt-cancel
+      parameters:
+      - description: ID of debt
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.debtResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Cancel a debt
+      tags:
+      - Debt
   /login:
     delete:
       consumes:

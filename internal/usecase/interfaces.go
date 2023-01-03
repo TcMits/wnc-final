@@ -24,10 +24,10 @@ type (
 		Create(context.Context, ModelCreateInput) (ModelType, error)
 	}
 	iValidateUpdateInput[ModelType, ModelUpdateInput any] interface {
-		Validate(context.Context, ModelType, ModelUpdateInput) (ModelUpdateInput, error)
+		ValidateUpdate(context.Context, ModelType, ModelUpdateInput) (ModelUpdateInput, error)
 	}
 	iValidateCreateInput[ModelCreateInput any] interface {
-		Validate(context.Context, ModelCreateInput) (ModelCreateInput, error)
+		ValidateCreate(context.Context, ModelCreateInput) (ModelCreateInput, error)
 	}
 	iUpdateUseCase[ModelType, ModelUpdateInput any] interface {
 		Update(context.Context, ModelType, ModelUpdateInput) (ModelType, error)
@@ -190,5 +190,42 @@ type (
 	ICustomerStreamUseCase interface {
 		ICustomerGetUserUseCase
 		ICustomerConfigUseCase
+	}
+	// contact
+	ICustomerContactListUseCase interface {
+		iListUseCase[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput]
+	}
+	ICustomerContactListMineUseCase interface {
+		ListMine(context.Context, *int, *int, *model.ContactOrderInput, *model.ContactWhereInput) ([]*model.Contact, error)
+	}
+	ICustomerContactCreateUseCase interface {
+		iCreateUseCase[*model.Contact, *model.ContactCreateInput]
+	}
+	ICustomerContactValidateUpdateInputUseCase interface {
+		iValidateUpdateInput[*model.Contact, *model.ContactUpdateInput]
+	}
+	ICustomerContactUpdateUseCase interface {
+		iUpdateUseCase[*model.Contact, *model.ContactUpdateInput]
+	}
+	ICustomerContactDeleteUseCase interface {
+		iDeleteUseCase[*model.Contact]
+	}
+	ICustomerContactValidateCreateInputUseCase interface {
+		iValidateCreateInput[*model.ContactCreateInput]
+	}
+	ICustomerContactGetFirstMineUseCase interface {
+		GetFirstMine(context.Context, *model.ContactOrderInput, *model.ContactWhereInput) (*model.Contact, error)
+	}
+	ICustomerContactUseCase interface {
+		ICustomerGetUserUseCase
+		ICustomerConfigUseCase
+		ICustomerContactListUseCase
+		ICustomerContactListMineUseCase
+		ICustomerContactCreateUseCase
+		ICustomerContactValidateCreateInputUseCase
+		ICustomerContactGetFirstMineUseCase
+		ICustomerContactUpdateUseCase
+		ICustomerContactValidateUpdateInputUseCase
+		ICustomerContactDeleteUseCase
 	}
 )

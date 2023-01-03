@@ -12,10 +12,18 @@ import (
 )
 
 func (s *CustomerDebtListUseCase) List(ctx context.Context, limit, offset *int, o *model.DebtOrderInput, w *model.DebtWhereInput) ([]*model.Debt, error) {
-	return s.repoList.List(ctx, limit, offset, o, w)
+	entites, err := s.repoList.List(ctx, limit, offset, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtListUseCase.List: %s", err))
+	}
+	return entites, nil
 }
 func (s *CustomerDebtUpdateUseCase) Update(ctx context.Context, e *model.Debt, i *model.DebtUpdateInput) (*model.Debt, error) {
-	return s.repoUpdate.Update(ctx, e, i)
+	e, err := s.repoUpdate.Update(ctx, e, i)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtUpdateUseCase.Update: %s", err))
+	}
+	return e, nil
 }
 
 func (s *CustomerDebtCreateUseCase) Create(ctx context.Context, i *model.DebtCreateInput) (*model.Debt, error) {
@@ -38,7 +46,7 @@ func (s *CustomerDebtCreateUseCase) Create(ctx context.Context, i *model.DebtCre
 	return entity, nil
 }
 
-func (s *CustomerDebtValidateCreateInputUseCase) Validate(ctx context.Context, i *model.DebtCreateInput) (*model.DebtCreateInput, error) {
+func (s *CustomerDebtValidateCreateInputUseCase) ValidateCreate(ctx context.Context, i *model.DebtCreateInput) (*model.DebtCreateInput, error) {
 	user := usecase.GetUserAsCustomer(ctx)
 	ownerBA, err := s.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
 		IsForPayment: generic.GetPointer(true),

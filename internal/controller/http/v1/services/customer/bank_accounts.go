@@ -115,7 +115,7 @@ func (r *bankAccountRoute) update(ctx iris.Context) {
 		in := &model.BankAccountUpdateInput{
 			IsForPayment: &updateInReq.IsForPayment,
 		}
-		in, err = r.uc.Validate(ctx, entity, in)
+		in, err = r.uc.ValidateUpdate(ctx, entity, in)
 		if err != nil {
 			HandleError(ctx, err, r.logger)
 			return

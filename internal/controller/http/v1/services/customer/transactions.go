@@ -18,11 +18,15 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 		uc:     uc,
 		logger: l,
 	}
-	handler.Put("/transactions/confirm-success/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.confirmSuccess)
-	handler.Get("/transactions/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.detail)
-	handler.Get("/transactions", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.listing)
-	handler.Post("/transactions", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.create)
+	handler.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
+	handler.Put("/transactions/confirm-success/{id:uuid}", route.confirmSuccess)
+	handler.Get("/transactions/{id:uuid}", route.detail)
+	handler.Get("/transactions", route.listing)
+	handler.Post("/transactions", route.create)
+	handler.Options("/transactions/confirm-success", func(_ iris.Context) {})
 	handler.Options("/transactions", func(_ iris.Context) {})
+	handler.Head("/transactions/confirm-success", func(_ iris.Context) {})
+	handler.Head("/transactions", func(_ iris.Context) {})
 }
 
 // @Summary     Show transactions

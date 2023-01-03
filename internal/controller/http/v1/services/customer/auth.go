@@ -24,6 +24,7 @@ func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.I
 	handler.Options("/login", func(_ iris.Context) {})
 	handler.Options("/token", func(_ iris.Context) {})
 	handler.Head("/login", func(_ iris.Context) {})
+	handler.Head("/token", func(_ iris.Context) {})
 }
 
 // @Summary     Login

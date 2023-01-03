@@ -111,7 +111,7 @@ func (s *debtRoute) create(ctx iris.Context) {
 		Amount:                    createInReq.Amount,
 		Description:               createInReq.Description,
 	}
-	in, err := s.uc.Validate(ctx, in)
+	in, err := s.uc.ValidateCreate(ctx, in)
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return

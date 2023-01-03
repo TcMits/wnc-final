@@ -205,7 +205,11 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 }
 
 func (uc *CustomerTransactionListUseCase) List(ctx context.Context, limit, offset *int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) ([]*model.Transaction, error) {
-	return uc.repoList.List(ctx, limit, offset, o, w)
+	entites, err := uc.repoList.List(ctx, limit, offset, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.CustomerTransactionListUseCase.List: %s", err))
+	}
+	return entites, nil
 }
 
 func (uc *CustomerTransactionListMineUseCase) ListMine(ctx context.Context, limit, offset *int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) ([]*model.Transaction, error) {

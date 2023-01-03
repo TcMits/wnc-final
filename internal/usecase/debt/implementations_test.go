@@ -64,7 +64,7 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 				i3 := ent.DebtFactory()
 				i3.OwnerID = ownerBA.ID
 				i3.ReceiverID = receiverBA.ID
-				i3, err := uc.Validate(ctx, i3)
+				i3, err := uc.ValidateCreate(ctx, i3)
 				require.Nil(t, err)
 				require.Equal(t, i3.Status.String(), entDebt.StatusPending.String())
 				require.Equal(t, i3.OwnerBankAccountNumber, ownerBA.AccountNumber)
@@ -86,7 +86,7 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 				i3 := ent.DebtFactory()
 				i3.OwnerID = ownerBA.ID
 				i3.ReceiverID = receiverBA.ID
-				_, err := uc.Validate(ctx, i3)
+				_, err := uc.ValidateCreate(ctx, i3)
 				require.ErrorContains(t, err, "receiver not for payment")
 			},
 		},

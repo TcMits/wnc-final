@@ -49,6 +49,16 @@ type (
 	debtCancelReq struct {
 		Description string `json:"description" validate:"required"`
 	}
+	contactCreateReq struct {
+		AccountNumber string `json:"account_number," validate:"required"`
+		SuggestName   string `json:"suggest_name" validate:"required"`
+		BankName      string `json:"bank_name" validate:"required"`
+	}
+	contactUpdateReq struct {
+		AccountNumber string `json:"account_number"`
+		SuggestName   string `json:"suggest_name"`
+		BankName      string `json:"bank_name"`
+	}
 )
 
 func newListRequest() *listRequest {

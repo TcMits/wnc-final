@@ -89,6 +89,15 @@ type (
 		Description               string          `json:"description"`
 		Amount                    decimal.Decimal `json:"amount"`
 	}
+	contactResp struct {
+		ID            uuid.UUID `json:"id"`
+		CreateTime    time.Time `json:"create_time"`
+		UpdateTime    time.Time `json:"update_time"`
+		OwnerID       uuid.UUID `json:"owner_id"`
+		AccountNumber string    `json:"account_number"`
+		SuggestName   string    `json:"suggest_name"`
+		BankName      string    `json:"bank_name"`
+	}
 	tokenPairResponse struct {
 		AccessToken  *string `json:"access_token"`
 		RefreshToken *string `json:"refresh_token"`
@@ -182,6 +191,18 @@ func getDefaultResponse(entity any) any {
 			Description:               rs.Description,
 			TransactionID:             rs.TransactionID,
 		}
+	case *model.Contact:
+		rs, _ := entity.(*model.Contact)
+		result = &contactResp{
+			ID:            rs.ID,
+			CreateTime:    rs.CreateTime,
+			UpdateTime:    rs.UpdateTime,
+			OwnerID:       rs.OwnerID,
+			AccountNumber: rs.AccountNumber,
+			SuggestName:   rs.SuggestName,
+			BankName:      rs.BankName,
+		}
+
 	case *jwt.TokenPair:
 		rs, _ := entity.(*jwt.TokenPair)
 		result = &tokenPairResponse{

@@ -10,14 +10,22 @@ import (
 )
 
 func (uc *CustomerBankAccountUpdateUseCase) Update(ctx context.Context, m *model.BankAccount, i *model.BankAccountUpdateInput) (*model.BankAccount, error) {
-	return uc.repoUpdate.Update(ctx, m, i)
+	m, err := uc.repoUpdate.Update(ctx, m, i)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.CustomerBankAccountUpdateUseCase.Update: %s", err))
+	}
+	return m, nil
 }
 
 func (uc *CustomerBankAccountListUseCase) List(ctx context.Context, limit, offset *int, o *model.BankAccountOrderInput, w *model.BankAccountWhereInput) ([]*model.BankAccount, error) {
-	return uc.repoList.List(ctx, limit, offset, o, w)
+	entites, err := uc.repoList.List(ctx, limit, offset, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.CustomerBankAccountListUseCase.List: %s", err))
+	}
+	return entites, nil
 }
 
-func (uc *CustomerBankAccountValidateUpdateInputUseCase) Validate(ctx context.Context, m *model.BankAccount, i *model.BankAccountUpdateInput) (*model.BankAccountUpdateInput, error) {
+func (uc *CustomerBankAccountValidateUpdateInputUseCase) ValidateUpdate(ctx context.Context, m *model.BankAccount, i *model.BankAccountUpdateInput) (*model.BankAccountUpdateInput, error) {
 	userAny := ctx.Value("user")
 	if userAny == nil {
 		return nil, usecase.WrapError(fmt.Errorf("user is invalid"))

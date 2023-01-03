@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Pallinder/go-randomdata"
 	"github.com/TcMits/wnc-final/ent/bankaccount"
 	"github.com/TcMits/wnc-final/ent/debt"
 	"github.com/TcMits/wnc-final/ent/transaction"
@@ -14,6 +15,11 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+type Opt struct {
+	Key   string
+	Value any
+}
+
 var customerFactory = factory.NewFactory(
 	&CustomerCreateInput{},
 ).Attr("Password", func(a factory.Args) (interface{}, error) {
@@ -22,13 +28,13 @@ var customerFactory = factory.NewFactory(
 }).SeqString("Username", func(s string) (interface{}, error) {
 	return fmt.Sprintf("username%s", s), nil
 }).Attr("FirstName", func(a factory.Args) (interface{}, error) {
-	return generic.GetPointer("Foo"), nil
+	return generic.GetPointer(randomdata.FirstName(randomdata.RandomGender)), nil
 }).Attr("LastName", func(a factory.Args) (interface{}, error) {
-	return generic.GetPointer("Foo"), nil
+	return generic.GetPointer(randomdata.LastName()), nil
 }).SeqString("PhoneNumber", func(s string) (interface{}, error) {
-	return fmt.Sprintf("+8492345678%s", s), nil
+	return fmt.Sprintf("%s%s", randomdata.PhoneNumber(), s), nil
 }).SeqString("Email", func(s string) (interface{}, error) {
-	return fmt.Sprintf("user-%s-@gmail.com", s), nil
+	return fmt.Sprintf("%s%s", s, randomdata.Email()), nil
 }).Attr("IsActive", func(a factory.Args) (interface{}, error) {
 	return generic.GetPointer(true), nil
 })
@@ -40,7 +46,7 @@ var bankAccountFactory = factory.NewFactory(
 }).Attr("CashOut", func(a factory.Args) (interface{}, error) {
 	return float64(1), nil
 }).SeqString("AccountNumber", func(s string) (interface{}, error) {
-	return generic.GetPointer(fmt.Sprintf("account-number-%s", s)), nil
+	return generic.GetPointer(fmt.Sprintf("%s%s", randomdata.Digits(10), s)), nil
 }).Attr("IsForPayment", func(a factory.Args) (interface{}, error) {
 	return generic.GetPointer(false), nil
 })
@@ -62,7 +68,38 @@ var debtFactory = factory.NewFactory(
 }).Attr("Amount", func(a factory.Args) (interface{}, error) {
 	return decimal.NewFromInt32(1), nil
 }).Attr("Description", func(a factory.Args) (interface{}, error) {
-	return generic.GetPointer("Debt description"), nil
+	return generic.GetPointer(randomdata.Paragraph()), nil
+})
+
+func getClient(ctx context.Context) (*Client, error) {
+	client, ok := ctx.Value("client").(*Client)
+	if !ok {
+		return nil, fmt.Errorf("cannot find client in context")
+	}
+	return client, nil
+}
+func EmbedClient(ctx *context.Context, v *Client) {
+	*ctx = context.WithValue(*ctx, "client", v)
+}
+
+var contactFactory = factory.NewFactory(
+	&ContactCreateInput{
+		BankName: "Bank name",
+	},
+).SeqString("AccountNumber", func(s string) (interface{}, error) {
+	return fmt.Sprintf("%s%s", randomdata.Digits(10), s), nil
+}).SeqString("SuggestName", func(s string) (interface{}, error) {
+	return randomdata.FullName(randomdata.RandomGender), nil
+}).Attr("OwnerID", func(a factory.Args) (interface{}, error) {
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	owner, err := CreateFakeCustomer(a.Context(), client, nil)
+	if err != nil {
+		return nil, err
+	}
+	return owner.ID, nil
 })
 
 func TransactionFactory() *TransactionCreateInput {
@@ -76,6 +113,14 @@ func BankAccountFactory() *BankAccountCreateInput {
 }
 func DebtFactory() *DebtCreateInput {
 	return debtFactory.MustCreate().(*DebtCreateInput)
+}
+
+func ContactFactory(ctx context.Context, opts ...Opt) *ContactCreateInput {
+	optMap := make(map[string]any)
+	for _, opt := range opts {
+		optMap[opt.Key] = opt.Value
+	}
+	return contactFactory.MustCreateWithContextAndOption(ctx, optMap).(*ContactCreateInput)
 }
 
 func CreateFakeDebt(ctx context.Context, c *Client, i *DebtCreateInput) (*Debt, error) {
@@ -142,6 +187,15 @@ func CreateFakeBankAccount(ctx context.Context, c *Client, i *BankAccountCreateI
 		i.CustomerID = ent1.ID
 	}
 	return c.BankAccount.Create().SetInput(i).Save(ctx)
+}
+func CreateFakeContact(ctx context.Context, c *Client, i *ContactCreateInput) (*Contact, error) {
+	if i == nil {
+		i = ContactFactory(ctx)
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	return c.Contact.Create().SetInput(i).Save(ctx)
 }
 
 func CreateFakeTransaction(ctx context.Context, c *Client, i *TransactionCreateInput) (*Transaction, error) {

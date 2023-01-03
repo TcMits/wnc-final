@@ -41,6 +41,7 @@ func RegisterV1HTTPServices(
 	cStreamUc usecase.ICustomerStreamUseCase,
 	cTxcUc usecase.ICustomerTransactionUseCase,
 	cDUc usecase.ICustomerDebtUseCase,
+	cCUc usecase.ICustomerContactUseCase,
 	// broker
 	b *sse.Broker,
 	// logger
@@ -49,5 +50,5 @@ func RegisterV1HTTPServices(
 	handler.UseRouter(recover.New())
 	RegisterHealthCheckController(handler)
 
-	customer.RegisterCustomerServices(handler, cMeUc, cAuthUc, cBankAccountUc, cStreamUc, cTxcUc, cDUc, b, l)
+	customer.RegisterCustomerServices(handler, cMeUc, cAuthUc, cBankAccountUc, cStreamUc, cTxcUc, cDUc, cCUc, b, l)
 }

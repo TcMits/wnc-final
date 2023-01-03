@@ -14,6 +14,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
+	"github.com/TcMits/wnc-final/internal/usecase/contact"
 	"github.com/TcMits/wnc-final/internal/usecase/debt"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/internal/usecase/stream"
@@ -105,6 +106,17 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeAmount,
 		&cfg.TransactionUseCase.FeeDesc,
 	)
+	cCUc := contact.NewCustomerContactUseCase(
+		repository.GetContactListRepository(client),
+		repository.GetContactUpdateRepository(client),
+		repository.GetContactCreateRepository(client),
+		repository.GetContactDeleteRepository(client),
+		repository.GetCustomerListRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		&cfg.TransactionUseCase.FeeDesc,
+		&cfg.TransactionUseCase.FeeAmount,
+	)
 
 	v1.RegisterV1HTTPServices(
 		handler,
@@ -114,6 +126,7 @@ func Run(cfg *config.Config) {
 		cStreamUc,
 		cTxcUc,
 		cDUc,
+		cCUc,
 		b,
 		l,
 	)

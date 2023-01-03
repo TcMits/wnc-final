@@ -26,6 +26,45 @@ definitions:
     required:
     - is_for_payment
     type: object
+  customer.contactCreateReq:
+    properties:
+      account_number:
+        type: string
+      bank_name:
+        type: string
+      suggest_name:
+        type: string
+    required:
+    - account_number
+    - bank_name
+    - suggest_name
+    type: object
+  customer.contactResp:
+    properties:
+      account_number:
+        type: string
+      bank_name:
+        type: string
+      create_time:
+        type: string
+      id:
+        type: string
+      owner_id:
+        type: string
+      suggest_name:
+        type: string
+      update_time:
+        type: string
+    type: object
+  customer.contactUpdateReq:
+    properties:
+      account_number:
+        type: string
+      bank_name:
+        type: string
+      suggest_name:
+        type: string
+    type: object
   customer.debtCancelReq:
     properties:
       description:
@@ -448,6 +487,154 @@ paths:
       summary: Get a bank account
       tags:
       - Bank account
+  /contacts:
+    get:
+      consumes:
+      - application/json
+      description: Show contact
+      operationId: contact-listing
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.contactResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show contact
+      tags:
+      - Contact
+    post:
+      consumes:
+      - application/json
+      description: Create a contact
+      operationId: contact-create
+      parameters:
+      - description: Create a contact
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.contactCreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/customer.contactResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Create a contact
+      tags:
+      - Contact
+  /contacts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a contact
+      operationId: contact-delete
+      parameters:
+      - description: ID of contact
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Delete a contact
+      tags:
+      - Contact
+    get:
+      consumes:
+      - application/json
+      description: Get a contact
+      operationId: contact-get
+      parameters:
+      - description: ID of contact
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.contactResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a contact
+      tags:
+      - Contact
+    put:
+      consumes:
+      - application/json
+      description: Update a contact
+      operationId: contact-update
+      parameters:
+      - description: Update a contact
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.contactUpdateReq'
+      - description: ID of contact
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.contactResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Update a contact
+      tags:
+      - Contact
   /debts:
     get:
       consumes:

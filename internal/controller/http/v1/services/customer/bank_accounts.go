@@ -18,14 +18,16 @@ func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc us
 		uc:     uc,
 		logger: l,
 	}
-
-	handler.Get("/bank-accounts/guest/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.guestDetail)
-	handler.Get("/bank-accounts/guest", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.guestListing)
-	handler.Put("/bank-accounts/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.update)
-	handler.Get("/bank-accounts/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.detail)
-	handler.Get("/bank-accounts", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.listing)
+	handler.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
+	handler.Get("/bank-accounts/guest/{id:uuid}", route.guestDetail)
+	handler.Get("/bank-accounts/guest", route.guestListing)
+	handler.Put("/bank-accounts/{id:uuid}", route.update)
+	handler.Get("/bank-accounts/{id:uuid}", route.detail)
+	handler.Get("/bank-accounts", route.listing)
 	handler.Options("/bank-accounts/guest", func(_ iris.Context) {})
 	handler.Options("/bank-accounts", func(_ iris.Context) {})
+	handler.Head("/bank-accounts/guest", func(_ iris.Context) {})
+	handler.Head("/bank-accounts", func(_ iris.Context) {})
 }
 
 // @Summary     Show bank accounts

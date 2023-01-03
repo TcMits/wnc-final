@@ -18,12 +18,18 @@ func RegisterDebtController(handler iris.Party, l logger.Interface, uc usecase.I
 		uc:     uc,
 		logger: l,
 	}
-	handler.Put("/debts/cancel/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.cancel)
-	handler.Put("/debts/fulfill/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.fulfill)
-	handler.Get("/debts/{id:uuid}", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.detail)
-	handler.Get("/debts", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.listing)
-	handler.Post("/debts", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.create)
+	handler.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
+	handler.Put("/debts/cancel/{id:uuid}", route.cancel)
+	handler.Put("/debts/fulfill/{id:uuid}", route.fulfill)
+	handler.Get("/debts/{id:uuid}", route.detail)
+	handler.Get("/debts", route.listing)
+	handler.Post("/debts", route.create)
+	handler.Options("/debts/cancel", func(_ iris.Context) {})
+	handler.Options("/debts/fulfill", func(_ iris.Context) {})
 	handler.Options("/debts", func(_ iris.Context) {})
+	handler.Head("/debts/cancel", func(_ iris.Context) {})
+	handler.Head("/debts/fulfill", func(_ iris.Context) {})
+	handler.Head("/debts", func(_ iris.Context) {})
 }
 
 // @Summary     Get a debt

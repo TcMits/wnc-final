@@ -20,9 +20,9 @@ func main() {
 	}
 	l := logger.New(cfg.Log.Level)
 	l.Info("creating user...")
-	client, err := datastore.NewClient(cfg.Sqlite.URL, cfg.Sqlite.PoolMax)
+	client, err := datastore.NewClient(cfg.PG.URL, cfg.PG.PoolMax)
 	if err != nil {
-		log.Fatalf("failed opening sqlite client: %v", err)
+		log.Fatalf("failed opening database client: %v", err)
 	}
 	defer client.Close()
 	createUser(client)

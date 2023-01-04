@@ -15,7 +15,7 @@ import (
 
 // Open new connection.
 func Open(databaseUrl string, maxPoolSize int) (*ent.Client, error) {
-	db, err := sql.Open("sqlite3", databaseUrl)
+	db, err := sql.Open("pgx", databaseUrl)
 	if err != nil {
 		return nil, err
 	}

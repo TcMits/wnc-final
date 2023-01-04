@@ -1,1 +1,0 @@
-SQLITE_URL=db.s3db?mode=memory&cache=shared&_fk=1

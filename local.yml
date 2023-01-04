@@ -11,8 +11,31 @@ services:
             - .:/wnc-final:z
         env_file:
             - ./.envs/.local/.golang
-            - ./.envs/.local/.sqlite
+            - ./.envs/.local/.postgres
         command: /start
         ports:
             - 8080:8080
         restart: always
+        depends_on:
+            postgres:
+                condition: service_healthy
+    
+    postgres:
+        build:
+            context: .
+            dockerfile: ./compose/local/postgres/Dockerfile
+        image: postgres_db_dev
+        container_name: postgres_db_dev
+        command: postgres -c log_destination=stderr -c log_connections=on -c max_connections=100 -c log_disconnections=on
+        volumes:
+            - db:/var/lib/postgresql/data:Z
+        env_file:
+            - ./.envs/.local/.postgres
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+    db:

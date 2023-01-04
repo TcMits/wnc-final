@@ -15,14 +15,14 @@ import (
 
 // Open new connection.
 func Open(databaseUrl string, maxPoolSize int) (*ent.Client, error) {
-	db, err := sql.Open("sqlite3", databaseUrl)
+	db, err := sql.Open("pgx", databaseUrl)
 	if err != nil {
 		return nil, err
 	}
 	db.SetMaxOpenConns(maxPoolSize)
 
 	// Create an ent.Driver from `db`.
-	drv := entsql.OpenDB(dialect.SQLite, db)
+	drv := entsql.OpenDB(dialect.Postgres, db)
 	return ent.NewClient(ent.Driver(drv)), nil
 }
 

@@ -22,7 +22,7 @@ func Open(databaseUrl string, maxPoolSize int) (*ent.Client, error) {
 	db.SetMaxOpenConns(maxPoolSize)
 
 	// Create an ent.Driver from `db`.
-	drv := entsql.OpenDB(dialect.SQLite, db)
+	drv := entsql.OpenDB(dialect.Postgres, db)
 	return ent.NewClient(ent.Driver(drv)), nil
 }
 

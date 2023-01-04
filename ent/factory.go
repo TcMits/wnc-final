@@ -11,7 +11,6 @@ import (
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/password"
 	"github.com/bluele/factory-go/factory"
-	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
@@ -40,35 +39,103 @@ var customerFactory = factory.NewFactory(
 })
 
 var bankAccountFactory = factory.NewFactory(
-	&BankAccountCreateInput{},
-).Attr("CashIn", func(a factory.Args) (interface{}, error) {
-	return float64(1), nil
-}).Attr("CashOut", func(a factory.Args) (interface{}, error) {
-	return float64(1), nil
-}).SeqString("AccountNumber", func(s string) (interface{}, error) {
+	&BankAccountCreateInput{
+		CashIn:       float64(1),
+		CashOut:      float64(1),
+		IsForPayment: generic.GetPointer(false),
+	},
+).SeqString("AccountNumber", func(s string) (interface{}, error) {
 	return generic.GetPointer(fmt.Sprintf("%s%s", randomdata.Digits(10), s)), nil
-}).Attr("IsForPayment", func(a factory.Args) (interface{}, error) {
-	return generic.GetPointer(false), nil
+}).Attr("CustomerID", func(a factory.Args) (interface{}, error) {
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e, err := CreateFakeCustomer(a.Context(), client, nil)
+	if err != nil {
+		return nil, err
+	}
+	return e.ID, nil
 })
 
 var transactionFactory = factory.NewFactory(
-	&TransactionCreateInput{},
-).Attr("Status", func(a factory.Args) (interface{}, error) {
-	return generic.GetPointer(transaction.StatusDraft), nil
-}).Attr("Amount", func(a factory.Args) (interface{}, error) {
-	return decimal.NewFromInt32(1), nil
-}).Attr("TransactionType", func(a factory.Args) (interface{}, error) {
-	return transaction.TransactionTypeInternal, nil
-})
-
-var debtFactory = factory.NewFactory(
-	&DebtCreateInput{},
-).Attr("Status", func(a factory.Args) (interface{}, error) {
-	return generic.GetPointer(debt.StatusPending), nil
-}).Attr("Amount", func(a factory.Args) (interface{}, error) {
-	return decimal.NewFromInt32(1), nil
-}).Attr("Description", func(a factory.Args) (interface{}, error) {
-	return generic.GetPointer(randomdata.Paragraph()), nil
+	&TransactionCreateInput{
+		SenderBankName:   "Sender bank",
+		ReceiverBankName: "Receiver bank",
+		Status:           generic.GetPointer(transaction.StatusDraft),
+		Amount:           decimal.NewFromInt32(1),
+		TransactionType:  transaction.TransactionTypeInternal,
+	},
+).Attr("SenderID", func(a factory.Args) (interface{}, error) {
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", generic.GetPointer(true)})
+	if err != nil {
+		return nil, err
+	}
+	return e.ID, nil
+}).Attr("SenderName", func(a factory.Args) (interface{}, error) {
+	ins := a.Instance().(*TransactionCreateInput)
+	sid := ins.SenderID
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	ba, err := client.BankAccount.Query().Where(bankaccount.ID(sid)).First(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	user, err := ba.QueryCustomer().First(a.Context())
+	return user.GetName(), err
+}).Attr("SenderBankAccountNumber", func(a factory.Args) (interface{}, error) {
+	ins := a.Instance().(*TransactionCreateInput)
+	sid := ins.SenderID
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	ba, err := client.BankAccount.Query().Where(bankaccount.ID(sid)).First(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	return ba.AccountNumber, nil
+}).Attr("ReceiverID", func(a factory.Args) (interface{}, error) {
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", generic.GetPointer(true)})
+	if err != nil {
+		return nil, err
+	}
+	return e.ID, nil
+}).Attr("ReceiverName", func(a factory.Args) (interface{}, error) {
+	ins := a.Instance().(*TransactionCreateInput)
+	sid := *ins.ReceiverID
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	ba, err := client.BankAccount.Query().Where(bankaccount.ID(sid)).First(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	user, err := ba.QueryCustomer().First(a.Context())
+	return user.GetName(), err
+}).Attr("ReceiverBankAccountNumber", func(a factory.Args) (interface{}, error) {
+	ins := a.Instance().(*TransactionCreateInput)
+	sid := ins.ReceiverID
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	ba, err := client.BankAccount.Query().Where(bankaccount.ID(*sid)).First(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	return ba.AccountNumber, nil
 })
 
 func getClient(ctx context.Context) (*Client, error) {
@@ -81,6 +148,93 @@ func getClient(ctx context.Context) (*Client, error) {
 func EmbedClient(ctx *context.Context, v *Client) {
 	*ctx = context.WithValue(*ctx, "client", v)
 }
+
+var debtFactory = factory.NewFactory(
+	&DebtCreateInput{
+		Status:           generic.GetPointer(debt.StatusPending),
+		Amount:           decimal.NewFromInt32(1),
+		OwnerBankName:    "Owner bank name",
+		ReceiverBankName: "Receiver bank name",
+	},
+).Attr("Description", func(a factory.Args) (interface{}, error) {
+	return generic.GetPointer(randomdata.Paragraph()), nil
+}).Attr("OwnerID", func(a factory.Args) (interface{}, error) {
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", true})
+	if err != nil {
+		return nil, err
+	}
+	return e.ID, nil
+}).Attr("OwnerName", func(a factory.Args) (interface{}, error) {
+	ins := a.Instance().(*DebtCreateInput)
+	id := ins.OwnerID
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e, err := client.BankAccount.Query().Where(bankaccount.ID(id)).First(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e1, err := e.QueryCustomer().First(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	return e1.GetName(), nil
+}).Attr("OwnerBankAccountNumber", func(a factory.Args) (interface{}, error) {
+	ins := a.Instance().(*DebtCreateInput)
+	id := ins.OwnerID
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e, err := client.BankAccount.Query().Where(bankaccount.ID(id)).First(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	return e.AccountNumber, nil
+}).Attr("ReceiverID", func(a factory.Args) (interface{}, error) {
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", true})
+	if err != nil {
+		return nil, err
+	}
+	return e.ID, nil
+}).Attr("ReceiverName", func(a factory.Args) (interface{}, error) {
+	ins := a.Instance().(*DebtCreateInput)
+	id := ins.ReceiverID
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e, err := client.BankAccount.Query().Where(bankaccount.ID(id)).First(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e1, err := e.QueryCustomer().First(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	return e1.GetName(), nil
+}).Attr("ReceiverBankAccountNumber", func(a factory.Args) (interface{}, error) {
+	ins := a.Instance().(*DebtCreateInput)
+	id := ins.ReceiverID
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e, err := client.BankAccount.Query().Where(bankaccount.ID(id)).First(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	return e.AccountNumber, nil
+})
 
 var contactFactory = factory.NewFactory(
 	&ContactCreateInput{
@@ -102,17 +256,33 @@ var contactFactory = factory.NewFactory(
 	return owner.ID, nil
 })
 
-func TransactionFactory() *TransactionCreateInput {
-	return transactionFactory.MustCreate().(*TransactionCreateInput)
+func TransactionFactory(ctx context.Context, opts ...Opt) *TransactionCreateInput {
+	optMap := make(map[string]any)
+	for _, opt := range opts {
+		optMap[opt.Key] = opt.Value
+	}
+	return transactionFactory.MustCreateWithContextAndOption(ctx, optMap).(*TransactionCreateInput)
 }
-func CustomerFactory() *CustomerCreateInput {
-	return customerFactory.MustCreate().(*CustomerCreateInput)
+func CustomerFactory(ctx context.Context, opts ...Opt) *CustomerCreateInput {
+	optMap := make(map[string]any)
+	for _, opt := range opts {
+		optMap[opt.Key] = opt.Value
+	}
+	return customerFactory.MustCreateWithContextAndOption(ctx, optMap).(*CustomerCreateInput)
 }
-func BankAccountFactory() *BankAccountCreateInput {
-	return bankAccountFactory.MustCreate().(*BankAccountCreateInput)
+func BankAccountFactory(ctx context.Context, opts ...Opt) *BankAccountCreateInput {
+	optMap := make(map[string]any)
+	for _, opt := range opts {
+		optMap[opt.Key] = opt.Value
+	}
+	return bankAccountFactory.MustCreateWithContextAndOption(ctx, optMap).(*BankAccountCreateInput)
 }
-func DebtFactory() *DebtCreateInput {
-	return debtFactory.MustCreate().(*DebtCreateInput)
+func DebtFactory(ctx context.Context, opts ...Opt) *DebtCreateInput {
+	optMap := make(map[string]any)
+	for _, opt := range opts {
+		optMap[opt.Key] = opt.Value
+	}
+	return debtFactory.MustCreateWithContextAndOption(ctx, optMap).(*DebtCreateInput)
 }
 
 func ContactFactory(ctx context.Context, opts ...Opt) *ContactCreateInput {
@@ -123,68 +293,31 @@ func ContactFactory(ctx context.Context, opts ...Opt) *ContactCreateInput {
 	return contactFactory.MustCreateWithContextAndOption(ctx, optMap).(*ContactCreateInput)
 }
 
-func CreateFakeDebt(ctx context.Context, c *Client, i *DebtCreateInput) (*Debt, error) {
+func CreateFakeDebt(ctx context.Context, c *Client, i *DebtCreateInput, opts ...Opt) (*Debt, error) {
 	if i == nil {
-		i = DebtFactory()
+		i = DebtFactory(ctx, opts...)
 	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	var ent1, ent2 *BankAccount
-	var err error
-	if i.ReceiverID == generic.Zero[uuid.UUID]() {
-		ent1, err = CreateFakeBankAccount(ctx, c, nil)
-		if err != nil {
-			return nil, err
-		}
-		i.ReceiverID = ent1.ID
-	} else {
-		ent1, err = c.BankAccount.Query().Where(bankaccount.ID(i.ReceiverID)).First(ctx)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if i.OwnerID == generic.Zero[uuid.UUID]() {
-		ent2, err = CreateFakeBankAccount(ctx, c, nil)
-		if err != nil {
-			return nil, err
-		}
-		i.OwnerID = ent2.ID
-	} else {
-		ent2, err = c.BankAccount.Query().Where(bankaccount.ID(i.OwnerID)).First(ctx)
-		if err != nil {
-			return nil, err
-		}
-	}
-	i.ReceiverBankAccountNumber = ent1.AccountNumber
-	i.ReceiverName = NormalizeName(ent1.QueryCustomer().FirstX(ctx).FirstName, ent1.QueryCustomer().FirstX(ctx).LastName)
-	i.OwnerBankAccountNumber = ent2.AccountNumber
-	i.OwnerName = NormalizeName(ent2.QueryCustomer().FirstX(ctx).FirstName, ent2.QueryCustomer().FirstX(ctx).LastName)
 	return c.Debt.Create().SetInput(i).Save(ctx)
 }
 
-func CreateFakeCustomer(ctx context.Context, c *Client, i *CustomerCreateInput) (*Customer, error) {
+func CreateFakeCustomer(ctx context.Context, c *Client, i *CustomerCreateInput, opts ...Opt) (*Customer, error) {
 	if i == nil {
-		i = CustomerFactory()
+		i = CustomerFactory(ctx, opts...)
 	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	return c.Customer.Create().SetInput(i).Save(ctx)
 }
-func CreateFakeBankAccount(ctx context.Context, c *Client, i *BankAccountCreateInput) (*BankAccount, error) {
+func CreateFakeBankAccount(ctx context.Context, c *Client, i *BankAccountCreateInput, opts ...Opt) (*BankAccount, error) {
 	if i == nil {
-		i = BankAccountFactory()
+		i = BankAccountFactory(ctx, opts...)
 	}
 	if ctx == nil {
 		ctx = context.Background()
-	}
-	if i.CustomerID == generic.Zero[uuid.UUID]() {
-		ent1, err := CreateFakeCustomer(ctx, c, nil)
-		if err != nil {
-			return nil, err
-		}
-		i.CustomerID = ent1.ID
 	}
 	return c.BankAccount.Create().SetInput(i).Save(ctx)
 }
@@ -198,42 +331,12 @@ func CreateFakeContact(ctx context.Context, c *Client, i *ContactCreateInput) (*
 	return c.Contact.Create().SetInput(i).Save(ctx)
 }
 
-func CreateFakeTransaction(ctx context.Context, c *Client, i *TransactionCreateInput) (*Transaction, error) {
+func CreateFakeTransaction(ctx context.Context, c *Client, i *TransactionCreateInput, opts ...Opt) (*Transaction, error) {
 	if i == nil {
-		i = TransactionFactory()
+		i = TransactionFactory(ctx, opts...)
 	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	var ent1, ent2 *BankAccount
-	var err error
-	if i.ReceiverID == nil {
-		ent1, err = CreateFakeBankAccount(ctx, c, nil)
-		if err != nil {
-			return nil, err
-		}
-		i.ReceiverID = generic.GetPointer(ent1.ID)
-	} else {
-		ent1, err = c.BankAccount.Query().Where(bankaccount.ID(*i.ReceiverID)).First(ctx)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if i.SenderID == generic.Zero[uuid.UUID]() {
-		ent2, err = CreateFakeBankAccount(ctx, c, nil)
-		if err != nil {
-			return nil, err
-		}
-		i.SenderID = ent2.ID
-	} else {
-		ent2, err = c.BankAccount.Query().Where(bankaccount.ID(i.SenderID)).First(ctx)
-		if err != nil {
-			return nil, err
-		}
-	}
-	i.ReceiverBankAccountNumber = ent1.AccountNumber
-	i.ReceiverName = NormalizeName(ent1.QueryCustomer().FirstX(ctx).FirstName, ent1.QueryCustomer().FirstX(ctx).LastName)
-	i.SenderBankAccountNumber = ent2.AccountNumber
-	i.SenderName = NormalizeName(ent2.QueryCustomer().FirstX(ctx).FirstName, ent2.QueryCustomer().FirstX(ctx).LastName)
 	return c.Transaction.Create().SetInput(i).Save(ctx)
 }

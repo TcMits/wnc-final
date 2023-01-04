@@ -52,12 +52,8 @@ func TestListMyTxcUseCase(t *testing.T) {
 	ctx := context.Background()
 	mBA, _ := ent.CreateFakeBankAccount(ctx, c, nil)
 	authenticateCtx(&ctx, c, mBA.QueryCustomer().FirstX(ctx))
-	txc1 := ent.TransactionFactory()
-	txc2 := ent.TransactionFactory()
-	txc1.SenderID = mBA.ID
-	txc2.ReceiverID = &mBA.ID
-	ent.CreateFakeTransaction(ctx, c, txc1)
-	ent.CreateFakeTransaction(ctx, c, txc2)
+	ent.CreateFakeTransaction(ctx, c, nil, ent.Opt{Key: "SenderID", Value: mBA.ID})
+	ent.CreateFakeTransaction(ctx, c, nil, ent.Opt{Key: "ReceiverID", Value: &mBA.ID})
 	ent.CreateFakeTransaction(ctx, c, nil)
 	uc := transaction.NewCustomerTransactionListMineUseCase(repository.GetTransactionListRepository(c))
 	l, o := 3, 0
@@ -73,9 +69,7 @@ func TestGetFirstMyTxcUseCase(t *testing.T) {
 	ctx := context.Background()
 	mBA, _ := ent.CreateFakeBankAccount(ctx, c, nil)
 	authenticateCtx(&ctx, c, mBA.QueryCustomer().FirstX(ctx))
-	txc1 := ent.TransactionFactory()
-	txc1.SenderID = mBA.ID
-	entity1, _ := ent.CreateFakeTransaction(ctx, c, txc1)
+	entity1, _ := ent.CreateFakeTransaction(ctx, c, nil, ent.Opt{Key: "SenderID", Value: mBA.ID})
 	ent.CreateFakeTransaction(ctx, c, nil)
 	uc := transaction.NewCustomerTransactionGetFirstMineUseCase(repository.GetTransactionListRepository(c))
 	result, err := uc.GetFirstMine(ctx, nil, nil)
@@ -112,16 +106,14 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				ba, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				i2 := ent.TransactionFactory()
-				i2.SenderID = ba.ID
-				ent.CreateFakeTransaction(ctx, c, i2)
-				i3 := ent.TransactionFactory()
-				i3.SenderID = ba.ID
-				_, err := uc.Validate(ctx, i3, true)
+				ba, _ := ent.CreateFakeBankAccount(ctx, c, nil, ent.Opt{Key: "CustomerID", Value: user.ID}, ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)})
+				ent.CreateFakeTransaction(ctx, c, nil, ent.Opt{Key: "SenderID", Value: ba.ID})
+				i3 := ent.TransactionFactory(ctx, ent.Opt{Key: "SenderID", Value: ba.ID})
+				i := &model.TransactionCreateUseCaseInput{
+					TransactionCreateInput: i3,
+					IsFeePaidByMe:          true,
+				}
+				_, err := uc.ValidateCreate(ctx, i)
 				require.ErrorContains(t, err, "there is a draft transaction to be processed. Cannot create a new transaction")
 			},
 		},
@@ -132,13 +124,13 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				ba, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				i2 := ent.TransactionFactory()
-				i2.SenderID = ba.ID
-				_, err := uc.Validate(ctx, i2, true)
+				ba, _ := ent.CreateFakeBankAccount(ctx, c, nil, ent.Opt{Key: "CustomerID", Value: user.ID}, ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)})
+				i2 := ent.TransactionFactory(ctx, ent.Opt{Key: "SenderID", Value: ba.ID})
+				i := &model.TransactionCreateUseCaseInput{
+					TransactionCreateInput: i2,
+					IsFeePaidByMe:          true,
+				}
+				_, err := uc.ValidateCreate(ctx, i)
 				require.ErrorContains(t, err, "insufficient balance")
 			},
 		},
@@ -149,13 +141,13 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				ba, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				i2 := ent.TransactionFactory()
-				i2.SenderID = ba.ID
-				_, err := uc.Validate(ctx, i2, false)
+				ba, _ := ent.CreateFakeBankAccount(ctx, c, nil, ent.Opt{Key: "CustomerID", Value: user.ID}, ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)})
+				i2 := ent.TransactionFactory(ctx, ent.Opt{Key: "SenderID", Value: ba.ID})
+				i := &model.TransactionCreateUseCaseInput{
+					TransactionCreateInput: i2,
+					IsFeePaidByMe:          false,
+				}
+				_, err := uc.ValidateCreate(ctx, i)
 				require.ErrorContains(t, err, "insufficient balance")
 			},
 		},
@@ -166,19 +158,24 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CashIn = float64(100000)
-				i1.CashOut = float64(1)
-				i1.CustomerID = user.ID
-				i2 := ent.BankAccountFactory()
-				i2.IsForPayment = generic.GetPointer(true)
-				sender, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				receiver, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				i3 := ent.TransactionFactory()
-				i3.SenderID = sender.ID
-				i3.ReceiverID = &receiver.ID
-				_, err := uc.Validate(ctx, i3, false)
+				sender, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CashIn", Value: float64(100000)},
+					ent.Opt{Key: "CashOut", Value: float64(1)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+				)
+				receiver, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+				)
+				i1 := ent.TransactionFactory(ctx,
+					ent.Opt{Key: "SenderID", Value: sender.ID},
+					ent.Opt{Key: "ReceiverID", Value: &receiver.ID},
+				)
+				i := &model.TransactionCreateUseCaseInput{
+					TransactionCreateInput: i1,
+					IsFeePaidByMe:          false,
+				}
+				_, err := uc.ValidateCreate(ctx, i)
 				require.ErrorContains(t, err, "insufficient balance")
 			},
 		},
@@ -189,23 +186,28 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CashIn = float64(100000)
-				i1.CashOut = float64(1)
-				i1.CustomerID = user.ID
-				i2 := ent.BankAccountFactory()
-				i2.IsForPayment = generic.GetPointer(true)
-				i2.CashIn = float64(100000)
-				i2.CashOut = float64(1)
-				sender, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				receiver, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				i3 := ent.TransactionFactory()
-				i3.SenderID = sender.ID
-				i3.ReceiverID = &receiver.ID
-				i3, err := uc.Validate(ctx, i3, true)
+				sender, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CashIn", Value: float64(100000)},
+					ent.Opt{Key: "CashOut", Value: float64(1)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+				)
+				receiver, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CashIn", Value: float64(100000)},
+					ent.Opt{Key: "CashOut", Value: float64(1)},
+				)
+				i1 := ent.TransactionFactory(ctx,
+					ent.Opt{Key: "SenderID", Value: sender.ID},
+					ent.Opt{Key: "ReceiverID", Value: &receiver.ID},
+				)
+				i := &model.TransactionCreateUseCaseInput{
+					TransactionCreateInput: i1,
+					IsFeePaidByMe:          true,
+				}
+				i, err := uc.ValidateCreate(ctx, i)
 				require.Nil(t, err)
-				require.Equal(t, entTxc.StatusDraft.String(), i3.Status.String())
+				require.Equal(t, entTxc.StatusDraft.String(), i.TransactionCreateInput.Status.String())
 			},
 		},
 	}
@@ -243,45 +245,9 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 				authenticateCtx(ctx, c, nil)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
-				i1 := ent.TransactionFactory()
-				i1.Status = generic.GetPointer(entTxc.StatusSuccess)
-				entity1, _ := ent.CreateFakeTransaction(ctx, c, i1)
-				err := uc.ValidateConfirmInput(ctx, entity1, nil, nil)
+				entity1, _ := ent.CreateFakeTransaction(ctx, c, nil, ent.Opt{Key: "Status", Value: generic.GetPointer(entTxc.StatusSuccess)})
+				err := uc.ValidateConfirmInput(ctx, entity1, nil)
 				require.ErrorContains(t, err, fmt.Sprintf("cannot confirm %s transaction", entity1.Status))
-			},
-		},
-		{
-			name: "token invalid: not have field",
-			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				authenticateCtx(ctx, c, nil)
-			},
-			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
-				tk, _ := usecase.GenerateConfirmTxcToken(
-					ctx,
-					map[string]any{},
-					"foo",
-					time.Minute*30,
-				)
-				entity1, _ := ent.CreateFakeTransaction(ctx, c, nil)
-				err := uc.ValidateConfirmInput(ctx, entity1, nil, &tk)
-				require.ErrorContains(t, err, "invalid token")
-			},
-		},
-		{
-			name: "token invalid: have field but invalid type",
-			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				authenticateCtx(ctx, c, nil)
-			},
-			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
-				tk, _ := usecase.GenerateConfirmTxcToken(
-					ctx,
-					map[string]any{"is_fee_paid_by_me": "foo"},
-					"foo",
-					time.Minute*30,
-				)
-				entity1, _ := ent.CreateFakeTransaction(ctx, c, nil)
-				err := uc.ValidateConfirmInput(ctx, entity1, nil, &tk)
-				require.ErrorContains(t, err, "invalid token")
 			},
 		},
 		{
@@ -294,15 +260,17 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 				hashValue, _ := usecase.GenerateHashInfo(usecase.MakeOTPValue(ctx, otp))
 				tk, _ := usecase.GenerateConfirmTxcToken(
 					ctx,
-					map[string]any{
-						"is_fee_paid_by_me": true,
-						"token":             hashValue,
-					},
+					hashValue,
 					"foo",
+					true,
 					time.Minute*30,
 				)
 				entity1, _ := ent.CreateFakeTransaction(ctx, c, nil)
-				err := uc.ValidateConfirmInput(ctx, entity1, &otp, &tk)
+
+				err := uc.ValidateConfirmInput(ctx, entity1, &model.TransactionConfirmUseCaseInput{
+					Token: tk,
+					Otp:   otp,
+				})
 				require.Nil(t, err)
 			},
 		},
@@ -339,25 +307,26 @@ func TestConfirmSuccessUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionConfirmSuccessUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CashIn = float64(100000)
-				i1.CashOut = float64(1)
-				i1.CustomerID = user.ID
-				i2 := ent.BankAccountFactory()
-				i2.IsForPayment = generic.GetPointer(true)
-				i2.CashIn = float64(100000)
-				i2.CashOut = float64(1)
-				sender, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				receiver, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				i3 := ent.TransactionFactory()
-				i3.SenderID = sender.ID
-				i3.ReceiverID = &receiver.ID
-				entity1, _ := ent.CreateFakeTransaction(ctx, c, i3)
+				sender, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CashIn", Value: float64(100000)},
+					ent.Opt{Key: "CashOut", Value: float64(1)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+				)
+				receiver, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CashIn", Value: float64(100000)},
+					ent.Opt{Key: "CashOut", Value: float64(1)},
+				)
+				entity1, _ := ent.CreateFakeTransaction(ctx, c, nil,
+					ent.Opt{Key: "SenderID", Value: sender.ID},
+					ent.Opt{Key: "ReceiverID", Value: &receiver.ID},
+				)
 				tk, _ := usecase.GenerateConfirmTxcToken(
 					ctx,
-					map[string]any{"is_fee_paid_by_me": true},
 					"foo",
+					"foo",
+					true,
 					time.Minute*30,
 				)
 				entity1, err := uc.ConfirmSuccess(ctx, entity1, &tk)
@@ -385,25 +354,26 @@ func TestConfirmSuccessUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionConfirmSuccessUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.CashIn = float64(100000)
-				i1.CashOut = float64(1)
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				i2 := ent.BankAccountFactory()
-				i2.IsForPayment = generic.GetPointer(true)
-				i2.CashIn = float64(100000)
-				i2.CashOut = float64(1)
-				sender, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				receiver, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				i3 := ent.TransactionFactory()
-				i3.SenderID = sender.ID
-				i3.ReceiverID = &receiver.ID
-				entity1, _ := ent.CreateFakeTransaction(ctx, c, i3)
+				sender, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CashIn", Value: float64(100000)},
+					ent.Opt{Key: "CashOut", Value: float64(1)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+				)
+				receiver, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CashIn", Value: float64(100000)},
+					ent.Opt{Key: "CashOut", Value: float64(1)},
+				)
+				entity1, _ := ent.CreateFakeTransaction(ctx, c, nil,
+					ent.Opt{Key: "SenderID", Value: sender.ID},
+					ent.Opt{Key: "ReceiverID", Value: &receiver.ID},
+				)
 				tk, _ := usecase.GenerateConfirmTxcToken(
 					ctx,
-					map[string]any{"is_fee_paid_by_me": false},
 					"foo",
+					"foo",
+					false,
 					time.Minute*30,
 				)
 				entity1, err := uc.ConfirmSuccess(ctx, entity1, &tk)
@@ -457,13 +427,11 @@ func TestCreateUseCase(t *testing.T) {
 				authenticateCtx(ctx, c, nil)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionCreateUseCase) {
-				i := ent.TransactionFactory()
-				s, _ := ent.CreateFakeBankAccount(ctx, c, nil)
-				r, _ := ent.CreateFakeBankAccount(ctx, c, nil)
-				i.SenderID = s.ID
-				i.ReceiverID = &r.ID
-				ent.CreateFakeTransaction(ctx, c, i)
-				_, err := uc.Create(ctx, i, true)
+				i := ent.TransactionFactory(ctx)
+				_, err := uc.Create(ctx, &model.TransactionCreateUseCaseInput{
+					TransactionCreateInput: i,
+					IsFeePaidByMe:          true,
+				})
 				require.Nil(t, err)
 			},
 		},
@@ -487,7 +455,6 @@ func TestCreateUseCase(t *testing.T) {
 				&cfg.App.Name,
 				&cfg.TransactionUseCase.FeeDesc,
 				&cfg.Mail.ConfirmEmailSubject,
-				&cfg.Mail.FrontendURL,
 				&cfg.Mail.ConfirmEmailTemplate,
 				&cfg.TransactionUseCase.FeeAmount,
 				cfg.Mail.OTPTimeout,

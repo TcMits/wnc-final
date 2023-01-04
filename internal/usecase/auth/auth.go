@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/TcMits/wnc-final/internal/repository"
+	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
@@ -13,7 +14,9 @@ import (
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/error/wrapper"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
+	"github.com/TcMits/wnc-final/pkg/tool/mail"
 	"github.com/TcMits/wnc-final/pkg/tool/password"
+	"github.com/TcMits/wnc-final/pkg/tool/template"
 )
 
 type (
@@ -35,9 +38,28 @@ type (
 	CustomerLogoutUseCase struct {
 		cUUC usecase.ICustomerUpdateUseCase
 	}
+	CustomerValidateChangePasswordWithTokenUseCase struct {
+		cfUC  usecase.ICustomerConfigUseCase
+		cGFUC usecase.ICustomerGetFirstUseCase
+	}
+	CustomerChangePasswordWithTokenUseCase struct {
+		cUUC usecase.ICustomerUpdateUseCase
+	}
+	CustomerForgetPasswordUseCase struct {
+		cfUC                 usecase.ICustomerConfigUseCase
+		taskExecutor         task.IExecuteTask[*mail.EmailPayload]
+		forgetPwdSubjectMail *string
+		forgetPwdMailTemp    *string
+		otpTimeout           time.Duration
+	}
+	CustomerValidateForgetPassword struct {
+		cGFUC usecase.ICustomerGetFirstUseCase
+	}
 	CustomerAuthUseCase struct {
 		usecase.ICustomerGetUserUseCase
 		usecase.ICustomerConfigUseCase
+		usecase.ICustomerForgetPasswordUseCase
+		usecase.ICustomerValidateForgetPasswordUsecase
 		*CustomerLoginUseCase
 		*CustomerValidateLoginInputUseCase
 		*CustomerRenewAccessTokenUseCase
@@ -45,20 +67,70 @@ type (
 	}
 )
 
+func NewCustomerForgetPasswordUseCase(
+	taskExctor task.IExecuteTask[*mail.EmailPayload],
+	sk,
+	prodOwnerName,
+	feeDesc,
+	forgetPwdEmailSubject,
+	forgetPwdEmailTemplate *string,
+	fee *float64,
+	otpTimeout time.Duration,
+) usecase.ICustomerForgetPasswordUseCase {
+	return &CustomerForgetPasswordUseCase{
+		cfUC:                 config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		taskExecutor:         taskExctor,
+		forgetPwdSubjectMail: forgetPwdEmailSubject,
+		forgetPwdMailTemp:    forgetPwdEmailTemplate,
+		otpTimeout:           otpTimeout,
+	}
+}
+func NewCustomerValidateForgetPasswordUseCase(
+	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+) usecase.ICustomerValidateForgetPasswordUsecase {
+	return &CustomerValidateForgetPassword{
+		cGFUC: customer.NewCustomerGetFirstUseCase(rlc),
+	}
+}
+func NewCustomerChangePasswordWithTokenUseCase(
+	repoUpdate repository.UpdateModelRepository[*model.Customer, *model.CustomerUpdateInput],
+) usecase.ICustomerChangePasswordWithTokenUseCase {
+	return &CustomerChangePasswordWithTokenUseCase{cUUC: customer.NewCustomerUpdateUseCase(repoUpdate)}
+}
+func NewCustomerValidateChangePasswordWithTokenUseCase(
+	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+	secretKey,
+	prodOwnerName,
+	feeDesc *string,
+	fee *float64,
+) usecase.ICustomerValidateChangePasswordWithTokenUseCase {
+	return &CustomerValidateChangePasswordWithTokenUseCase{
+		cfUC:  config.NewCustomerConfigUseCase(secretKey, prodOwnerName, fee, feeDesc),
+		cGFUC: customer.NewCustomerGetFirstUseCase(rlc),
+	}
+}
+
 func NewCustomerAuthUseCase(
+	taskExctor task.IExecuteTask[*mail.EmailPayload],
 	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	repoUpdate repository.UpdateModelRepository[*model.Customer, *model.CustomerUpdateInput],
-	secretKey *string,
-	refreshTTL time.Duration,
-	accessTTL time.Duration,
-	prodOwnerName *string,
+	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+	secretKey,
+	prodOwnerName,
+	feeDesc,
+	forgetPwdEmailSubject,
+	forgetPwdEmailTemplate *string,
 	fee *float64,
-	feeDesc *string,
+	otpTimeout,
+	refreshTTL,
+	accessTTL time.Duration,
 ) usecase.ICustomerAuthUseCase {
 	gUUC := me.NewCustomerGetUserUseCase(repoList)
 	uc := &CustomerAuthUseCase{
-		ICustomerGetUserUseCase: gUUC,
-		ICustomerConfigUseCase:  config.NewCustomerConfigUseCase(secretKey, prodOwnerName, fee, feeDesc),
+		ICustomerGetUserUseCase:                gUUC,
+		ICustomerConfigUseCase:                 config.NewCustomerConfigUseCase(secretKey, prodOwnerName, fee, feeDesc),
+		ICustomerForgetPasswordUseCase:         NewCustomerForgetPasswordUseCase(taskExctor, secretKey, prodOwnerName, feeDesc, forgetPwdEmailSubject, forgetPwdEmailTemplate, fee, otpTimeout),
+		ICustomerValidateForgetPasswordUsecase: NewCustomerValidateForgetPasswordUseCase(rlc),
 		CustomerLoginUseCase: &CustomerLoginUseCase{
 			gUUC:       gUUC,
 			secretKey:  secretKey,
@@ -165,7 +237,7 @@ func (uc *CustomerRenewAccessTokenUseCase) RenewToken(
 	}
 	token, err := jwt.NewAccessToken(payload, *uc.secretKey, uc.accessTTL)
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.auth.RenewToken: %w", err))
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.auth.CustomerRenewAccessTokenUseCase.RenewToken: %w", err))
 	}
 	return &jwt.TokenPair{
 		RefreshToken: refreshToken,
@@ -182,4 +254,109 @@ func (uc *CustomerLogoutUseCase) Logout(
 		return usecase.WrapError(err)
 	}
 	return nil
+}
+
+func (s *CustomerForgetPasswordUseCase) ForgetPassword(ctx context.Context, i *model.CustomerForgetPasswordInput) (*model.CustomerForgetPasswordResp, error) {
+	otp := usecase.GenerateOTP(6)
+	msg, err := template.RenderToStr(*s.forgetPwdMailTemp, map[string]string{
+		"otp":     otp,
+		"name":    i.User.GetName(),
+		"expires": fmt.Sprintf("%.0f", s.otpTimeout.Minutes()),
+	}, ctx)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.auth.CustomerForgetPasswordUseCase.ForgetPassword: %s", err))
+	}
+	err = s.taskExecutor.ExecuteTask(ctx, &mail.EmailPayload{
+		Subject: *s.forgetPwdSubjectMail,
+		Message: *msg,
+		To:      []string{i.User.Email},
+	})
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.auth.CustomerForgetPasswordUseCase.ForgetPassword: %s", err))
+	}
+	otpHashValue, err := usecase.GenerateHashInfo(usecase.MakeOTPValue(usecase.EmbedUser(ctx, i.User), otp))
+	if err != nil {
+		return nil, err
+	}
+	tk, err := usecase.GenerateForgetPwdToken(
+		ctx,
+		otpHashValue,
+		i.User.Email,
+		*s.cfUC.GetSecret(),
+		s.otpTimeout,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &model.CustomerForgetPasswordResp{Token: tk}, nil
+}
+
+func (s *CustomerValidateForgetPassword) ValidateForgetPassword(ctx context.Context, i *model.CustomerForgetPasswordInput) (*model.CustomerForgetPasswordInput, error) {
+	user, err := s.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{Email: &i.Email})
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, usecase.WrapError(fmt.Errorf("user does not exist"))
+	}
+	i.User = user
+	return i, nil
+}
+
+func (s *CustomerChangePasswordWithTokenUseCase) ChangePasswordWithToken(ctx context.Context, i *model.CustomerChangePasswordWithTokenInput) error {
+	_, err := s.cUUC.Update(ctx, i.User, &model.CustomerUpdateInput{
+		ClearPassword: true,
+		Password:      i.HashPwd,
+	})
+	if err != nil {
+		return usecase.WrapError(fmt.Errorf("internal.usecase.auth.CustomerChangePasswordWithTokenUseCase.ChangePasswordWithToken: %s", err))
+	}
+	return nil
+}
+
+func (s *CustomerValidateChangePasswordWithTokenUseCase) ValidateChangePasswordWithToken(ctx context.Context, i *model.CustomerChangePasswordWithTokenInput) (*model.CustomerChangePasswordWithTokenInput, error) {
+	pl, err := usecase.ParseToken(ctx, i.Token, *s.cfUC.GetSecret())
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("token expired"))
+	}
+	eAny, ok := pl["email"]
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("invaid token due to email missing"))
+	}
+	tkAny, ok := pl["token"]
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("invaid token due to token missing"))
+	}
+	tk, ok := tkAny.(string)
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("invaid token due to token wrong type"))
+	}
+	email, ok := eAny.(string)
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("invaid token due to email wrong type"))
+	}
+	user, err := s.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{Email: &email})
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, usecase.WrapError(fmt.Errorf("user does not exist"))
+	}
+	err = usecase.ValidateHashInfo(usecase.MakeOTPValue(usecase.EmbedUser(ctx, user), i.Otp), tk)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("otp invalid"))
+	}
+	if i.Password != i.ConfirmPassword {
+		return nil, usecase.WrapError(fmt.Errorf("password not match"))
+	}
+	if err = password.ValidatePassword(user.Password, i.Password); err == nil {
+		return nil, usecase.WrapError(fmt.Errorf("new password match old password is not allowed"))
+	}
+	hashPwd, err := password.GetHashPassword(i.Password)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.auth.CustomerValidateChangePasswordWithTokenUseCase.ValidateChangePasswordWithToken: %w", err))
+	}
+	i.HashPwd = &hashPwd
+	i.User = user
+	return i, nil
 }

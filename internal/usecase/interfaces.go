@@ -86,8 +86,22 @@ type (
 	ICustomerChangePasswordUseCase interface {
 		ChangePassword(context.Context, *model.CustomerChangePasswordInput) (*model.Customer, error)
 	}
+	ICustomerValidateChangePasswordWithTokenUseCase interface {
+		ValidateChangePasswordWithToken(context.Context, *model.CustomerChangePasswordWithTokenInput) (*model.CustomerChangePasswordWithTokenInput, error)
+	}
+	ICustomerChangePasswordWithTokenUseCase interface {
+		ChangePasswordWithToken(context.Context, *model.CustomerChangePasswordWithTokenInput) error
+	}
+	ICustomerValidateForgetPasswordUsecase interface {
+		ValidateForgetPassword(context.Context, *model.CustomerForgetPasswordInput) (*model.CustomerForgetPasswordInput, error)
+	}
+	ICustomerForgetPasswordUseCase interface {
+		ForgetPassword(context.Context, *model.CustomerForgetPasswordInput) (*model.CustomerForgetPasswordResp, error)
+	}
 	ICustomerAuthUseCase interface {
 		iAuthenticationUseCase[*model.CustomerLoginInput, *model.Customer]
+		ICustomerForgetPasswordUseCase
+		ICustomerValidateForgetPasswordUsecase
 	}
 	ICustomerBankAccountUpdateUseCase interface {
 		iUpdateUseCase[*model.BankAccount, *model.BankAccountUpdateInput]
@@ -121,16 +135,16 @@ type (
 		ICustomerBankAccountGetFirstUseCase
 	}
 	ICustomerTransactionValidateConfirmInputUseCase interface {
-		ValidateConfirmInput(context.Context, *model.Transaction, *string, *string) error
+		ValidateConfirmInput(context.Context, *model.Transaction, *model.TransactionConfirmUseCaseInput) error
 	}
 	ICustomerTransactionConfirmSuccessUseCase interface {
 		ConfirmSuccess(context.Context, *model.Transaction, *string) (*model.Transaction, error)
 	}
 	ICustomerTransactionCreateUseCase interface {
-		Create(context.Context, *model.TransactionCreateInput, bool) (*model.TransactionCreateResp, error)
+		Create(context.Context, *model.TransactionCreateUseCaseInput) (*model.TransactionCreateResp, error)
 	}
 	ICustomerTransactionValidateCreateInputUseCase interface {
-		Validate(context.Context, *model.TransactionCreateInput, bool) (*model.TransactionCreateInput, error)
+		iValidateCreateInput[*model.TransactionCreateUseCaseInput]
 	}
 	ICustomerTransactionListUseCase interface {
 		iListUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]

@@ -71,20 +71,23 @@ func (r *transactionRoute) create(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, createInReq, nil)
 		return
 	}
-	in := &model.TransactionCreateInput{
-		ReceiverBankAccountNumber: createInReq.ReceiverBankAccountNumber,
-		ReceiverBankName:          createInReq.ReceiverBankName,
-		ReceiverName:              createInReq.ReceiverName,
-		ReceiverID:                createInReq.ReceiverID,
-		Amount:                    createInReq.Amount,
-		Description:               &createInReq.Description,
+	in := &model.TransactionCreateUseCaseInput{
+		TransactionCreateInput: &model.TransactionCreateInput{
+			ReceiverBankAccountNumber: createInReq.ReceiverBankAccountNumber,
+			ReceiverBankName:          createInReq.ReceiverBankName,
+			ReceiverName:              createInReq.ReceiverName,
+			ReceiverID:                createInReq.ReceiverID,
+			Amount:                    createInReq.Amount,
+			Description:               &createInReq.Description,
+		},
+		IsFeePaidByMe: createInReq.IsFeePaidByMe,
 	}
-	in, err := r.uc.Validate(ctx, in, createInReq.IsFeePaidByMe)
+	in, err := r.uc.ValidateCreate(ctx, in)
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
 	}
-	entity, err := r.uc.Create(ctx, in, createInReq.IsFeePaidByMe)
+	entity, err := r.uc.Create(ctx, in)
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
@@ -152,7 +155,10 @@ func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
 			handleBindingError(ctx, err, r.logger, confirmReq, nil)
 			return
 		}
-		err = r.uc.ValidateConfirmInput(ctx, entity, &confirmReq.Token, &confirmReq.Token)
+		err = r.uc.ValidateConfirmInput(ctx, entity, &model.TransactionConfirmUseCaseInput{
+			Token: confirmReq.Token,
+			Otp:   confirmReq.OTP,
+		})
 		if err != nil {
 			HandleError(ctx, err, r.logger)
 			return

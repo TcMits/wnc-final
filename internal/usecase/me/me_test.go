@@ -86,7 +86,7 @@ func TestValidateChangePassword(t *testing.T) {
 			},
 		},
 		{
-			name: "new password not match old password",
+			name: "new password match old password is not allowed",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
 				ent.EmbedClient(ctx, c)
@@ -97,7 +97,7 @@ func TestValidateChangePassword(t *testing.T) {
 					OldPassword: "123456789",
 				}
 				_, err := uc.ValidateChangePassword(ctx, i)
-				require.ErrorContains(t, err, "new password not match old password")
+				require.ErrorContains(t, err, "new password match old password is not allowed")
 			},
 		},
 		{

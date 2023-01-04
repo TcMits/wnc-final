@@ -107,14 +107,14 @@ func (s *CustomerValidateChangePasswordUseCase) ValidateChangePassword(ctx conte
 		return nil, usecase.WrapError(fmt.Errorf("old password is invalid"))
 	}
 	if i.Password == i.OldPassword {
-		return nil, usecase.WrapError(fmt.Errorf("new password not match old password"))
+		return nil, usecase.WrapError(fmt.Errorf("new password match old password is not allowed"))
 	}
 	if i.Password != i.ConfirmPassword {
 		return nil, usecase.WrapError(fmt.Errorf("password not match"))
 	}
 	hashPwd, err := password.GetHashPassword(i.Password)
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.auth.CustomerValidateChangePasswordUseCase.ValidateChangePassword: %w", err))
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.me.CustomerValidateChangePasswordUseCase.ValidateChangePassword: %w", err))
 	}
 	i.HashPwd = &hashPwd
 	return i, nil

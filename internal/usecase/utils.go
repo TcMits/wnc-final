@@ -16,6 +16,7 @@ type UserCtxType string
 
 const (
 	UserCtxKey UserCtxType = "user"
+	UserCtxVal UserCtxType = "user-value"
 )
 
 func EncodeToString(max int) string {
@@ -52,32 +53,73 @@ func GetUserAsCustomer(ctx context.Context) *model.Customer {
 	}
 	return user
 }
+func EmbedUser(ctx context.Context, u *model.Customer) context.Context {
+	newCtx := context.WithValue(ctx, UserCtxKey, UserCtxVal)
+	newCtx = context.WithValue(newCtx, UserCtxVal, u)
+	return newCtx
+}
 func GenerateConfirmTxcToken(
 	ctx context.Context,
-	payload map[string]any,
+	token,
+	signingKey string,
+	isFeePaidByMe bool,
+	secondsDuration time.Duration,
+) (string, error) {
+	tk, err := jwt.NewToken(map[string]any{
+		"token":             token,
+		"is_fee_paid_by_me": isFeePaidByMe,
+	}, signingKey, secondsDuration)
+	if err != nil {
+		return "", WrapError(fmt.Errorf("internal.usecase.utils.GenerateConfirmTxcToken: %s", err))
+	}
+	return tk, nil
+}
+func GenerateForgetPwdToken(
+	ctx context.Context,
+	token,
+	email,
 	signingKey string,
 	secondsDuration time.Duration,
 ) (string, error) {
-	return jwt.NewToken(payload, signingKey, secondsDuration)
+	tk, err := jwt.NewToken(map[string]any{
+		"token": token,
+		"email": email,
+	}, signingKey, secondsDuration)
+	if err != nil {
+		return "", WrapError(fmt.Errorf("internal.usecase.utils.GenerateConfirmTxcToken: %s", err))
+	}
+	return tk, nil
 }
 
-func ParseConfirmTxcToken(
+func ParseToken(
 	ctx context.Context,
 	token string,
 	signingKey string,
 ) (map[string]any, error) {
-	return jwt.ParseJWT(token, signingKey)
+	pl, err := jwt.ParseJWT(token, signingKey)
+	if err != nil {
+		return nil, WrapError(fmt.Errorf("internal.usecase.utils.ParseConfirmTxcToken: %s", err))
+	}
+	return pl, nil
 }
 
 func GenerateHashInfo(
 	v string,
 ) (string, error) {
-	return password.GetHashPassword(v)
+	hashPwd, err := password.GetHashPassword(v)
+	if err != nil {
+		return "", WrapError(fmt.Errorf("internal.usecase.utils.GenerateHashInfo: %s", err))
+	}
+	return hashPwd, nil
 }
 
 func ValidateHashInfo(
 	raw,
 	hash string,
 ) error {
-	return password.ValidatePassword(hash, raw)
+	err := password.ValidatePassword(hash, raw)
+	if err != nil {
+		return WrapError(fmt.Errorf("internal.usecase.utils.ValidateHashInfo: %s", err))
+	}
+	return nil
 }

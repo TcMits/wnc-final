@@ -23,7 +23,6 @@ type (
 		taskExecutor          task.IExecuteTask[*mail.EmailPayload]
 		txcConfirmSubjectMail *string
 		txcConfirmMailTemp    *string
-		frontendUrl           *string
 		otpTimeout            time.Duration
 	}
 	CustomerTransactionValidateConfirmInputUseCase struct {

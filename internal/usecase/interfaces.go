@@ -63,6 +63,9 @@ type (
 	ICustomerGetUserUseCase interface {
 		IGetUserUseCase
 	}
+	ICustomerGetUserFromCtxUseCase interface {
+		GetUserFromCtx(context.Context) (*model.Customer, error)
+	}
 	ICustomerGetFirstUseCase interface {
 		GetFirst(context.Context, *model.CustomerOrderInput, *model.CustomerWhereInput) (*model.Customer, error)
 	}
@@ -72,6 +75,16 @@ type (
 	ICustomerMeUseCase interface {
 		ICustomerConfigUseCase
 		ICustomerGetUserUseCase
+		ICustomerValidateChangePasswordUseCase
+		ICustomerChangePasswordUseCase
+		ICustomerGetUserFromCtxUseCase
+	}
+	// change password
+	ICustomerValidateChangePasswordUseCase interface {
+		ValidateChangePassword(context.Context, *model.CustomerChangePasswordInput) (*model.CustomerChangePasswordInput, error)
+	}
+	ICustomerChangePasswordUseCase interface {
+		ChangePassword(context.Context, *model.CustomerChangePasswordInput) (*model.Customer, error)
 	}
 	ICustomerAuthUseCase interface {
 		iAuthenticationUseCase[*model.CustomerLoginInput, *model.Customer]

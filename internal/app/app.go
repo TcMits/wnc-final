@@ -44,6 +44,7 @@ func Run(cfg *config.Config) {
 	// Usecase
 	CMeUc := me.NewCustomerMeUseCase(
 		repository.GetCustomerListRepository(client),
+		repository.GetCustomerUpdateRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 		&cfg.TransactionUseCase.FeeAmount,

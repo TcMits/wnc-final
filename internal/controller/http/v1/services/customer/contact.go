@@ -137,7 +137,7 @@ func (r *contactRoute) update(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	updateInReq := new(contactCreateReq)
+	updateInReq := new(contactUpdateReq)
 	if err := ctx.ReadBody(updateInReq); err != nil {
 		handleBindingError(ctx, err, r.logger, updateInReq, nil)
 		return

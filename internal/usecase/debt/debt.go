@@ -1,6 +1,8 @@
 package debt
 
 import (
+	"time"
+
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
@@ -9,6 +11,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
+	"github.com/TcMits/wnc-final/pkg/tool/mail"
 )
 
 func NewCustomerDebtListUseCase(
@@ -88,11 +91,38 @@ func NewCustomerDebtValidateFulfillUseCase(
 	return &CustomerDebtValidateFulfillUseCase{cGFUC: customer.NewCustomerGetFirstUseCase(rlc), bAGFUC: bankaccount.NewCustomerBankAccountGetFirstUseCase(rlba)}
 }
 func NewCustomerDebtFulfillUseCase(
+	taskExctor task.IExecuteTask[*mail.EmailPayload],
+	sk,
+	prodOwnerName,
+	feeDesc,
+	debtFulfillSubjectMail,
+	debtFulfillEmailTemplate *string,
+	fee *float64,
+	otpTimeout time.Duration,
+) usecase.ICustomerDebtFulfillUseCase {
+	return &CustomerDebtFulfillUseCase{
+		taskExecutor:           taskExctor,
+		cfUC:                   config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		debtFulfillMailTemp:    debtFulfillEmailTemplate,
+		debtFulfillSubjectMail: debtFulfillSubjectMail,
+	}
+}
+func NewCustomerDebtValidateFulfillWithTokenUseCase(
+	sk,
+	prodOwnerName,
+	feeDesc *string,
+	fee *float64,
+) usecase.ICustomerDebtValidateFulfillWithTokenUseCase {
+	return &CustomerDebtValidateFulfillWithTokenUseCase{
+		cfUC: config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+	}
+}
+func NewCustomerDebtFulfillWithTokenUseCase(
 	repoFulfill repository.IDebtFullfillRepository,
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	taskExctor task.IExecuteTask[*task.DebtNotifyPayload],
-) usecase.ICustomerDebtFulfillUseCase {
-	return &CustomerDebtFulfillUseCase{repoFulfill: repoFulfill, cGFUC: customer.NewCustomerGetFirstUseCase(rlc), taskExecutor: taskExctor}
+) usecase.ICustomerDebtFulfillWithTokenUseCase {
+	return &CustomerDebtFulfillWithTokenUseCase{repoFulfill: repoFulfill, cGFUC: customer.NewCustomerGetFirstUseCase(rlc), taskExecutor: taskExctor}
 }
 func NewCustomerDebtUseCase(
 	repoList repository.ListModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput],
@@ -101,23 +131,28 @@ func NewCustomerDebtUseCase(
 	repoFulfill repository.IDebtFullfillRepository,
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
-	taskExctor task.IExecuteTask[*task.DebtNotifyPayload],
+	notifyTask task.IExecuteTask[*task.DebtNotifyPayload],
+	mailTask task.IExecuteTask[*mail.EmailPayload],
 	sk,
+	debtFulfillSubjectMail,
+	debtFulfillEmailTemplate,
 	prodOwnerName,
 	feeDesc *string,
 	fee *float64,
+	otpTimeout time.Duration,
 ) usecase.ICustomerDebtUseCase {
 	return &CustomerDebtUseCase{
 		ICustomerDebtListUseCase:                NewCustomerDebtListUseCase(repoList),
-		ICustomerDebtCreateUseCase:              NewCustomerDebtCreateUseCase(repoCreate, rlc, taskExctor, sk, prodOwnerName, fee, feeDesc),
+		ICustomerDebtCreateUseCase:              NewCustomerDebtCreateUseCase(repoCreate, rlc, notifyTask, sk, prodOwnerName, fee, feeDesc),
 		ICustomerDebtValidateCreateInputUseCase: NewCustomerDebtValidateCreateInputUseCase(rlba, rlc, sk, prodOwnerName, fee, feeDesc),
 		ICustomerConfigUseCase:                  config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 		ICustomerGetUserUseCase:                 me.NewCustomerGetUserUseCase(rlc),
 		ICustomerDebtGetFirstMineUseCase:        NewCustomerDebtGetFirstMineUseCase(repoList),
 		ICustomerDebtListMineUseCase:            NewCustomerDebtListMineUseCase(repoList),
-		ICustomerDebtCancelUseCase:              NewCustomerDebtCancelUseCase(repoUpdate, taskExctor, rlc),
+		ICustomerDebtCancelUseCase:              NewCustomerDebtCancelUseCase(repoUpdate, notifyTask, rlc),
 		ICustomerDebtValidateCancelUseCase:      NewCustomerDebtValidateCancelUseCase(rlc),
 		ICustomerDebtValidateFulfillUseCase:     NewCustomerDebtValidateFulfillUseCase(rlc, rlba),
-		ICustomerDebtFulfillUseCase:             NewCustomerDebtFulfillUseCase(repoFulfill, rlc, taskExctor),
+		ICustomerDebtFulfillUseCase:             NewCustomerDebtFulfillUseCase(mailTask, sk, prodOwnerName, feeDesc, debtFulfillSubjectMail, debtFulfillEmailTemplate, fee, otpTimeout),
+		ICustomerDebtFulfillWithTokenUseCase:    NewCustomerDebtFulfillWithTokenUseCase(repoFulfill, rlc, notifyTask),
 	}
 }

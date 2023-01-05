@@ -39,9 +39,13 @@ func MakeValue(ctx context.Context) string {
 	user := GetUserAsCustomer(ctx)
 	return fmt.Sprintf("%v-%v-%v-%v-%v-%v", user.ID.String(), user.JwtTokenKey, user.IsActive, user.PhoneNumber, user.Email, user.Password)
 }
-func MakeOTPValue(ctx context.Context, otp string) string {
+func MakeOTPValue(ctx context.Context, otp string, extra ...string) string {
 	tk := MakeValue(ctx)
-	return fmt.Sprintf("%v-%v", otp, tk)
+	base := fmt.Sprintf("%v-%v", otp, tk)
+	for _, e := range extra {
+		base = fmt.Sprintf("%v-%v", base, e)
+	}
+	return base
 }
 
 func GetUserAsCustomer(ctx context.Context) *model.Customer {
@@ -87,6 +91,20 @@ func GenerateForgetPwdToken(
 	}, signingKey, secondsDuration)
 	if err != nil {
 		return "", WrapError(fmt.Errorf("internal.usecase.utils.GenerateConfirmTxcToken: %s", err))
+	}
+	return tk, nil
+}
+func GenerateFulfillToken(
+	ctx context.Context,
+	token,
+	signingKey string,
+	secondsDuration time.Duration,
+) (string, error) {
+	tk, err := jwt.NewToken(map[string]any{
+		"token": token,
+	}, signingKey, secondsDuration)
+	if err != nil {
+		return "", WrapError(fmt.Errorf("internal.usecase.utils.GenerateFulfillToken: %s", err))
 	}
 	return tk, nil
 }

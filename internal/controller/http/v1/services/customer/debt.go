@@ -19,15 +19,18 @@ func RegisterDebtController(handler iris.Party, l logger.Interface, uc usecase.I
 		logger: l,
 	}
 	handler.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
+	handler.Put("/debts/fulfill-with-token/{id:uuid}", route.fulfillWithToken)
 	handler.Put("/debts/cancel/{id:uuid}", route.cancel)
 	handler.Put("/debts/fulfill/{id:uuid}", route.fulfill)
 	handler.Get("/debts/{id:uuid}", route.detail)
 	handler.Get("/debts", route.listing)
 	handler.Post("/debts", route.create)
 	handler.Options("/debts/cancel", func(_ iris.Context) {})
+	handler.Options("/debts/fulfill-with-token", func(_ iris.Context) {})
 	handler.Options("/debts/fulfill", func(_ iris.Context) {})
 	handler.Options("/debts", func(_ iris.Context) {})
 	handler.Head("/debts/cancel", func(_ iris.Context) {})
+	handler.Head("/debts/fulfill-with-token", func(_ iris.Context) {})
 	handler.Head("/debts/fulfill", func(_ iris.Context) {})
 	handler.Head("/debts", func(_ iris.Context) {})
 }
@@ -180,7 +183,7 @@ func (s *debtRoute) cancel(ctx iris.Context) {
 // @Accept      json
 // @Produce     json
 // @Param       id path string true "ID of debt"
-// @Success     200 {object} debtResp
+// @Success     200 {object} debtFulfillResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
 // @Router      /debts/fulfill/{id} [put]
@@ -198,15 +201,63 @@ func (s *debtRoute) fulfill(ctx iris.Context) {
 	if entity == nil {
 		ctx.StatusCode(iris.StatusNoContent)
 	}
-	i, err := s.uc.ValidateFulfill(ctx, entity, nil)
+	err = s.uc.ValidateFulfill(ctx, entity)
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return
 	}
-	entity, err = s.uc.Fulfill(ctx, entity, i)
+	res, err := s.uc.Fulfill(ctx, entity)
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return
 	}
-	ctx.JSON(getResponse(entity))
+	ctx.JSON(getResponse(res))
+}
+
+// @Summary     Fulfill a debt with token
+// @Description Fulfill a debt with token
+// @ID          fulfill-debt-with-token
+// @Tags  	    Debt
+// @Accept      json
+// @Produce     json
+// @Param       id path string true "ID of debt"
+// @Param       payload body debtFulfillReq true "Fulfill a debt with token"
+// @Success     200 {object} debtResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /debts/fulfill-with-token/{id} [put]
+func (s *debtRoute) fulfillWithToken(ctx iris.Context) {
+	req := new(detailRequest)
+	if err := ctx.ReadParams(req); err != nil {
+		handleBindingError(ctx, err, s.logger, req, nil)
+		return
+	}
+	request := new(debtFulfillReq)
+	if err := ctx.ReadJSON(request); err != nil {
+		handleBindingError(ctx, err, s.logger, request, nil)
+		return
+	}
+	entity, err := s.uc.GetFirstMine(ctx, nil, &model.DebtWhereInput{ID: req.id})
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	if entity == nil {
+		ctx.StatusCode(iris.StatusNoContent)
+	}
+	i := &model.DebtFulfillWithTokenInput{
+		Otp:   request.Otp,
+		Token: request.Token,
+	}
+	i, err = s.uc.ValidateFulfillWithToken(ctx, entity, i)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	res, err := s.uc.FulfillWithToken(ctx, entity, i)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	ctx.JSON(getResponse(res))
 }

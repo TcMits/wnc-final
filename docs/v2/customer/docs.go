@@ -75,7 +75,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Guest bank account"
+                    "Bank account"
                 ],
                 "summary": "Show guest bank accounts",
                 "operationId": "guestbankaccount-listing",
@@ -96,6 +96,56 @@ const docTemplate = `{
             }
         },
         "/bank-accounts/guest/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a guest bank account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bank account"
+                ],
+                "summary": "Get a guest bank account",
+                "operationId": "guestbankaccount-get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of bank account",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.guestBankAccountResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/bank-accounts/{id}": {
             "get": {
                 "security": [
                     {
@@ -128,56 +178,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/customer.bankAccountResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/bank-accounts/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Get a guest bank account",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Guest bank account"
-                ],
-                "summary": "Get a guest bank account",
-                "operationId": "guestbankaccount-get",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID of bank account",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.guestBankAccountResp"
                         }
                     },
                     "400": {
@@ -262,7 +262,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "change-password-with-token"
+                    "Authentication"
                 ],
                 "summary": "Change password with token",
                 "operationId": "change-password-with-token",
@@ -671,6 +671,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/debts/fulfill-with-token/{id}": {
+            "put": {
+                "description": "Fulfill a debt with token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Debt"
+                ],
+                "summary": "Fulfill a debt with token",
+                "operationId": "fulfill-debt-with-token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of debt",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Fulfill a debt with token",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.debtFulfillReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.debtResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/debts/fulfill/{id}": {
             "put": {
                 "security": [
@@ -703,7 +757,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/customer.debtResp"
+                            "$ref": "#/definitions/customer.debtFulfillResp"
                         }
                     },
                     "400": {
@@ -781,7 +835,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "forget-password"
+                    "Authentication"
                 ],
                 "summary": "Forget password",
                 "operationId": "forget-password",
@@ -828,7 +882,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Login"
+                    "Authentication"
                 ],
                 "summary": "Login",
                 "operationId": "login",
@@ -878,7 +932,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Logout"
+                    "Authentication"
                 ],
                 "summary": "Logout",
                 "operationId": "logout",
@@ -952,7 +1006,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "change-password"
+                    "Me"
                 ],
                 "summary": "Change password",
                 "operationId": "change-password",
@@ -1031,7 +1085,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Renew token"
+                    "Authentication"
                 ],
                 "summary": "Renew token",
                 "operationId": "renewtoken",
@@ -1437,6 +1491,29 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "receiver_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "customer.debtFulfillReq": {
+            "type": "object",
+            "required": [
+                "otp",
+                "token"
+            ],
+            "properties": {
+                "otp": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "customer.debtFulfillResp": {
+            "type": "object",
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }

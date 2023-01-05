@@ -9,6 +9,8 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
+	"github.com/TcMits/wnc-final/pkg/tool/mail"
+	"github.com/TcMits/wnc-final/pkg/tool/template"
 )
 
 func (s *CustomerDebtListUseCase) List(ctx context.Context, limit, offset *int, o *model.DebtOrderInput, w *model.DebtWhereInput) ([]*model.Debt, error) {
@@ -167,14 +169,14 @@ func (uc *CustomerDebtCancelUseCase) Cancel(ctx context.Context, e *model.Debt, 
 	}
 	return e, nil
 }
-func (uc *CustomerDebtValidateFulfillUseCase) ValidateFulfill(ctx context.Context, e *model.Debt, i *model.DebtUpdateInput) (*model.DebtUpdateInput, error) {
+func (uc *CustomerDebtValidateFulfillUseCase) ValidateFulfill(ctx context.Context, e *model.Debt) error {
 	if e.Status == debt.StatusPending {
 		owner, err := uc.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{HasBankAccountsWith: []*model.BankAccountWhereInput{{ID: e.OwnerID}}})
 		if err != nil {
-			return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtValidateFulfillUseCase.ValidateFulfill: %s", err))
+			return usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtValidateFulfillUseCase.ValidateFulfill: %s", err))
 		}
 		if owner == nil {
-			return nil, usecase.WrapError(fmt.Errorf("invalid owner"))
+			return usecase.WrapError(fmt.Errorf("invalid owner"))
 		}
 		user := usecase.GetUserAsCustomer(ctx)
 		if user.ID != owner.ID {
@@ -182,26 +184,79 @@ func (uc *CustomerDebtValidateFulfillUseCase) ValidateFulfill(ctx context.Contex
 				ID: e.ReceiverID,
 			})
 			if err != nil {
-				return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtValidateFulfillUseCase.ValidateFulfill: %s", err))
+				return usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtValidateFulfillUseCase.ValidateFulfill: %s", err))
 			}
 			ok, err := bA.IsBalanceSufficient(e.Amount.Abs().InexactFloat64())
 			if err != nil {
-				return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtValidateFulfillUseCase.ValidateFulfill: %s", err))
+				return usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtValidateFulfillUseCase.ValidateFulfill: %s", err))
 			}
 			if ok {
-				if i == nil {
-					i = new(model.DebtUpdateInput)
-				}
-				i.Status = generic.GetPointer(debt.StatusFulfilled)
-				return i, nil
+				return nil
 			}
-			return nil, usecase.WrapError(fmt.Errorf("insufficient ballence"))
+			return usecase.WrapError(fmt.Errorf("insufficient ballence"))
 		}
-		return nil, usecase.WrapError(fmt.Errorf("cannot fulfill debt which you created"))
+		return usecase.WrapError(fmt.Errorf("cannot fulfill debt which you created"))
 	}
-	return nil, usecase.WrapError(fmt.Errorf("cannot fulfill %s debt", e.Status.String()))
+	return usecase.WrapError(fmt.Errorf("cannot fulfill %s debt", e.Status.String()))
 }
-func (uc *CustomerDebtFulfillUseCase) getOwner(ctx context.Context, e *model.Debt) (*model.Customer, error) {
+func (s *CustomerDebtFulfillUseCase) Fulfill(ctx context.Context, e *model.Debt) (*model.DebtFulfillResp, error) {
+	otp := usecase.GenerateOTP(6)
+	otpHashValue, err := usecase.GenerateHashInfo(usecase.MakeOTPValue(ctx, otp, e.ID.String()))
+	if err != nil {
+		return nil, err
+	}
+	tk, err := usecase.GenerateFulfillToken(
+		ctx,
+		otpHashValue,
+		*s.cfUC.GetSecret(),
+		s.otpTimeout,
+	)
+	if err != nil {
+		return nil, err
+	}
+	user := usecase.GetUserAsCustomer(ctx)
+	msg, err := template.RenderToStr(*s.debtFulfillMailTemp, map[string]string{
+		"otp":     otp,
+		"name":    user.GetName(),
+		"expires": fmt.Sprintf("%.0f", s.otpTimeout.Minutes()),
+	}, ctx)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtFulfillUseCase.Fulfill: %s", err))
+	}
+	err = s.taskExecutor.ExecuteTask(ctx, &mail.EmailPayload{
+		Subject: *s.debtFulfillSubjectMail,
+		Message: *msg,
+		To:      []string{user.Email},
+	})
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtFulfillUseCase.Fulfill: %s", err))
+	}
+	return &model.DebtFulfillResp{
+		Token: tk,
+	}, nil
+}
+
+func (s *CustomerDebtValidateFulfillWithTokenUseCase) ValidateFulfillWithToken(ctx context.Context, e *model.Debt, i *model.DebtFulfillWithTokenInput) (*model.DebtFulfillWithTokenInput, error) {
+	pl, err := usecase.ParseToken(ctx, i.Token, *s.cfUC.GetSecret())
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("token expired"))
+	}
+	tkAny, ok := pl["token"]
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("invalid token"))
+	}
+	tk, ok := tkAny.(string)
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("invalid token"))
+	}
+	err = usecase.ValidateHashInfo(usecase.MakeOTPValue(ctx, i.Otp, e.ID.String()), tk)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("invalid otp"))
+	}
+	return i, nil
+}
+
+func (uc *CustomerDebtFulfillWithTokenUseCase) getOwner(ctx context.Context, e *model.Debt) (*model.Customer, error) {
 	owner, err := uc.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{
 		HasBankAccountsWith: []*model.BankAccountWhereInput{{ID: e.OwnerID}},
 	})
@@ -210,20 +265,20 @@ func (uc *CustomerDebtFulfillUseCase) getOwner(ctx context.Context, e *model.Deb
 	}
 	return owner, nil
 }
-func (uc *CustomerDebtFulfillUseCase) Fulfill(ctx context.Context, e *model.Debt, i *model.DebtUpdateInput) (*model.Debt, error) {
-	e, err := uc.repoFulfill.Fulfill(ctx, e, i)
+func (s *CustomerDebtFulfillWithTokenUseCase) FulfillWithToken(ctx context.Context, e *model.Debt, i *model.DebtFulfillWithTokenInput) (*model.Debt, error) {
+	e, err := s.repoFulfill.Fulfill(ctx, e, nil)
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtFulfillUseCase.Fulfill: %s", err))
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtFulfillWithTokenUseCase.FulfillWithToken: %s", err))
 	}
-	owner, err := uc.getOwner(ctx, e)
+	owner, err := s.getOwner(ctx, e)
 	if err != nil {
 		return nil, err
 	}
-	err = uc.taskExecutor.ExecuteTask(ctx, &task.DebtNotifyPayload{
+	err = s.taskExecutor.ExecuteTask(ctx, &task.DebtNotifyPayload{
 		UserID: owner.ID,
 	})
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtFulfillUseCase.Fulfill: %s", err))
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtFulfillWithTokenUseCase.FulfillWithToken: %s", err))
 	}
 	return e, nil
 }

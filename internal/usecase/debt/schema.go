@@ -1,10 +1,13 @@
 package debt
 
 import (
+	"time"
+
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
+	"github.com/TcMits/wnc-final/pkg/tool/mail"
 )
 
 type (
@@ -42,8 +45,18 @@ type (
 		cGFUC  usecase.ICustomerGetFirstUseCase
 		bAGFUC usecase.ICustomerBankAccountGetFirstUseCase
 	}
+	CustomerDebtValidateFulfillWithTokenUseCase struct {
+		cfUC usecase.ICustomerConfigUseCase
+	}
 	CustomerDebtFulfillUseCase struct {
-		repoFulfill  usecase.ICustomerDebtFulfillUseCase
+		taskExecutor           task.IExecuteTask[*mail.EmailPayload]
+		debtFulfillSubjectMail *string
+		debtFulfillMailTemp    *string
+		otpTimeout             time.Duration
+		cfUC                   usecase.ICustomerConfigUseCase
+	}
+	CustomerDebtFulfillWithTokenUseCase struct {
+		repoFulfill  repository.IDebtFullfillRepository
 		taskExecutor task.IExecuteTask[*task.DebtNotifyPayload]
 		cGFUC        usecase.ICustomerGetFirstUseCase
 	}
@@ -59,5 +72,7 @@ type (
 		usecase.ICustomerDebtCancelUseCase
 		usecase.ICustomerDebtValidateFulfillUseCase
 		usecase.ICustomerDebtFulfillUseCase
+		usecase.ICustomerDebtFulfillWithTokenUseCase
+		usecase.ICustomerDebtValidateFulfillWithTokenUseCase
 	}
 )

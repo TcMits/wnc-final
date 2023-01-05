@@ -19,6 +19,17 @@ type Opt struct {
 	Value any
 }
 
+func getClient(ctx context.Context) (*Client, error) {
+	client, ok := ctx.Value("client").(*Client)
+	if !ok {
+		return nil, fmt.Errorf("cannot find client in context")
+	}
+	return client, nil
+}
+func EmbedClient(ctx *context.Context, v *Client) {
+	*ctx = context.WithValue(*ctx, "client", v)
+}
+
 var customerFactory = factory.NewFactory(
 	&CustomerCreateInput{},
 ).Attr("Password", func(a factory.Args) (interface{}, error) {
@@ -72,6 +83,7 @@ var transactionFactory = factory.NewFactory(
 		return nil, err
 	}
 	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", generic.GetPointer(true)})
+	fmt.Println(e.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +122,7 @@ var transactionFactory = factory.NewFactory(
 	if err != nil {
 		return nil, err
 	}
-	return e.ID, nil
+	return generic.GetPointer(e.ID), nil
 }).Attr("ReceiverName", func(a factory.Args) (interface{}, error) {
 	ins := a.Instance().(*TransactionCreateInput)
 	sid := *ins.ReceiverID
@@ -138,17 +150,6 @@ var transactionFactory = factory.NewFactory(
 	return ba.AccountNumber, nil
 })
 
-func getClient(ctx context.Context) (*Client, error) {
-	client, ok := ctx.Value("client").(*Client)
-	if !ok {
-		return nil, fmt.Errorf("cannot find client in context")
-	}
-	return client, nil
-}
-func EmbedClient(ctx *context.Context, v *Client) {
-	*ctx = context.WithValue(*ctx, "client", v)
-}
-
 var debtFactory = factory.NewFactory(
 	&DebtCreateInput{
 		Status:           generic.GetPointer(debt.StatusPending),
@@ -163,7 +164,7 @@ var debtFactory = factory.NewFactory(
 	if err != nil {
 		return nil, err
 	}
-	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", true})
+	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", generic.GetPointer(true)})
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +202,7 @@ var debtFactory = factory.NewFactory(
 	if err != nil {
 		return nil, err
 	}
-	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", true})
+	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", generic.GetPointer(true)})
 	if err != nil {
 		return nil, err
 	}
@@ -294,49 +295,49 @@ func ContactFactory(ctx context.Context, opts ...Opt) *ContactCreateInput {
 }
 
 func CreateFakeDebt(ctx context.Context, c *Client, i *DebtCreateInput, opts ...Opt) (*Debt, error) {
-	if i == nil {
-		i = DebtFactory(ctx, opts...)
-	}
 	if ctx == nil {
 		ctx = context.Background()
+	}
+	if i == nil {
+		i = DebtFactory(ctx, opts...)
 	}
 	return c.Debt.Create().SetInput(i).Save(ctx)
 }
 
 func CreateFakeCustomer(ctx context.Context, c *Client, i *CustomerCreateInput, opts ...Opt) (*Customer, error) {
-	if i == nil {
-		i = CustomerFactory(ctx, opts...)
-	}
 	if ctx == nil {
 		ctx = context.Background()
+	}
+	if i == nil {
+		i = CustomerFactory(ctx, opts...)
 	}
 	return c.Customer.Create().SetInput(i).Save(ctx)
 }
 func CreateFakeBankAccount(ctx context.Context, c *Client, i *BankAccountCreateInput, opts ...Opt) (*BankAccount, error) {
-	if i == nil {
-		i = BankAccountFactory(ctx, opts...)
-	}
 	if ctx == nil {
 		ctx = context.Background()
+	}
+	if i == nil {
+		i = BankAccountFactory(ctx, opts...)
 	}
 	return c.BankAccount.Create().SetInput(i).Save(ctx)
 }
 func CreateFakeContact(ctx context.Context, c *Client, i *ContactCreateInput) (*Contact, error) {
-	if i == nil {
-		i = ContactFactory(ctx)
-	}
 	if ctx == nil {
 		ctx = context.Background()
+	}
+	if i == nil {
+		i = ContactFactory(ctx)
 	}
 	return c.Contact.Create().SetInput(i).Save(ctx)
 }
 
 func CreateFakeTransaction(ctx context.Context, c *Client, i *TransactionCreateInput, opts ...Opt) (*Transaction, error) {
-	if i == nil {
-		i = TransactionFactory(ctx, opts...)
-	}
 	if ctx == nil {
 		ctx = context.Background()
+	}
+	if i == nil {
+		i = TransactionFactory(ctx, opts...)
 	}
 	return c.Transaction.Create().SetInput(i).Save(ctx)
 }

@@ -37,6 +37,7 @@ func TestListUseCase(t *testing.T) {
 	c, _ := datastore.NewClientTestConnection(t)
 	defer c.Close()
 	ctx := context.Background()
+	ent.EmbedClient(&ctx, c)
 	ent.CreateFakeTransaction(ctx, c, nil)
 	uc := transaction.NewCustomerTransactionListUseCase(repository.GetTransactionListRepository(c))
 	l, o := 1, 0
@@ -50,6 +51,7 @@ func TestListMyTxcUseCase(t *testing.T) {
 	c, _ := datastore.NewClientTestConnection(t)
 	defer c.Close()
 	ctx := context.Background()
+	ent.EmbedClient(&ctx, c)
 	mBA, _ := ent.CreateFakeBankAccount(ctx, c, nil)
 	authenticateCtx(&ctx, c, mBA.QueryCustomer().FirstX(ctx))
 	ent.CreateFakeTransaction(ctx, c, nil, ent.Opt{Key: "SenderID", Value: mBA.ID})
@@ -67,6 +69,7 @@ func TestGetFirstMyTxcUseCase(t *testing.T) {
 	c, _ := datastore.NewClientTestConnection(t)
 	defer c.Close()
 	ctx := context.Background()
+	ent.EmbedClient(&ctx, c)
 	mBA, _ := ent.CreateFakeBankAccount(ctx, c, nil)
 	authenticateCtx(&ctx, c, mBA.QueryCustomer().FirstX(ctx))
 	entity1, _ := ent.CreateFakeTransaction(ctx, c, nil, ent.Opt{Key: "SenderID", Value: mBA.ID})
@@ -82,6 +85,7 @@ func TestUpdateUseCase(t *testing.T) {
 	c, _ := datastore.NewClientTestConnection(t)
 	defer c.Close()
 	ctx := context.Background()
+	ent.EmbedClient(&ctx, c)
 	entity1, _ := ent.CreateFakeTransaction(ctx, c, nil)
 	authenticateCtx(&ctx, c, entity1.QuerySender().FirstX(ctx).QueryCustomer().FirstX(ctx))
 	uc := transaction.NewCustomerTransactionUpdateUseCase(repository.GetTransactionUpdateRepository(c))
@@ -103,6 +107,7 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			name: "bank account sender does have draft transactions",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -121,6 +126,7 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			name: "insufficient balance from sender and fee paid by me",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -138,6 +144,7 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			name: "insufficient balance from sender and fee not paid by me",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -155,6 +162,7 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			name: "insufficient balance from receiver and fee not paid by me",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -183,6 +191,7 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -243,6 +252,7 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 			name: "not draft transaction",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
 				entity1, _ := ent.CreateFakeTransaction(ctx, c, nil, ent.Opt{Key: "Status", Value: generic.GetPointer(entTxc.StatusSuccess)})
@@ -254,6 +264,7 @@ func TestValidateConfirmInputUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateConfirmInputUseCase) {
 				otp := usecase.GenerateOTP(6)
@@ -304,6 +315,7 @@ func TestConfirmSuccessUseCase(t *testing.T) {
 			name: "success and fee paid by me",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionConfirmSuccessUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -351,6 +363,7 @@ func TestConfirmSuccessUseCase(t *testing.T) {
 			name: "success and fee not paid by me",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionConfirmSuccessUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -425,6 +438,7 @@ func TestCreateUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionCreateUseCase) {
 				i := ent.TransactionFactory(ctx)

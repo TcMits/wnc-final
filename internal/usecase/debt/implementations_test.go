@@ -54,20 +54,18 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				i2 := ent.BankAccountFactory()
-				i2.IsForPayment = generic.GetPointer(true)
-				ownerBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				i3 := ent.DebtFactory()
-				i3.OwnerID = ownerBA.ID
-				i3.ReceiverID = receiverBA.ID
-				i3, err := uc.ValidateCreate(ctx, i3)
+				ownerBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+				)
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+				)
+				i := ent.DebtFactory(ctx, ent.Opt{Key: "OwnerID", Value: ownerBA.ID}, ent.Opt{Key: "ReceiverID", Value: receiverBA.ID})
+				i, err := uc.ValidateCreate(ctx, i)
 				require.Nil(t, err)
-				require.Equal(t, i3.Status.String(), entDebt.StatusPending.String())
-				require.Equal(t, i3.OwnerBankAccountNumber, ownerBA.AccountNumber)
+				require.Equal(t, i.Status.String(), entDebt.StatusPending.String())
+				require.Equal(t, i.OwnerBankAccountNumber, ownerBA.AccountNumber)
 			},
 		},
 		{
@@ -77,16 +75,16 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.CustomerID = user.ID
-				i1.IsForPayment = generic.GetPointer(true)
-				i2 := ent.BankAccountFactory()
-				ownerBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i2)
-				i3 := ent.DebtFactory()
-				i3.OwnerID = ownerBA.ID
-				i3.ReceiverID = receiverBA.ID
-				_, err := uc.ValidateCreate(ctx, i3)
+				ownerBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+				)
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, nil)
+				i := ent.DebtFactory(ctx,
+					ent.Opt{Key: "OwnerID", Value: ownerBA.ID},
+					ent.Opt{Key: "ReceiverID", Value: receiverBA.ID},
+				)
+				_, err := uc.ValidateCreate(ctx, i)
 				require.ErrorContains(t, err, "receiver not for payment")
 			},
 		},
@@ -125,13 +123,13 @@ func TestCreateUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtCreateUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i := ent.BankAccountFactory()
-				i.CustomerID = user.ID
-				ba, _ := ent.CreateFakeBankAccount(ctx, c, i)
-				i1 := ent.DebtFactory()
-				i1.OwnerID = ba.ID
-				ent.CreateFakeDebt(ctx, c, i1)
-				_, err := uc.Create(ctx, i1)
+				ba, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+				)
+				i := ent.DebtFactory(ctx,
+					ent.Opt{Key: "OwnerID", Value: ba.ID},
+				)
+				_, err := uc.Create(ctx, i)
 				require.Nil(t, err)
 			},
 		},
@@ -175,14 +173,14 @@ func TestValidateCancelUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCancelUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				i2 := ent.DebtFactory()
-				i2.ReceiverID = receiverBA.ID
-				i2.Status = generic.GetPointer(entDebt.StatusCancelled)
-				e1, _ := ent.CreateFakeDebt(ctx, c, i2)
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+				)
+				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
+					ent.Opt{Key: "ReceiverID", Value: receiverBA.ID},
+					ent.Opt{Key: "Status", Value: generic.GetPointer(entDebt.StatusCancelled)},
+				)
 				_, err := uc.ValidateCancel(ctx, e1, nil)
 				require.ErrorContains(t, err, "cannot cancel")
 			},
@@ -194,13 +192,13 @@ func TestValidateCancelUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCancelUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				i2 := ent.DebtFactory()
-				i2.ReceiverID = receiverBA.ID
-				e1, _ := ent.CreateFakeDebt(ctx, c, i2)
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+				)
+				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
+					ent.Opt{Key: "ReceiverID", Value: receiverBA.ID},
+				)
 				res, err := uc.ValidateCancel(ctx, e1, nil)
 				require.Nil(t, err)
 				require.NotNil(t, res)
@@ -237,13 +235,13 @@ func TestCancelUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtCancelUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				i2 := ent.DebtFactory()
-				i2.ReceiverID = receiverBA.ID
-				e1, _ := ent.CreateFakeDebt(ctx, c, i2)
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+				)
+				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
+					ent.Opt{Key: "ReceiverID", Value: receiverBA.ID},
+				)
 				i3 := &model.DebtUpdateInput{
 					Status: generic.GetPointer(entDebt.StatusCancelled),
 				}
@@ -288,9 +286,9 @@ func TestValidateFulfillUseCase(t *testing.T) {
 				authenticateCtx(ctx, c, nil)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillUseCase) {
-				i1 := ent.DebtFactory()
-				i1.Status = generic.GetPointer(entDebt.StatusCancelled)
-				e1, _ := ent.CreateFakeDebt(ctx, c, i1)
+				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
+					ent.Opt{Key: "Status", Value: generic.GetPointer(entDebt.StatusCancelled)},
+				)
 				_, err := uc.ValidateFulfill(ctx, e1, nil)
 				require.ErrorContains(t, err, "cannot fulfill")
 			},
@@ -302,13 +300,13 @@ func TestValidateFulfillUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				ownerBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				i2 := ent.DebtFactory()
-				i2.OwnerID = ownerBA.ID
-				e1, _ := ent.CreateFakeDebt(ctx, c, i2)
+				ownerBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+				)
+				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
+					ent.Opt{Key: "OwnerID", Value: ownerBA.ID},
+				)
 				_, err := uc.ValidateFulfill(ctx, e1, nil)
 				require.ErrorContains(t, err, "cannot fulfill debt which you created")
 			},
@@ -320,13 +318,13 @@ func TestValidateFulfillUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				i2 := ent.DebtFactory()
-				i2.ReceiverID = receiverBA.ID
-				e1, _ := ent.CreateFakeDebt(ctx, c, i2)
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+				)
+				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
+					ent.Opt{Key: "ReceiverID", Value: receiverBA.ID},
+				)
 				_, err := uc.ValidateFulfill(ctx, e1, nil)
 				require.ErrorContains(t, err, "insufficient ballence")
 			},
@@ -338,14 +336,14 @@ func TestValidateFulfillUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				i1.CashIn = float64(1000)
-				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				i2 := ent.DebtFactory()
-				i2.ReceiverID = receiverBA.ID
-				e1, _ := ent.CreateFakeDebt(ctx, c, i2)
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+					ent.Opt{Key: "CashIn", Value: float64(1000)},
+				)
+				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
+					ent.Opt{Key: "ReceiverID", Value: receiverBA.ID},
+				)
 				res, err := uc.ValidateFulfill(ctx, e1, nil)
 				require.Nil(t, err)
 				require.NotNil(t, res)
@@ -387,14 +385,14 @@ func TestFulfillUseCase(t *testing.T) {
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtFulfillUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
-				i1 := ent.BankAccountFactory()
-				i1.IsForPayment = generic.GetPointer(true)
-				i1.CustomerID = user.ID
-				i1.CashIn = float64(1000)
-				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, i1)
-				i2 := ent.DebtFactory()
-				i2.ReceiverID = receiverBA.ID
-				e1, _ := ent.CreateFakeDebt(ctx, c, i2)
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+					ent.Opt{Key: "CashIn", Value: float64(1000)},
+				)
+				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
+					ent.Opt{Key: "ReceiverID", Value: receiverBA.ID},
+				)
 				ownerBA := e1.QueryOwner().FirstX(ctx)
 				oldBalanceOwner := ownerBA.GetBalance()
 				res, err := uc.Fulfill(ctx, e1, nil)

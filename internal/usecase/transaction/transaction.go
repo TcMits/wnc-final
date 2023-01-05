@@ -52,7 +52,6 @@ func NewCustomerTransactionCreateUseCase(
 	prodOwnerName,
 	feeDesc,
 	confirmSubjectMail,
-	frontendUrl,
 	confirmEmailTemplate *string,
 	fee *float64,
 	otpTimeout time.Duration,
@@ -61,7 +60,6 @@ func NewCustomerTransactionCreateUseCase(
 		repoCreate:            repoCreate,
 		taskExecutor:          taskExctor,
 		cfUC:                  config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
-		frontendUrl:           frontendUrl,
 		txcConfirmSubjectMail: confirmSubjectMail,
 		txcConfirmMailTemp:    confirmEmailTemplate,
 	}
@@ -120,13 +118,12 @@ func NewCustomerTransactionUseCase(
 	prodOwnerName,
 	feeDesc,
 	confirmEmailSubject,
-	frontendUrl,
 	confirmEmailTemplate *string,
 	fee *float64,
 	otpTimeout time.Duration,
 ) usecase.ICustomerTransactionUseCase {
 	return &CustomerTransactionUseCase{
-		ICustomerTransactionCreateUseCase:              NewCustomerTransactionCreateUseCase(taskExctor, repoCreate, sk, prodOwnerName, feeDesc, confirmEmailTemplate, confirmEmailSubject, frontendUrl, fee, otpTimeout),
+		ICustomerTransactionCreateUseCase:              NewCustomerTransactionCreateUseCase(taskExctor, repoCreate, sk, prodOwnerName, feeDesc, confirmEmailTemplate, confirmEmailSubject, fee, otpTimeout),
 		ICustomerTransactionValidateCreateInputUseCase: NewCustomerTransactionValidateCreateInputUseCase(repoList, rlba, rlc, sk, prodOwnerName, feeDesc, fee),
 		ICustomerTransactionListUseCase:                NewCustomerTransactionListUseCase(repoList),
 		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),

@@ -44,20 +44,26 @@ func Run(cfg *config.Config) {
 	// Usecase
 	CMeUc := me.NewCustomerMeUseCase(
 		repository.GetCustomerListRepository(client),
+		repository.GetCustomerUpdateRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 		&cfg.TransactionUseCase.FeeAmount,
 		&cfg.TransactionUseCase.FeeDesc,
 	)
 	CAuthUc := auth.NewCustomerAuthUseCase(
+		task.GetEmailTaskExecutor(cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, l),
 		repository.GetCustomerListRepository(client),
 		repository.GetCustomerUpdateRepository(client),
+		repository.GetCustomerListRepository(client),
 		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		&cfg.Mail.ConfirmEmailSubject,
+		&cfg.Mail.ConfirmEmailTemplate,
+		&cfg.TransactionUseCase.FeeDesc,
+		&cfg.TransactionUseCase.FeeAmount,
+		cfg.Mail.OTPTimeout,
 		cfg.AuthUseCase.AccessTTL,
 		cfg.AuthUseCase.RefreshTTL,
-		&cfg.App.Name,
-		&cfg.TransactionUseCase.FeeAmount,
-		&cfg.TransactionUseCase.FeeDesc,
 	)
 	cBankAccountUc := bankaccount.NewCustomerBankAccountUseCase(
 		repository.GetBankAccountUpdateRepository(client),
@@ -81,7 +87,6 @@ func Run(cfg *config.Config) {
 		&cfg.App.Name,
 		&cfg.TransactionUseCase.FeeDesc,
 		&cfg.Mail.ConfirmEmailSubject,
-		&cfg.Mail.FrontendURL,
 		&cfg.Mail.ConfirmEmailTemplate,
 		&cfg.TransactionUseCase.FeeAmount,
 		cfg.Mail.OTPTimeout,

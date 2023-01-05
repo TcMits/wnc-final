@@ -20,11 +20,11 @@ func (uc *CustomerTransactionUpdateUseCase) Update(ctx context.Context, e *model
 	}
 	return e, nil
 }
-func (uc *CustomerTransactionValidateConfirmInputUseCase) ValidateConfirmInput(ctx context.Context, e *model.Transaction, otp, token *string) error {
+func (uc *CustomerTransactionValidateConfirmInputUseCase) ValidateConfirmInput(ctx context.Context, e *model.Transaction, i *model.TransactionConfirmUseCaseInput) error {
 	if e.Status == transaction.StatusDraft {
-		pl, err := usecase.ParseConfirmTxcToken(ctx, *token, *uc.cfUC.GetSecret())
+		pl, err := usecase.ParseToken(ctx, i.Token, *uc.cfUC.GetSecret())
 		if err != nil {
-			return usecase.WrapError(fmt.Errorf("invalid token: token expired"))
+			return usecase.WrapError(fmt.Errorf("token expired"))
 		}
 		iFPBMAny, ok := pl["is_fee_paid_by_me"]
 		if !ok {
@@ -42,7 +42,7 @@ func (uc *CustomerTransactionValidateConfirmInputUseCase) ValidateConfirmInput(c
 		if !ok {
 			return usecase.WrapError(fmt.Errorf("invalid token"))
 		}
-		err = usecase.ValidateHashInfo(usecase.MakeOTPValue(ctx, *otp), tk)
+		err = usecase.ValidateHashInfo(usecase.MakeOTPValue(ctx, i.Otp), tk)
 		if err != nil {
 			return usecase.WrapError(fmt.Errorf("invalid token"))
 		}
@@ -59,7 +59,7 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.C
 			TransactionType:     transaction.TransactionTypeInternal,
 			Description:         uc.cfUC.GetFeeDesc(),
 		}
-		pl, _ := usecase.ParseConfirmTxcToken(ctx, *token, *uc.cfUC.GetSecret())
+		pl, _ := usecase.ParseToken(ctx, *token, *uc.cfUC.GetSecret())
 		iFPBMAny := pl["is_fee_paid_by_me"]
 		isFeePaidByMe, _ := iFPBMAny.(bool)
 		if isFeePaidByMe {
@@ -80,30 +80,25 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.C
 	return nil, usecase.WrapError(fmt.Errorf("unhandled external transaction case"))
 }
 
-func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.TransactionCreateResp, error) {
-	entity, err := uc.repoCreate.Create(ctx, i)
+func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateUseCaseInput) (*model.TransactionCreateResp, error) {
+	entity, err := uc.repoCreate.Create(ctx, i.TransactionCreateInput)
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
 	}
 	otp := usecase.GenerateOTP(6)
 	otpHashValue, err := usecase.GenerateHashInfo(usecase.MakeOTPValue(ctx, otp))
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
+		return nil, err
 	}
 	tk, err := usecase.GenerateConfirmTxcToken(
 		ctx,
-		map[string]any{
-			"is_fee_paid_by_me": isFeePaidByMe,
-			"token":             otpHashValue,
-		},
+		otpHashValue,
 		*uc.cfUC.GetSecret(),
+		i.IsFeePaidByMe,
 		uc.otpTimeout,
 	)
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
-	}
-	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionCreateUseCase.Create: %s", err))
+		return nil, err
 	}
 	user := usecase.GetUserAsCustomer(ctx)
 	msg, err := template.RenderToStr(*uc.txcConfirmMailTemp, map[string]string{
@@ -143,7 +138,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx co
 	return nil
 }
 
-func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Context, i *model.TransactionCreateInput, isFeePaidByMe bool) (*model.TransactionCreateInput, error) {
+func (uc *CustomerTransactionValidateCreateInputUseCase) ValidateCreate(ctx context.Context, i *model.TransactionCreateUseCaseInput) (*model.TransactionCreateUseCaseInput, error) {
 	user := usecase.GetUserAsCustomer(ctx)
 	ba, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
 		IsForPayment: generic.GetPointer(true),
@@ -155,11 +150,11 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 	if ba == nil {
 		return nil, usecase.WrapError(fmt.Errorf("bank account sender is invalid"))
 	}
-	err = uc.doesHaveDraftTxc(ctx, i)
+	err = uc.doesHaveDraftTxc(ctx, i.TransactionCreateInput)
 	if err != nil {
 		return nil, err
 	}
-	if isFeePaidByMe {
+	if i.IsFeePaidByMe {
 		if ok, err := ba.IsBalanceSufficient(i.Amount.Abs().InexactFloat64() + *uc.cfUC.GetFeeAmount()); err != nil {
 			return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.Validate: %s", err))
 		} else if !ok {
@@ -181,7 +176,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) Validate(ctx context.Co
 		if !baOther.IsForPayment {
 			return nil, usecase.WrapError(fmt.Errorf("bank account receiver is not for payment"))
 		}
-		if !isFeePaidByMe {
+		if !i.IsFeePaidByMe {
 			if ok, err := baOther.IsBalanceSufficient(*uc.cfUC.GetFeeAmount()); err != nil {
 				return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.Validate: %s", err))
 			} else if !ok {

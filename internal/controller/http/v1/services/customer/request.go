@@ -59,6 +59,11 @@ type (
 		SuggestName   string `json:"suggest_name"`
 		BankName      string `json:"bank_name"`
 	}
+	changePasswordReq struct {
+		OldPassword     string `json:"old_password," validate:"required"`
+		Password        string `json:"password," validate:"required"`
+		ConfirmPassword string `json:"confirm_password," validate:"required"`
+	}
 )
 
 func newListRequest() *listRequest {

@@ -26,6 +26,19 @@ definitions:
     required:
     - is_for_payment
     type: object
+  customer.changePasswordReq:
+    properties:
+      confirm_password:
+        type: string
+      old_password:
+        type: string
+      password:
+        type: string
+    required:
+    - confirm_password
+    - old_password
+    - password
+    type: object
   customer.contactCreateReq:
     properties:
       account_number:
@@ -871,6 +884,37 @@ paths:
       summary: Get profile
       tags:
       - Me
+  /me/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change password
+      operationId: change-password
+      parameters:
+      - description: Change password
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.changePasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.meResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      summary: Change password
+      tags:
+      - change-password
   /stream:
     get:
       consumes:

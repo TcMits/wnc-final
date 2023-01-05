@@ -54,6 +54,18 @@ func BaseAuthenticator(secretKey *string, userGetter func(goCtx.Context, map[str
 	}
 }
 
+func GetUserFromCtxAsCustomer(ctx *context.Context) *model.Customer {
+	userAny, err := ctx.User().GetRaw()
+	if err != nil {
+		return nil
+	}
+	user, ok := userAny.(*model.Customer)
+	if !ok {
+		return nil
+	}
+	return user
+}
+
 func validateToken(ctx *context.Context, claim goJWT.MapClaims) error {
 	user := GetUserFromCtxAsCustomer(ctx)
 	if user == nil {
@@ -68,18 +80,6 @@ func validateToken(ctx *context.Context, claim goJWT.MapClaims) error {
 		return fmt.Errorf("unauthorized")
 	}
 	return nil
-}
-
-func GetUserFromCtxAsCustomer(ctx *context.Context) *model.Customer {
-	userAny, err := ctx.User().GetRaw()
-	if err != nil {
-		return nil
-	}
-	user, ok := userAny.(*model.Customer)
-	if !ok {
-		return nil
-	}
-	return user
 }
 
 func Authenticator(

@@ -64,6 +64,15 @@ type (
 		Password        string `json:"password," validate:"required"`
 		ConfirmPassword string `json:"confirm_password," validate:"required"`
 	}
+	forgetPasswordReq struct {
+		Email string `json:"email," validate:"required"`
+	}
+	changePasswordWithTokenReq struct {
+		Token           string `json:"token," validate:"required"`
+		Otp             string `json:"otp," validate:"required"`
+		Password        string `json:"password," validate:"required"`
+		ConfirmPassword string `json:"confirm_password," validate:"required"`
+	}
 )
 
 func newListRequest() *listRequest {

@@ -102,6 +102,8 @@ type (
 		iAuthenticationUseCase[*model.CustomerLoginInput, *model.Customer]
 		ICustomerForgetPasswordUseCase
 		ICustomerValidateForgetPasswordUsecase
+		ICustomerChangePasswordWithTokenUseCase
+		ICustomerValidateChangePasswordWithTokenUseCase
 	}
 	ICustomerBankAccountUpdateUseCase interface {
 		iUpdateUseCase[*model.BankAccount, *model.BankAccountUpdateInput]

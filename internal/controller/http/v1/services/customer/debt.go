@@ -72,6 +72,9 @@ func (s *debtRoute) detail(ctx iris.Context) {
 // @Security 	Bearer
 // @Accept      json
 // @Produce     json
+// @Param       owner_id query string false "ID of bank account"
+// @Param       receiver_id query string false "ID of bank account"
+// @Param       status query string false "Status of debt"
 // @Success     200 {object} debtResp
 // @Failure     500 {object} errorResponse
 // @Router      /debts [get]
@@ -81,7 +84,20 @@ func (s *debtRoute) listing(ctx iris.Context) {
 		handleBindingError(ctx, err, s.logger, req, nil)
 		return
 	}
-	entities, err := s.uc.ListMine(ctx, &req.Limit, &req.Offset, nil, nil)
+	filterReq := new(debtFilterReq)
+	if err := ctx.ReadQuery(filterReq); err != nil {
+		handleBindingError(ctx, err, s.logger, filterReq, nil)
+		return
+	}
+	w := &model.DebtWhereInput{
+		Status: filterReq.Status,
+	}
+	if filterReq.OwnerID != nil {
+		w.OwnerID = filterReq.OwnerID
+	} else if filterReq.ReceiverID != nil {
+		w.ReceiverID = filterReq.ReceiverID
+	}
+	entities, err := s.uc.ListMine(ctx, &req.Limit, &req.Offset, nil, w)
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return

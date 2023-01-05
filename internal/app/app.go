@@ -17,6 +17,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/contact"
 	"github.com/TcMits/wnc-final/internal/usecase/debt"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
+	"github.com/TcMits/wnc-final/internal/usecase/option"
 	"github.com/TcMits/wnc-final/internal/usecase/stream"
 	"github.com/TcMits/wnc-final/internal/usecase/transaction"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
@@ -126,6 +127,7 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeDesc,
 		&cfg.TransactionUseCase.FeeAmount,
 	)
+	cCOUc := option.NewOptionUseCase()
 
 	v1.RegisterV1HTTPServices(
 		handler,
@@ -136,6 +138,7 @@ func Run(cfg *config.Config) {
 		cTxcUc,
 		cDUc,
 		cCUc,
+		cCOUc,
 		b,
 		l,
 	)

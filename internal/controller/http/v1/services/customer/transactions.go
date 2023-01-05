@@ -1,10 +1,15 @@
 package customer
 
 import (
+	"fmt"
+
+	"github.com/TcMits/wnc-final/ent"
+	"github.com/TcMits/wnc-final/ent/transaction"
 	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer/middleware"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
+	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/kataras/iris/v12"
 )
 
@@ -36,6 +41,11 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 // @Security 	Bearer
 // @Accept      json
 // @Produce     json
+// @Param       update_time query bool false "True if sort ascent by update_time otherwise ignored"
+// @Param       -update_time query bool false "True if sort descent by update_time otherwise ignored"
+// @Param       only_debt query bool false "True if only debt transaction otherwise ignored"
+// @Param       sender_id query string false "ID of bank account"
+// @Param       receiver_id query string false "ID of bank account"
 // @Success     200 {object} transactionResp
 // @Failure     500 {object} errorResponse
 // @Router      /transactions [get]
@@ -45,7 +55,41 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	entities, err := r.uc.ListMine(ctx, &req.Limit, &req.Offset, nil, nil)
+	orderReq := new(transactionOrderReq)
+	if err := ctx.ReadQuery(orderReq); err != nil {
+		handleBindingError(ctx, err, r.logger, orderReq, nil)
+		return
+	}
+	or := new(model.TransactionOrderInput)
+	if orderReq.UpdateTimeAsc {
+		if o, err := ent.ParseOrderField(fmt.Sprintf("%v%v", ent.OrderDirectionAscPrefix, transaction.FieldUpdateTime)); err != nil {
+			HandleError(ctx, err, r.logger)
+			return
+		} else {
+			*or = append(*or, o)
+		}
+	} else if orderReq.UpdateTimeDesc {
+		if o, err := ent.ParseOrderField(fmt.Sprintf("%v%v", ent.OrderDirectionDescPrefix, transaction.FieldUpdateTime)); err != nil {
+			HandleError(ctx, err, r.logger)
+			return
+		} else {
+			*or = append(*or, o)
+		}
+	}
+	filterReq := new(transactionFilterReq)
+	if err := ctx.ReadQuery(filterReq); err != nil {
+		handleBindingError(ctx, err, r.logger, filterReq, nil)
+		return
+	}
+	w := new(model.TransactionWhereInput)
+	if filterReq.OnlyDebt {
+		w.HasDebt = generic.GetPointer(true)
+	} else if filterReq.ReceiverID != nil {
+		w.ReceiverID = filterReq.ReceiverID
+	} else if filterReq.SenderID != nil {
+		w.SenderID = filterReq.SenderID
+	}
+	entities, err := r.uc.ListMine(ctx, &req.Limit, &req.Offset, or, w)
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return

@@ -1,6 +1,7 @@
 package customer
 
 import (
+	"github.com/TcMits/wnc-final/ent/debt"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
@@ -76,6 +77,23 @@ type (
 	debtFulfillReq struct {
 		Token string `json:"token," validate:"required"`
 		Otp   string `json:"otp," validate:"required"`
+	}
+	transactionFilterReq struct {
+		SenderID   *uuid.UUID `url:"sender_id"`
+		ReceiverID *uuid.UUID `url:"receiver_id"`
+		OnlyDebt   bool       `url:"only_debt"`
+	}
+	bankAccountFilterReq struct {
+		AccountNumber *string `url:"account_number"`
+	}
+	debtFilterReq struct {
+		OwnerID    *uuid.UUID   `url:"owner_id"`
+		ReceiverID *uuid.UUID   `url:"receiver_id"`
+		Status     *debt.Status `url:"status"`
+	}
+	transactionOrderReq struct {
+		UpdateTimeAsc  bool `url:"update_time"`
+		UpdateTimeDesc bool `url:"-update_time"`
 	}
 )
 

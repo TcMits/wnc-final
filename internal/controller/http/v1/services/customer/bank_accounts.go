@@ -61,6 +61,7 @@ func (r *bankAccountRoute) listing(ctx iris.Context) {
 // @Security 	Bearer
 // @Accept      json
 // @Produce     json
+// @Param       account_number query string false "Bank account number"
 // @Success     200 {object} guestBankAccountResp
 // @Failure     500 {object} errorResponse
 // @Router      /bank-accounts/guest [get]
@@ -70,7 +71,14 @@ func (r *bankAccountRoute) guestListing(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	entities, err := r.uc.List(ctx, &req.Limit, &req.Offset, nil, nil)
+	filterReq := new(bankAccountFilterReq)
+	if err := ctx.ReadQuery(filterReq); err != nil {
+		handleBindingError(ctx, err, r.logger, filterReq, nil)
+		return
+	}
+	entities, err := r.uc.List(ctx, &req.Limit, &req.Offset, nil, &model.BankAccountWhereInput{
+		AccountNumber: filterReq.AccountNumber,
+	})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return

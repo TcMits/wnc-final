@@ -17,6 +17,9 @@ type (
 		GetProductOwnerName() *string
 		GetSecret() *string
 	}
+	IOptionsUseCase interface {
+		GetDebtStatus(context.Context) []string
+	}
 	iListUseCase[ModelType, ModelOrderInput, ModelWhereInput any] interface {
 		List(context.Context, *int, *int, ModelOrderInput, ModelWhereInput) ([]ModelType, error)
 	}

@@ -72,6 +72,14 @@
                 ],
                 "summary": "Show guest bank accounts",
                 "operationId": "guestbankaccount-listing",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bank account number",
+                        "name": "account_number",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -539,6 +547,26 @@
                 ],
                 "summary": "Show debt",
                 "operationId": "debt-listing",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of bank account",
+                        "name": "owner_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of bank account",
+                        "name": "receiver_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status of debt",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1036,6 +1064,36 @@
                 }
             }
         },
+        "/options": {
+            "get": {
+                "description": "Show all options",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Option"
+                ],
+                "summary": "Show options",
+                "operationId": "option",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.optionsResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/stream": {
             "get": {
                 "security": [
@@ -1134,6 +1192,38 @@
                 ],
                 "summary": "Show transactions",
                 "operationId": "transaction-listing",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "True if sort ascent by update_time otherwise ignored",
+                        "name": "update_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "True if sort descent by update_time otherwise ignored",
+                        "name": "-update_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "True if only debt transaction otherwise ignored",
+                        "name": "only_debt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of bank account",
+                        "name": "sender_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of bank account",
+                        "name": "receiver_id",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1655,6 +1745,17 @@
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "customer.optionsResp": {
+            "type": "object",
+            "properties": {
+                "debt_status": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

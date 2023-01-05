@@ -18,11 +18,17 @@ func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.I
 		uc:     uc,
 		logger: l,
 	}
+	handler.Post("/forget-password", route.forgetPassword)
+	handler.Post("/change-password-with-token", route.changePassword)
 	handler.Post("/token", route.renewToken)
 	handler.Post("/login", route.login)
 	handler.Delete("/login", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.logout)
+	handler.Options("/forget-password", func(_ iris.Context) {})
+	handler.Options("/change-password-with-token", func(_ iris.Context) {})
 	handler.Options("/login", func(_ iris.Context) {})
 	handler.Options("/token", func(_ iris.Context) {})
+	handler.Head("/forget-password", func(_ iris.Context) {})
+	handler.Head("/change-password-with-token", func(_ iris.Context) {})
 	handler.Head("/login", func(_ iris.Context) {})
 	handler.Head("/token", func(_ iris.Context) {})
 }
@@ -105,4 +111,73 @@ func (r *authRoute) renewToken(ctx iris.Context) {
 	}
 	ctx.StatusCode(iris.StatusOK)
 	ctx.JSON(getResponse(res))
+}
+
+// @Summary     Forget password
+// @Description Forget password
+// @ID          forget-password
+// @Tags  	    forget-password
+// @Accept      json
+// @Produce     json
+// @Param       payload body forgetPasswordReq true "Forget password"
+// @Success     200 {object} forgetPasswordResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /forget-password [post]
+func (s *authRoute) forgetPassword(ctx iris.Context) {
+	request := new(forgetPasswordReq)
+	if err := ctx.ReadJSON(request); err != nil {
+		handleBindingError(ctx, err, s.logger, request, nil)
+		return
+	}
+	i := &model.CustomerForgetPasswordInput{
+		Email: request.Email,
+	}
+	i, err := s.uc.ValidateForgetPassword(ctx, i)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	res, err := s.uc.ForgetPassword(ctx, i)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	ctx.JSON(getResponse(res))
+}
+
+// @Summary     Change password with token
+// @Description Change password with token
+// @ID          change-password-with-token
+// @Tags  	    change-password-with-token
+// @Accept      json
+// @Produce     json
+// @Param       payload body changePasswordWithTokenReq true "Change password with token"
+// @Success     204 ""
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /change-password-with-token [post]
+func (s *authRoute) changePassword(ctx iris.Context) {
+	request := new(changePasswordWithTokenReq)
+	if err := ctx.ReadJSON(request); err != nil {
+		handleBindingError(ctx, err, s.logger, request, nil)
+		return
+	}
+	i := &model.CustomerChangePasswordWithTokenInput{
+		Token:           request.Token,
+		Otp:             request.Otp,
+		Password:        request.Password,
+		ConfirmPassword: request.ConfirmPassword,
+	}
+	i, err := s.uc.ValidateChangePasswordWithToken(ctx, i)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	err = s.uc.ChangePasswordWithToken(ctx, i)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	ctx.StatusCode(iris.StatusNoContent)
 }

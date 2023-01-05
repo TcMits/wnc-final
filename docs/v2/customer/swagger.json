@@ -245,6 +245,50 @@
                 }
             }
         },
+        "/change-password-with-token": {
+            "post": {
+                "description": "Change password with token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "change-password-with-token"
+                ],
+                "summary": "Change password with token",
+                "operationId": "change-password-with-token",
+                "parameters": [
+                    {
+                        "description": "Change password with token",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.changePasswordWithTokenReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/contacts": {
             "get": {
                 "security": [
@@ -703,6 +747,53 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/customer.debtResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/forget-password": {
+            "post": {
+                "description": "Forget password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "forget-password"
+                ],
+                "summary": "Forget password",
+                "operationId": "forget-password",
+                "parameters": [
+                    {
+                        "description": "Forget password",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.forgetPasswordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.forgetPasswordResp"
                         }
                     },
                     "400": {
@@ -1223,6 +1314,29 @@
                 }
             }
         },
+        "customer.changePasswordWithTokenReq": {
+            "type": "object",
+            "required": [
+                "confirm_password",
+                "otp",
+                "password",
+                "token"
+            ],
+            "properties": {
+                "confirm_password": {
+                    "type": "string"
+                },
+                "otp": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "customer.contactCreateReq": {
             "type": "object",
             "required": [
@@ -1380,6 +1494,25 @@
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "customer.forgetPasswordReq": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "customer.forgetPasswordResp": {
+            "type": "object",
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }

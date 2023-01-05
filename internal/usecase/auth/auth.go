@@ -60,6 +60,8 @@ type (
 		usecase.ICustomerConfigUseCase
 		usecase.ICustomerForgetPasswordUseCase
 		usecase.ICustomerValidateForgetPasswordUsecase
+		usecase.ICustomerChangePasswordWithTokenUseCase
+		usecase.ICustomerValidateChangePasswordWithTokenUseCase
 		*CustomerLoginUseCase
 		*CustomerValidateLoginInputUseCase
 		*CustomerRenewAccessTokenUseCase
@@ -127,10 +129,12 @@ func NewCustomerAuthUseCase(
 ) usecase.ICustomerAuthUseCase {
 	gUUC := me.NewCustomerGetUserUseCase(repoList)
 	uc := &CustomerAuthUseCase{
-		ICustomerGetUserUseCase:                gUUC,
-		ICustomerConfigUseCase:                 config.NewCustomerConfigUseCase(secretKey, prodOwnerName, fee, feeDesc),
-		ICustomerForgetPasswordUseCase:         NewCustomerForgetPasswordUseCase(taskExctor, secretKey, prodOwnerName, feeDesc, forgetPwdEmailSubject, forgetPwdEmailTemplate, fee, otpTimeout),
-		ICustomerValidateForgetPasswordUsecase: NewCustomerValidateForgetPasswordUseCase(rlc),
+		ICustomerGetUserUseCase:                         gUUC,
+		ICustomerConfigUseCase:                          config.NewCustomerConfigUseCase(secretKey, prodOwnerName, fee, feeDesc),
+		ICustomerForgetPasswordUseCase:                  NewCustomerForgetPasswordUseCase(taskExctor, secretKey, prodOwnerName, feeDesc, forgetPwdEmailSubject, forgetPwdEmailTemplate, fee, otpTimeout),
+		ICustomerValidateForgetPasswordUsecase:          NewCustomerValidateForgetPasswordUseCase(rlc),
+		ICustomerChangePasswordWithTokenUseCase:         NewCustomerChangePasswordWithTokenUseCase(repoUpdate),
+		ICustomerValidateChangePasswordWithTokenUseCase: NewCustomerValidateChangePasswordWithTokenUseCase(rlc, secretKey, prodOwnerName, feeDesc, fee),
 		CustomerLoginUseCase: &CustomerLoginUseCase{
 			gUUC:       gUUC,
 			secretKey:  secretKey,

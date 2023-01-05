@@ -50,7 +50,7 @@ func (s *meRoute) detail(ctx iris.Context) {
 // @Summary     Change password
 // @Description Change password
 // @ID          change-password
-// @Tags  	    change-password
+// @Tags  	    Me
 // @Accept      json
 // @Produce     json
 // @Param       payload body changePasswordReq true "Change password"

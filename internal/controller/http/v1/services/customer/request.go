@@ -73,6 +73,10 @@ type (
 		Password        string `json:"password," validate:"required"`
 		ConfirmPassword string `json:"confirm_password," validate:"required"`
 	}
+	debtFulfillReq struct {
+		Token string `json:"token," validate:"required"`
+		Otp   string `json:"otp," validate:"required"`
+	}
 )
 
 func newListRequest() *listRequest {

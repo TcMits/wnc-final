@@ -57,7 +57,7 @@ func (r *bankAccountRoute) listing(ctx iris.Context) {
 // @Summary     Show guest bank accounts
 // @Description Show guest bank accounts
 // @ID          guestbankaccount-listing
-// @Tags  	    Guest bank account
+// @Tags  	    Bank account
 // @Security 	Bearer
 // @Accept      json
 // @Produce     json
@@ -142,7 +142,7 @@ func (r *bankAccountRoute) update(ctx iris.Context) {
 // @Success     200 {object} bankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts/guest/{id} [get]
+// @Router      /bank-accounts/{id} [get]
 func (s *bankAccountRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {
@@ -164,7 +164,7 @@ func (s *bankAccountRoute) detail(ctx iris.Context) {
 // @Summary     Get a guest bank account
 // @Description Get a guest bank account
 // @ID          guestbankaccount-get
-// @Tags  	    Guest bank account
+// @Tags  	    Bank account
 // @Security 	Bearer
 // @Accept      json
 // @Produce     json
@@ -172,7 +172,7 @@ func (s *bankAccountRoute) detail(ctx iris.Context) {
 // @Success     200 {object} guestBankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts/{id} [get]
+// @Router      /bank-accounts/guest/{id} [get]
 func (s *bankAccountRoute) guestDetail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {

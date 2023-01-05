@@ -120,6 +120,21 @@ definitions:
     - receiver_id
     - receiver_name
     type: object
+  customer.debtFulfillReq:
+    properties:
+      otp:
+        type: string
+      token:
+        type: string
+    required:
+    - otp
+    - token
+    type: object
+  customer.debtFulfillResp:
+    properties:
+      token:
+        type: string
+    type: object
   customer.debtResp:
     properties:
       amount:
@@ -409,8 +424,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get a guest bank account
-      operationId: guestbankaccount-get
+      description: Get a bank account
+      operationId: bankaccount-get
       parameters:
       - description: ID of bank account
         in: path
@@ -423,7 +438,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/customer.guestBankAccountResp'
+            $ref: '#/definitions/customer.bankAccountResp'
         "400":
           description: Bad Request
           schema:
@@ -434,9 +449,9 @@ paths:
             $ref: '#/definitions/customer.errorResponse'
       security:
       - Bearer: []
-      summary: Get a guest bank account
+      summary: Get a bank account
       tags:
-      - Guest bank account
+      - Bank account
     put:
       consumes:
       - application/json
@@ -495,13 +510,13 @@ paths:
       - Bearer: []
       summary: Show guest bank accounts
       tags:
-      - Guest bank account
+      - Bank account
   /bank-accounts/guest/{id}:
     get:
       consumes:
       - application/json
-      description: Get a bank account
-      operationId: bankaccount-get
+      description: Get a guest bank account
+      operationId: guestbankaccount-get
       parameters:
       - description: ID of bank account
         in: path
@@ -514,7 +529,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/customer.bankAccountResp'
+            $ref: '#/definitions/customer.guestBankAccountResp'
         "400":
           description: Bad Request
           schema:
@@ -525,7 +540,7 @@ paths:
             $ref: '#/definitions/customer.errorResponse'
       security:
       - Bearer: []
-      summary: Get a bank account
+      summary: Get a guest bank account
       tags:
       - Bank account
   /change-password-with-token:
@@ -556,7 +571,7 @@ paths:
             $ref: '#/definitions/customer.errorResponse'
       summary: Change password with token
       tags:
-      - change-password-with-token
+      - Authentication
   /contacts:
     get:
       consumes:
@@ -829,6 +844,42 @@ paths:
       summary: Cancel a debt
       tags:
       - Debt
+  /debts/fulfill-with-token/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Fulfill a debt with token
+      operationId: fulfill-debt-with-token
+      parameters:
+      - description: ID of debt
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fulfill a debt with token
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.debtFulfillReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.debtResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      summary: Fulfill a debt with token
+      tags:
+      - Debt
   /debts/fulfill/{id}:
     put:
       consumes:
@@ -847,7 +898,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/customer.debtResp'
+            $ref: '#/definitions/customer.debtFulfillResp'
         "400":
           description: Bad Request
           schema:
@@ -891,7 +942,7 @@ paths:
             $ref: '#/definitions/customer.errorResponse'
       summary: Forget password
       tags:
-      - forget-password
+      - Authentication
   /login:
     delete:
       consumes:
@@ -915,7 +966,7 @@ paths:
       - Bearer: []
       summary: Logout
       tags:
-      - Logout
+      - Authentication
     post:
       consumes:
       - application/json
@@ -945,7 +996,7 @@ paths:
             $ref: '#/definitions/customer.errorResponse'
       summary: Login
       tags:
-      - Login
+      - Authentication
   /me/:
     get:
       consumes:
@@ -1002,7 +1053,7 @@ paths:
             $ref: '#/definitions/customer.errorResponse'
       summary: Change password
       tags:
-      - change-password
+      - Me
   /stream:
     get:
       consumes:
@@ -1053,7 +1104,7 @@ paths:
             $ref: '#/definitions/customer.errorResponse'
       summary: Renew token
       tags:
-      - Renew token
+      - Authentication
   /transactions:
     get:
       consumes:

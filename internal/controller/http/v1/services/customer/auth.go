@@ -36,7 +36,7 @@ func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.I
 // @Summary     Login
 // @Description Login
 // @ID          login
-// @Tags  	    Login
+// @Tags  	    Authentication
 // @Accept      json
 // @Produce     json
 // @Param       payload body loginRequest true "Login"
@@ -70,7 +70,7 @@ func (r *authRoute) login(ctx iris.Context) {
 // @Summary     Logout
 // @Description Logout
 // @ID          logout
-// @Tags  	    Logout
+// @Tags  	    Authentication
 // @Security 	Bearer
 // @Accept      json
 // @Produce     json
@@ -90,7 +90,7 @@ func (r *authRoute) logout(ctx iris.Context) {
 // @Summary     Renew token
 // @Description Renew token
 // @ID          renewtoken
-// @Tags  	    Renew token
+// @Tags  	    Authentication
 // @Accept      json
 // @Produce     json
 // @Param       payload body renewTokenRequest true "Renew token"
@@ -116,7 +116,7 @@ func (r *authRoute) renewToken(ctx iris.Context) {
 // @Summary     Forget password
 // @Description Forget password
 // @ID          forget-password
-// @Tags  	    forget-password
+// @Tags  	    Authentication
 // @Accept      json
 // @Produce     json
 // @Param       payload body forgetPasswordReq true "Forget password"
@@ -149,7 +149,7 @@ func (s *authRoute) forgetPassword(ctx iris.Context) {
 // @Summary     Change password with token
 // @Description Change password with token
 // @ID          change-password-with-token
-// @Tags  	    change-password-with-token
+// @Tags  	    Authentication
 // @Accept      json
 // @Produce     json
 // @Param       payload body changePasswordWithTokenReq true "Change password with token"

@@ -99,10 +99,14 @@ func Run(cfg *config.Config) {
 		repository.GetCustomerListRepository(client),
 		repository.GetBankAccountListRepository(client),
 		task.GetDebtTaskExecutor(b, l),
+		task.GetEmailTaskExecutor(cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, l),
 		&cfg.App.SecretKey,
+		&cfg.Mail.ConfirmEmailSubject,
+		&cfg.Mail.ConfirmEmailTemplate,
 		&cfg.App.Name,
 		&cfg.TransactionUseCase.FeeDesc,
 		&cfg.TransactionUseCase.FeeAmount,
+		cfg.Mail.OTPTimeout,
 	)
 	cStreamUc := stream.NewCustomerStreamUseCase(
 		repository.GetCustomerListRepository(client),

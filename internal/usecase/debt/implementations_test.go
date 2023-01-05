@@ -3,7 +3,9 @@ package debt_test
 import (
 	"context"
 	"testing"
+	"time"
 
+	"github.com/TcMits/wnc-final/config"
 	"github.com/TcMits/wnc-final/ent"
 	entDebt "github.com/TcMits/wnc-final/ent/debt"
 	entTxc "github.com/TcMits/wnc-final/ent/transaction"
@@ -15,6 +17,7 @@ import (
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
+	"github.com/TcMits/wnc-final/pkg/tool/mail"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
@@ -297,7 +300,7 @@ func TestValidateFulfillUseCase(t *testing.T) {
 				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
 					ent.Opt{Key: "Status", Value: generic.GetPointer(entDebt.StatusCancelled)},
 				)
-				_, err := uc.ValidateFulfill(ctx, e1, nil)
+				err := uc.ValidateFulfill(ctx, e1)
 				require.ErrorContains(t, err, "cannot fulfill")
 			},
 		},
@@ -316,7 +319,7 @@ func TestValidateFulfillUseCase(t *testing.T) {
 				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
 					ent.Opt{Key: "OwnerID", Value: ownerBA.ID},
 				)
-				_, err := uc.ValidateFulfill(ctx, e1, nil)
+				err := uc.ValidateFulfill(ctx, e1)
 				require.ErrorContains(t, err, "cannot fulfill debt which you created")
 			},
 		},
@@ -335,7 +338,7 @@ func TestValidateFulfillUseCase(t *testing.T) {
 				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
 					ent.Opt{Key: "ReceiverID", Value: receiverBA.ID},
 				)
-				_, err := uc.ValidateFulfill(ctx, e1, nil)
+				err := uc.ValidateFulfill(ctx, e1)
 				require.ErrorContains(t, err, "insufficient ballence")
 			},
 		},
@@ -355,10 +358,8 @@ func TestValidateFulfillUseCase(t *testing.T) {
 				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
 					ent.Opt{Key: "ReceiverID", Value: receiverBA.ID},
 				)
-				res, err := uc.ValidateFulfill(ctx, e1, nil)
+				err := uc.ValidateFulfill(ctx, e1)
 				require.Nil(t, err)
-				require.NotNil(t, res)
-				require.Equal(t, res.Status.String(), entDebt.StatusFulfilled.String())
 			},
 		},
 	}
@@ -382,12 +383,12 @@ func TestValidateFulfillUseCase(t *testing.T) {
 	}
 }
 
-func TestFulfillUseCase(t *testing.T) {
+func TestFulfillWithTokenUseCase(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name   string
 		setUp  func(*testing.T, *context.Context, *ent.Client)
-		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerDebtFulfillUseCase)
+		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerDebtFulfillWithTokenUseCase)
 	}{
 		{
 			name: "success",
@@ -395,7 +396,7 @@ func TestFulfillUseCase(t *testing.T) {
 				authenticateCtx(ctx, c, nil)
 				ent.EmbedClient(ctx, c)
 			},
-			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtFulfillUseCase) {
+			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtFulfillWithTokenUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
 				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
 					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
@@ -407,7 +408,11 @@ func TestFulfillUseCase(t *testing.T) {
 				)
 				ownerBA := e1.QueryOwner().FirstX(ctx)
 				oldBalanceOwner := ownerBA.GetBalance()
-				res, err := uc.Fulfill(ctx, e1, nil)
+				i := &model.DebtFulfillWithTokenInput{
+					Token: "foo",
+					Otp:   "foo",
+				}
+				res, err := uc.FulfillWithToken(ctx, e1, i)
 				require.Nil(t, err)
 				require.NotNil(t, res)
 				require.Equal(t, res.Status.String(), entDebt.StatusFulfilled.String())
@@ -437,10 +442,151 @@ func TestFulfillUseCase(t *testing.T) {
 			defer mockCtl.Finish()
 			taskExecutorMock := task.NewMockIExecuteTask[*task.DebtNotifyPayload](mockCtl)
 			taskExecutorMock.EXPECT().ExecuteTask(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
-			uc := debt.NewCustomerDebtFulfillUseCase(
+			uc := debt.NewCustomerDebtFulfillWithTokenUseCase(
 				repository.GetDebtFulfillRepository(c),
 				repository.GetCustomerListRepository(c),
 				taskExecutorMock,
+			)
+			tt.expect(t, ctx, c, uc)
+		})
+	}
+}
+
+func TestFulfillUseCase(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		setUp  func(*testing.T, *context.Context, *ent.Client)
+		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerDebtFulfillUseCase)
+	}{
+		{
+			name: "success",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
+			},
+			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtFulfillUseCase) {
+				user := usecase.GetUserAsCustomer(ctx)
+				receiverBA, _ := ent.CreateFakeBankAccount(ctx, c, nil,
+					ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)},
+					ent.Opt{Key: "CustomerID", Value: user.ID},
+					ent.Opt{Key: "CashIn", Value: float64(1000)},
+				)
+				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
+					ent.Opt{Key: "ReceiverID", Value: receiverBA.ID},
+				)
+				res, err := uc.Fulfill(ctx, e1)
+				require.Nil(t, err)
+				require.NotNil(t, res)
+				require.NotEqual(t, res.Token, "")
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg, _ := config.NewConfigForTest()
+			c, _ := datastore.NewClientTestConnection(t)
+			defer c.Close()
+			ctx := context.Background()
+			require.NoError(t, c.Schema.Create(ctx))
+			tt.setUp(t, &ctx, c)
+			mockCtl := gomock.NewController(t)
+			defer mockCtl.Finish()
+			taskExecutorMock := task.NewMockIExecuteTask[*mail.EmailPayload](mockCtl)
+			taskExecutorMock.EXPECT().ExecuteTask(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+			uc := debt.NewCustomerDebtFulfillUseCase(
+				taskExecutorMock,
+				&cfg.App.SecretKey,
+				&cfg.App.Name,
+				&cfg.TransactionUseCase.FeeDesc,
+				&cfg.Mail.ConfirmEmailSubject,
+				&cfg.Mail.ConfirmEmailTemplate,
+				&cfg.TransactionUseCase.FeeAmount,
+				cfg.Mail.OTPTimeout,
+			)
+			tt.expect(t, ctx, c, uc)
+		})
+	}
+}
+
+func TestValidateFulfillWithTokenUseCase(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		setUp  func(*testing.T, *context.Context, *ent.Client)
+		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerDebtValidateFulfillWithTokenUseCase)
+	}{
+		{
+			name: "token expired",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
+			},
+			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillWithTokenUseCase) {
+				tk, _ := usecase.GenerateFulfillToken(ctx, "foo", "bar", time.Minute*30)
+				e, _ := ent.CreateFakeDebt(ctx, c, nil)
+				i := &model.DebtFulfillWithTokenInput{
+					Token: tk,
+					Otp:   "foo",
+				}
+				_, err := uc.ValidateFulfillWithToken(ctx, e, i)
+				require.ErrorContains(t, err, "token expired")
+			},
+		},
+		{
+			name: "invalid otp",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
+			},
+			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillWithTokenUseCase) {
+				e, _ := ent.CreateFakeDebt(ctx, c, nil)
+				otpHash, _ := usecase.GenerateHashInfo(usecase.MakeOTPValue(ctx, "foo", e.ID.String()))
+				tk, _ := usecase.GenerateFulfillToken(ctx, otpHash, "foo", time.Minute*30)
+				i := &model.DebtFulfillWithTokenInput{
+					Token: tk,
+					Otp:   "bar",
+				}
+				_, err := uc.ValidateFulfillWithToken(ctx, e, i)
+				require.ErrorContains(t, err, "invalid otp")
+			},
+		},
+		{
+			name: "success",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
+				authenticateCtx(ctx, c, nil)
+				ent.EmbedClient(ctx, c)
+			},
+			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillWithTokenUseCase) {
+				e, _ := ent.CreateFakeDebt(ctx, c, nil)
+				otpHash, _ := usecase.GenerateHashInfo(usecase.MakeOTPValue(ctx, "foo", e.ID.String()))
+				tk, _ := usecase.GenerateFulfillToken(ctx, otpHash, "foo", time.Minute*30)
+				i := &model.DebtFulfillWithTokenInput{
+					Token: tk,
+					Otp:   "foo",
+				}
+				res, err := uc.ValidateFulfillWithToken(ctx, e, i)
+				require.Nil(t, err)
+				require.NotNil(t, res)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, _ := datastore.NewClientTestConnection(t)
+			defer c.Close()
+			ctx := context.Background()
+			require.NoError(t, c.Schema.Create(ctx))
+			tt.setUp(t, &ctx, c)
+			mockCtl := gomock.NewController(t)
+			defer mockCtl.Finish()
+			taskExecutorMock := task.NewMockIExecuteTask[*mail.EmailPayload](mockCtl)
+			taskExecutorMock.EXPECT().ExecuteTask(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+			uc := debt.NewCustomerDebtValidateFulfillWithTokenUseCase(
+				generic.GetPointer("foo"),
+				generic.GetPointer("foo"),
+				generic.GetPointer("foo"),
+				generic.GetPointer(float64(1000)),
 			)
 			tt.expect(t, ctx, c, uc)
 		})

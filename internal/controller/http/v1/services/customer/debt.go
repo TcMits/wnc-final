@@ -198,15 +198,15 @@ func (s *debtRoute) fulfill(ctx iris.Context) {
 	if entity == nil {
 		ctx.StatusCode(iris.StatusNoContent)
 	}
-	i, err := s.uc.ValidateFulfill(ctx, entity, nil)
+	err = s.uc.ValidateFulfill(ctx, entity)
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return
 	}
-	entity, err = s.uc.Fulfill(ctx, entity, i)
+	res, err := s.uc.Fulfill(ctx, entity)
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return
 	}
-	ctx.JSON(getResponse(entity))
+	ctx.JSON(getResponse(res))
 }

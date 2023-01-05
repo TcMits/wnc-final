@@ -105,6 +105,9 @@ type (
 	forgetPasswordResp struct {
 		Token *string `json:"token"`
 	}
+	fulfillResp struct {
+		Token *string `json:"token"`
+	}
 	// reference on docs
 )
 
@@ -214,6 +217,11 @@ func getDefaultResponse(entity any) any {
 	case *model.CustomerForgetPasswordResp:
 		rs, _ := entity.(*model.CustomerForgetPasswordResp)
 		result = &forgetPasswordResp{
+			Token: &rs.Token,
+		}
+	case *model.DebtFulfillResp:
+		rs, _ := entity.(*model.DebtFulfillResp)
+		result = &fulfillResp{
 			Token: &rs.Token,
 		}
 	default:

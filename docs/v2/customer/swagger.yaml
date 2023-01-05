@@ -39,6 +39,22 @@ definitions:
     - old_password
     - password
     type: object
+  customer.changePasswordWithTokenReq:
+    properties:
+      confirm_password:
+        type: string
+      otp:
+        type: string
+      password:
+        type: string
+      token:
+        type: string
+    required:
+    - confirm_password
+    - otp
+    - password
+    - token
+    type: object
   customer.contactCreateReq:
     properties:
       account_number:
@@ -144,6 +160,18 @@ definitions:
       detail:
         type: string
       message:
+        type: string
+    type: object
+  customer.forgetPasswordReq:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  customer.forgetPasswordResp:
+    properties:
+      token:
         type: string
     type: object
   customer.guestBankAccountResp:
@@ -500,6 +528,35 @@ paths:
       summary: Get a bank account
       tags:
       - Bank account
+  /change-password-with-token:
+    post:
+      consumes:
+      - application/json
+      description: Change password with token
+      operationId: change-password-with-token
+      parameters:
+      - description: Change password with token
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.changePasswordWithTokenReq'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      summary: Change password with token
+      tags:
+      - change-password-with-token
   /contacts:
     get:
       consumes:
@@ -804,6 +861,37 @@ paths:
       summary: Fulfill a debt
       tags:
       - Debt
+  /forget-password:
+    post:
+      consumes:
+      - application/json
+      description: Forget password
+      operationId: forget-password
+      parameters:
+      - description: Forget password
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.forgetPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.forgetPasswordResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      summary: Forget password
+      tags:
+      - forget-password
   /login:
     delete:
       consumes:

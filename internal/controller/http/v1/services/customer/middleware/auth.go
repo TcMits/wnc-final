@@ -13,8 +13,6 @@ import (
 	irisJWT "github.com/kataras/iris/v12/middleware/jwt"
 )
 
-const UserCtxKey usecase.UserCtxType = "iris.user"
-
 func BaseAuthenticator(secretKey *string, userGetter func(goCtx.Context, map[string]any) (any, error), validators ...func(*context.Context, goJWT.MapClaims) error) iris.Handler {
 	return func(ctx *context.Context) {
 		extractors := []irisJWT.TokenExtractor{
@@ -41,8 +39,7 @@ func BaseAuthenticator(secretKey *string, userGetter func(goCtx.Context, map[str
 			ctx.StopWithError(iris.StatusInternalServerError, err)
 			return
 		}
-		ctx.Values().Set(string(usecase.UserCtxKey), UserCtxKey)
-		ctx.SetUser(user)
+		ctx.Values().Set(string(usecase.UserCtxKey), user)
 		for _, v := range validators {
 			err = v(ctx, payload)
 			if err != nil {
@@ -55,15 +52,7 @@ func BaseAuthenticator(secretKey *string, userGetter func(goCtx.Context, map[str
 }
 
 func GetUserFromCtxAsCustomer(ctx *context.Context) *model.Customer {
-	userAny, err := ctx.User().GetRaw()
-	if err != nil {
-		return nil
-	}
-	user, ok := userAny.(*model.Customer)
-	if !ok {
-		return nil
-	}
-	return user
+	return usecase.GetUserAsCustomer(ctx)
 }
 
 func validateToken(ctx *context.Context, claim goJWT.MapClaims) error {

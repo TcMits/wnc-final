@@ -108,6 +108,9 @@ type (
 	debtFulfillResp struct {
 		Token *string `json:"token"`
 	}
+	optionsResp struct {
+		DebtStatus []string `json:"debt_status"`
+	}
 	// reference on docs
 )
 

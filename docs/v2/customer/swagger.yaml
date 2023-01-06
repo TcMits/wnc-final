@@ -231,6 +231,13 @@ definitions:
       username:
         type: string
     type: object
+  customer.optionsResp:
+    properties:
+      debt_status:
+        items:
+          type: string
+        type: array
+    type: object
   customer.renewTokenRequest:
     properties:
       refresh_token:
@@ -495,6 +502,11 @@ paths:
       - application/json
       description: Show guest bank accounts
       operationId: guestbankaccount-listing
+      parameters:
+      - description: Bank account number
+        in: query
+        name: account_number
+        type: string
       produces:
       - application/json
       responses:
@@ -726,6 +738,19 @@ paths:
       - application/json
       description: Show debt
       operationId: debt-listing
+      parameters:
+      - description: ID of bank account
+        in: query
+        name: owner_id
+        type: string
+      - description: ID of bank account
+        in: query
+        name: receiver_id
+        type: string
+      - description: Status of debt
+        in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses:
@@ -1054,6 +1079,26 @@ paths:
       summary: Change password
       tags:
       - Me
+  /options:
+    get:
+      consumes:
+      - application/json
+      description: Show all options
+      operationId: option
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.optionsResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      summary: Show options
+      tags:
+      - Option
   /stream:
     get:
       consumes:
@@ -1111,6 +1156,27 @@ paths:
       - application/json
       description: Show transactions
       operationId: transaction-listing
+      parameters:
+      - description: True if sort ascent by update_time otherwise ignored
+        in: query
+        name: update_time
+        type: boolean
+      - description: True if sort descent by update_time otherwise ignored
+        in: query
+        name: -update_time
+        type: boolean
+      - description: True if only debt transaction otherwise ignored
+        in: query
+        name: only_debt
+        type: boolean
+      - description: ID of bank account
+        in: query
+        name: sender_id
+        type: string
+      - description: ID of bank account
+        in: query
+        name: receiver_id
+        type: string
       produces:
       - application/json
       responses:

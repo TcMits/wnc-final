@@ -20,7 +20,7 @@ func main() {
 	}
 	l := logger.New(cfg.Log.Level)
 	l.Info("creating user...")
-	client, err := datastore.NewClient(cfg.PG.URL, cfg.PG.PoolMax)
+	client, err := datastore.NewClient(cfg.DB.URL, cfg.DB.PoolMax, cfg.App.Debug)
 	if err != nil {
 		log.Fatalf("failed opening database client: %v", err)
 	}

@@ -17,6 +17,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/contact"
 	"github.com/TcMits/wnc-final/internal/usecase/debt"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
+	"github.com/TcMits/wnc-final/internal/usecase/option"
 	"github.com/TcMits/wnc-final/internal/usecase/stream"
 	"github.com/TcMits/wnc-final/internal/usecase/transaction"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
@@ -29,9 +30,9 @@ func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 
 	// Repository
-	client, err := datastore.NewClient(cfg.PG.URL, cfg.PG.PoolMax)
+	client, err := datastore.NewClient(cfg.DB.URL, cfg.DB.PoolMax, cfg.App.Debug)
 	if err != nil {
-		l.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
+		l.Fatal(fmt.Errorf("app - Run - NewClient: %w", err))
 	}
 	defer client.Close()
 
@@ -126,6 +127,7 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeDesc,
 		&cfg.TransactionUseCase.FeeAmount,
 	)
+	cCOUc := option.NewOptionUseCase()
 
 	v1.RegisterV1HTTPServices(
 		handler,
@@ -136,6 +138,7 @@ func Run(cfg *config.Config) {
 		cTxcUc,
 		cDUc,
 		cCUc,
+		cCOUc,
 		b,
 		l,
 	)

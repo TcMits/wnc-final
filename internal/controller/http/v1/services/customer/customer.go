@@ -37,6 +37,7 @@ func RegisterCustomerServices(
 	cTxcUc usecase.ICustomerTransactionUseCase,
 	cDUc usecase.ICustomerDebtUseCase,
 	cCUc usecase.ICustomerContactUseCase,
+	cOUc usecase.IOptionsUseCase,
 	// broker
 	broker *sse.Broker,
 	// logger
@@ -53,6 +54,7 @@ func RegisterCustomerServices(
 		RegisterDocsController(h, l)
 		RegisterAuthController(h, l, aUc)
 		RegisterStreamController(h, l, broker, sUc)
+		RegisterOptionController(h, l, cOUc)
 		h := h.Party(
 			"/me",
 		)

@@ -1,6 +1,9 @@
 package model
 
-import "github.com/TcMits/wnc-final/ent"
+import (
+	"github.com/TcMits/wnc-final/ent"
+	"github.com/TcMits/wnc-final/ent/debt"
+)
 
 type (
 	Debt                      = ent.Debt
@@ -16,3 +19,5 @@ type (
 		Token string
 	}
 )
+
+var DebtStatus = []string{debt.StatusCancelled.String(), debt.StatusFulfilled.String(), debt.StatusPending.String()}

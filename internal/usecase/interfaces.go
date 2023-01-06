@@ -19,6 +19,7 @@ type (
 	}
 	IOptionsUseCase interface {
 		GetDebtStatus(context.Context) []string
+		GetEvents(context.Context) []string
 	}
 	iListUseCase[ModelType, ModelOrderInput, ModelWhereInput any] interface {
 		List(context.Context, *int, *int, ModelOrderInput, ModelWhereInput) ([]ModelType, error)

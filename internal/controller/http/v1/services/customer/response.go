@@ -5,6 +5,7 @@ import (
 
 	"github.com/TcMits/wnc-final/ent/debt"
 	"github.com/TcMits/wnc-final/ent/transaction"
+	"github.com/TcMits/wnc-final/internal/sse"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
 	"github.com/google/uuid"
@@ -109,6 +110,10 @@ type (
 	}
 	optionsResp struct {
 		DebtStatus []string `json:"debt_status"`
+		Events     []string `json:"events"`
+	}
+	eventResp struct {
+		*sse.EventPayload
 	}
 	// reference on docs
 )

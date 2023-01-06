@@ -177,6 +177,13 @@ definitions:
       message:
         type: string
     type: object
+  customer.eventResp:
+    properties:
+      event:
+        type: string
+      message:
+        type: string
+    type: object
   customer.forgetPasswordReq:
     properties:
       email:
@@ -234,6 +241,10 @@ definitions:
   customer.optionsResp:
     properties:
       debt_status:
+        items:
+          type: string
+        type: array
+      events:
         items:
           type: string
         type: array
@@ -1106,8 +1117,10 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
-          description: ""
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.eventResp'
         "505":
           description: HTTP Version Not Supported
           schema:

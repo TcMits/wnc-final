@@ -8,21 +8,6 @@ import (
 	"github.com/kataras/iris/v12"
 )
 
-type streamRoute struct {
-	uc     usecase.ICustomerStreamUseCase
-	logger logger.Interface
-	broker *sse.Broker
-}
-
-func RegisterStreamController(handler iris.Party, l logger.Interface, broker *sse.Broker, uc usecase.ICustomerStreamUseCase) {
-	r := &streamRoute{
-		uc:     uc,
-		logger: l,
-		broker: broker,
-	}
-	handler.Get("/stream", middleware.Authenticator(r.uc.GetSecret(), r.uc.GetUser), r.serve)
-}
-
 // @Summary     Receive events
 // @Description Receive events
 // @ID          event
@@ -30,9 +15,12 @@ func RegisterStreamController(handler iris.Party, l logger.Interface, broker *ss
 // @Security 	Bearer
 // @Accept      json
 // @Produce     json
-// @Success     204 ""
+// @Success     200 {object} eventResp
 // @Failure     505 {object} errorResponse
 // @Router      /stream [get]
-func (s *streamRoute) serve(ctx iris.Context) {
-	s.broker.ServeHTTP(ctx)
+func RegisterStreamController(handler iris.Party, l logger.Interface, broker *sse.Broker, uc usecase.ICustomerStreamUseCase) {
+
+	handler.Get("/stream", middleware.Authenticator(uc.GetSecret(), uc.GetUser), func(ctx iris.Context) {
+		broker.ServeHTTP(ctx)
+	})
 }

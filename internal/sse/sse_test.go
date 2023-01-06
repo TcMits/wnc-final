@@ -1,7 +1,6 @@
 package sse_test
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/TcMits/wnc-final/internal/sse"
@@ -15,7 +14,7 @@ func TestNotify(t *testing.T) {
 	l := logger.New(logger.DebugLevel)
 	b := sse.NewBroker(l)
 	messageChan := make(chan sse.MessagePayload)
-	msg, _ := json.Marshal("foo")
+	msg := "foo"
 	b.AddClient(messageChan)
 	go func() {
 		b.Notify(&sse.MessagePayload{
@@ -30,7 +29,7 @@ func TestNotify(t *testing.T) {
 	b.RemoveClient(messageChan)
 	require.Equal(t, data.Msg, msg)
 	user := &model.Customer{
-		FirstName: "foo",
+		FirstName: msg,
 	}
 	require.True(t, data.If(user))
 }

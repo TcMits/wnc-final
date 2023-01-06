@@ -1121,8 +1121,11 @@ const docTemplate = `{
                 "summary": "Receive events",
                 "operationId": "event",
                 "responses": {
-                    "204": {
-                        "description": ""
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.eventResp"
+                        }
                     },
                     "505": {
                         "description": "HTTP Version Not Supported",
@@ -1672,6 +1675,17 @@ const docTemplate = `{
                 }
             }
         },
+        "customer.eventResp": {
+            "type": "object",
+            "properties": {
+                "event": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "customer.forgetPasswordReq": {
             "type": "object",
             "required": [
@@ -1759,6 +1773,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "debt_status": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "events": {
                     "type": "array",
                     "items": {
                         "type": "string"

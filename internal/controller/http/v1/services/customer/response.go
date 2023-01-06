@@ -99,8 +99,7 @@ type (
 		BankName      string    `json:"bank_name"`
 	}
 	tokenPairResponse struct {
-		AccessToken  *string `json:"access_token"`
-		RefreshToken *string `json:"refresh_token"`
+		AccessToken *string `json:"access_token"`
 	}
 	forgetPasswordResp struct {
 		Token *string `json:"token"`
@@ -214,8 +213,7 @@ func getDefaultResponse(entity any) any {
 	case *jwt.TokenPair:
 		rs, _ := entity.(*jwt.TokenPair)
 		result = &tokenPairResponse{
-			AccessToken:  rs.AccessToken,
-			RefreshToken: rs.RefreshToken,
+			AccessToken: rs.AccessToken,
 		}
 	case *model.CustomerForgetPasswordResp:
 		rs, _ := entity.(*model.CustomerForgetPasswordResp)

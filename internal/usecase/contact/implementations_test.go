@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/TcMits/wnc-final/ent"
-	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer/middleware"
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/contact"
@@ -15,13 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func authenticateCtx(ctx *context.Context, c *ent.Client, user *model.Customer) {
-	if user == nil {
-		user, _ = ent.CreateFakeCustomer(*ctx, c, nil)
-	}
-	*ctx = context.WithValue(*ctx, usecase.UserCtxKey, middleware.UserCtxKey)
-	*ctx = context.WithValue(*ctx, middleware.UserCtxKey, user)
-}
+var authenticateCtx = usecase.AuthenticateCtx
 
 func TestListUseCase(t *testing.T) {
 	t.Parallel()

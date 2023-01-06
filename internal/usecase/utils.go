@@ -7,6 +7,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/TcMits/wnc-final/ent"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
 	"github.com/TcMits/wnc-final/pkg/tool/password"
@@ -49,9 +50,7 @@ func MakeOTPValue(ctx context.Context, otp string, extra ...string) string {
 }
 
 func GetUserAsCustomer(ctx context.Context) *model.Customer {
-	key := ctx.Value(UserCtxKey).(UserCtxType)
-	uAny := ctx.Value(key)
-	user, ok := uAny.(*model.Customer)
+	user, ok := ctx.Value(string(UserCtxKey)).(*model.Customer)
 	if !ok {
 		return nil
 	}
@@ -140,4 +139,11 @@ func ValidateHashInfo(
 		return WrapError(fmt.Errorf("internal.usecase.utils.ValidateHashInfo: %s", err))
 	}
 	return nil
+}
+
+func AuthenticateCtx(ctx *context.Context, c *ent.Client, user *model.Customer) {
+	if user == nil {
+		user, _ = ent.CreateFakeCustomer(*ctx, c, nil)
+	}
+	*ctx = context.WithValue(*ctx, string(UserCtxKey), user)
 }

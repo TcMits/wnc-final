@@ -34,5 +34,6 @@ ent-clean-template
 
 .envs/.local/.golang
 .envs/.local/.postgres
+.envs/.local/.sqlite
 
 db.*

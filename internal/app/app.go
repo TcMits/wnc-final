@@ -30,9 +30,9 @@ func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 
 	// Repository
-	client, err := datastore.NewClient(cfg.PG.URL, cfg.PG.PoolMax)
+	client, err := datastore.NewClient(cfg.DB.URL, cfg.DB.PoolMax, cfg.App.Debug)
 	if err != nil {
-		l.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
+		l.Fatal(fmt.Errorf("app - Run - NewClient: %w", err))
 	}
 	defer client.Close()
 

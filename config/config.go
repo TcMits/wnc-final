@@ -15,7 +15,7 @@ type (
 		App  `yaml:"app"`
 		HTTP `yaml:"http"`
 		Log  `yaml:"logger"`
-		PG   `yaml:"pg"`
+		DB   `yaml:"db"`
 		Mail `yaml:"mail"`
 		AuthUseCase
 		TransactionUseCase
@@ -26,6 +26,7 @@ type (
 		Name      string `env-required:"true" yaml:"name"    env:"APP_NAME"`
 		Version   string `env-required:"true" yaml:"version" env:"APP_VERSION"`
 		SecretKey string `env-required:"true" yaml:"secret_key" env:"APP_SECRET_KEY"`
+		Debug     bool   `env-required:"true" yaml:"debug" env:"APP_DEBUG"`
 	}
 
 	// HTTP -.
@@ -39,9 +40,9 @@ type (
 	}
 
 	// PG -.
-	PG struct {
-		PoolMax int    `env-required:"true" yaml:"pool_max" env:"PG_POOL_MAX" env-default:"90"`
-		URL     string `env-required:"true"                 env:"PG_URL"`
+	DB struct {
+		PoolMax int    `env-required:"true" yaml:"pool_max" env:"DB_POOL_MAX" env-default:"90"`
+		URL     string `env-required:"true"                 env:"DB_URL"`
 	}
 
 	Mail struct {

@@ -6,7 +6,6 @@ app:
 mail:
   confirm_email_template: './templates/transaction_confirm.html'
   confirm_email_subject: 'Confirm transaction'
-  frontend_url: 'http://front.end'
   otp_timeout: '60s'
 
 http:
@@ -15,6 +14,5 @@ http:
 logger:
   log_level: 'info'
 
-pg:
+db:
   pool_max: 90
-

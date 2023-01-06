@@ -13,22 +13,31 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// Open new connection.
-func Open(databaseUrl string, maxPoolSize int) (*ent.Client, error) {
-	db, err := sql.Open("pgx", databaseUrl)
+func OpenClient(databaseUrl string, maxPoolSize int, debug bool) (*ent.Client, error) {
+	var db *sql.DB
+	var err error
+	var drv *entsql.Driver
+	if debug {
+		db, err = sql.Open("pgx", databaseUrl)
+	} else {
+		db, err = sql.Open("sqlite3", databaseUrl)
+	}
 	if err != nil {
 		return nil, err
+	}
+	if debug {
+		drv = entsql.OpenDB(dialect.Postgres, db)
+	} else {
+		drv = entsql.OpenDB(dialect.SQLite, db)
 	}
 	db.SetMaxOpenConns(maxPoolSize)
 
 	// Create an ent.Driver from `db`.
-	drv := entsql.OpenDB(dialect.Postgres, db)
 	return ent.NewClient(ent.Driver(drv)), nil
 }
 
-// NewClient returns an orm client.
-func NewClient(url string, poolMax int) (*ent.Client, error) {
-	return Open(url, poolMax)
+func NewClient(url string, poolMax int, debug bool) (*ent.Client, error) {
+	return OpenClient(url, poolMax, debug)
 }
 
 func openTestConnection(t *testing.T) (*ent.Client, error) {

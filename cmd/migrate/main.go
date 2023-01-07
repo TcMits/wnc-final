@@ -1,4 +1,4 @@
-package main
+package migrate
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 )
 
-func main() {
+func Migrate() {
 	// Configuration
 	cfg, err := config.NewConfig()
 	if err != nil {

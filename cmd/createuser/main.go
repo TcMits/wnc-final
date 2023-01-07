@@ -1,4 +1,4 @@
-package main
+package createuser
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"github.com/TcMits/wnc-final/pkg/tool/password"
 )
 
-func main() {
+func CreateUser() {
 	// Configuration
 	cfg, err := config.NewConfig()
 	if err != nil {

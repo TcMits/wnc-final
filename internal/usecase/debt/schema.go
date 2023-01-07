@@ -60,6 +60,9 @@ type (
 		taskExecutor task.IExecuteTask[*task.DebtNotifyPayload]
 		cGFUC        usecase.ICustomerGetFirstUseCase
 	}
+	CustomerDebtIsNextUseCase struct {
+		iNUC usecase.IIsNextUseCase[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput]
+	}
 	CustomerDebtUseCase struct {
 		usecase.ICustomerConfigUseCase
 		usecase.ICustomerGetUserUseCase
@@ -74,5 +77,6 @@ type (
 		usecase.ICustomerDebtFulfillUseCase
 		usecase.ICustomerDebtFulfillWithTokenUseCase
 		usecase.ICustomerDebtValidateFulfillWithTokenUseCase
+		usecase.IIsNextUseCase[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput]
 	}
 )

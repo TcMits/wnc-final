@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/TcMits/wnc-final/cmd/createuser"
-	"github.com/TcMits/wnc-final/cmd/migrate"
+	"github.com/TcMits/wnc-final/cmd/createuser/createuser"
+	"github.com/TcMits/wnc-final/cmd/migrate/migrate"
 	"github.com/TcMits/wnc-final/config"
 	v1 "github.com/TcMits/wnc-final/internal/controller/http/v1"
 	"github.com/TcMits/wnc-final/internal/repository"
@@ -32,8 +32,10 @@ func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 
 	// setup
-	migrate.Migrate()
-	createuser.CreateUser()
+	if !cfg.App.Debug {
+		migrate.Migrate()
+		createuser.CreateUser()
+	}
 
 	// Repository
 	client, err := datastore.NewClient(cfg.DB.URL, cfg.DB.PoolMax, cfg.App.Debug)
@@ -75,6 +77,7 @@ func Run(cfg *config.Config) {
 	cBankAccountUc := bankaccount.NewCustomerBankAccountUseCase(
 		repository.GetBankAccountUpdateRepository(client),
 		repository.GetBankAccountListRepository(client),
+		repository.GetBankAccountIsNextRepository(client),
 		repository.GetCustomerListRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
@@ -104,6 +107,7 @@ func Run(cfg *config.Config) {
 		repository.GetDebtCreateRepository(client),
 		repository.GetDebtUpdateRepository(client),
 		repository.GetDebtFulfillRepository(client),
+		repository.GetDebtIsNextRepository(client),
 		repository.GetCustomerListRepository(client),
 		repository.GetBankAccountListRepository(client),
 		task.GetDebtTaskExecutor(b, l),
@@ -128,6 +132,7 @@ func Run(cfg *config.Config) {
 		repository.GetContactUpdateRepository(client),
 		repository.GetContactCreateRepository(client),
 		repository.GetContactDeleteRepository(client),
+		repository.GetContactIsNextRepository(client),
 		repository.GetCustomerListRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,

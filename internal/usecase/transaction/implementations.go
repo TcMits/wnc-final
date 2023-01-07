@@ -230,3 +230,15 @@ func (uc *CustomerTransactionGetFirstMineUseCase) GetFirstMine(ctx context.Conte
 	}
 	return nil, nil
 }
+
+func (s *CustomerTransactionIsNextUseCase) IsNext(ctx context.Context, limit, offset int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (bool, error) {
+	user := usecase.GetUserAsCustomer(ctx)
+	if w == nil {
+		w = new(model.TransactionWhereInput)
+	}
+	w.Or = []*model.TransactionWhereInput{
+		{HasReceiverWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}}},
+		{HasSenderWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}}},
+	}
+	return s.iNUC.IsNext(ctx, limit, offset, o, w)
+}

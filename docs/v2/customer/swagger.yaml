@@ -1,5 +1,44 @@
 basePath: /api/customer/v1
 definitions:
+  customer.EntitiesResponseTemplate-customer_bankAccountResp:
+    properties:
+      count:
+        type: integer
+      next:
+        type: string
+      previous:
+        type: string
+      results:
+        items:
+          $ref: '#/definitions/customer.bankAccountResp'
+        type: array
+    type: object
+  customer.EntitiesResponseTemplate-customer_contactResp:
+    properties:
+      count:
+        type: integer
+      next:
+        type: string
+      previous:
+        type: string
+      results:
+        items:
+          $ref: '#/definitions/customer.contactResp'
+        type: array
+    type: object
+  customer.EntitiesResponseTemplate-customer_debtResp:
+    properties:
+      count:
+        type: integer
+      next:
+        type: string
+      previous:
+        type: string
+      results:
+        items:
+          $ref: '#/definitions/customer.debtResp'
+        type: array
+    type: object
   customer.EntitiesResponseTemplate-customer_transactionResp:
     properties:
       count:
@@ -441,7 +480,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/customer.bankAccountResp'
+            $ref: '#/definitions/customer.EntitiesResponseTemplate-customer_bankAccountResp'
         "500":
           description: Internal Server Error
           schema:
@@ -620,7 +659,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/customer.contactResp'
+            $ref: '#/definitions/customer.EntitiesResponseTemplate-customer_contactResp'
         "500":
           description: Internal Server Error
           schema:
@@ -781,7 +820,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/customer.debtResp'
+            $ref: '#/definitions/customer.EntitiesResponseTemplate-customer_debtResp'
         "500":
           description: Internal Server Error
           schema:

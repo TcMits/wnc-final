@@ -75,7 +75,7 @@ func (s *debtRoute) detail(ctx iris.Context) {
 // @Param       owner_id query string false "ID of bank account"
 // @Param       receiver_id query string false "ID of bank account"
 // @Param       status query string false "Status of debt"
-// @Success     200 {object} debtResp
+// @Success     200 {object} EntitiesResponseTemplate[debtResp]
 // @Failure     500 {object} errorResponse
 // @Router      /debts [get]
 func (s *debtRoute) listing(ctx iris.Context) {
@@ -102,7 +102,18 @@ func (s *debtRoute) listing(ctx iris.Context) {
 		HandleError(ctx, err, s.logger)
 		return
 	}
-	ctx.JSON(getResponses(entities))
+	isNext, err := s.uc.IsNext(ctx, req.Limit, req.Offset, nil, w)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	paging := getPagingResponse(ctx, pagingInput[*model.Debt]{
+		limit:    req.Limit,
+		offset:   req.Offset,
+		entities: entities,
+		isNext:   isNext,
+	})
+	ctx.JSON(paging)
 }
 
 // @Summary     Create a debt

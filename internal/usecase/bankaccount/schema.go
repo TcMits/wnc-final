@@ -25,6 +25,9 @@ type (
 	CustomerBankAccountGetFirstMineUseCase struct {
 		bALMUC usecase.ICustomerBankAccountListMineUseCase
 	}
+	CustomerBankAccountIsNextUseCase struct {
+		iNUC usecase.IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
 	CustomerBankAccountUseCase struct {
 		usecase.ICustomerBankAccountUpdateUseCase
 		usecase.ICustomerBankAccountValidateUpdateInputUseCase
@@ -34,5 +37,6 @@ type (
 		usecase.ICustomerBankAccountGetFirstMineUseCase
 		usecase.ICustomerBankAccountListMineUseCase
 		usecase.ICustomerBankAccountGetFirstUseCase
+		usecase.IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
 )

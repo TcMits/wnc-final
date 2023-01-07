@@ -10,6 +10,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
+	"github.com/TcMits/wnc-final/internal/usecase/outliers"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/mail"
 )
@@ -111,6 +112,7 @@ func NewCustomerTransactionUseCase(
 	repoCreate repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
 	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
 	repoUpdate repository.UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput],
+	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	rUBa repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
@@ -131,5 +133,6 @@ func NewCustomerTransactionUseCase(
 		ICustomerTransactionConfirmSuccessUseCase:      NewCustomerTransactionConfirmSuccessUseCase(repoConfirm, sk, prodOwnerName, fee, feeDesc),
 		ICustomerTransactionListMineUseCase:            NewCustomerTransactionListMineUseCase(repoList),
 		ICustomerTransactionGetFirstMineUseCase:        NewCustomerTransactionGetFirstMineUseCase(repoList),
+		IIsNextUseCase:                                 outliers.NewIsNextUseCase(repoIsNext),
 	}
 }

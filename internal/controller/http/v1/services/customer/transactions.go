@@ -46,7 +46,7 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 // @Param       only_debt query bool false "True if only debt transaction otherwise ignored"
 // @Param       sender_id query string false "ID of bank account"
 // @Param       receiver_id query string false "ID of bank account"
-// @Success     200 {object} transactionResp
+// @Success     200 {object} EntitiesResponseTemplate[transactionResp]
 // @Failure     500 {object} errorResponse
 // @Router      /transactions [get]
 func (r *transactionRoute) listing(ctx iris.Context) {
@@ -94,7 +94,18 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 		HandleError(ctx, err, r.logger)
 		return
 	}
-	ctx.JSON(getResponses(entities))
+	isNext, err := r.uc.IsNext(ctx, req.Limit, req.Offset, or, w)
+	if err != nil {
+		HandleError(ctx, err, r.logger)
+		return
+	}
+	paging := getPagingResponse(ctx, pagingInput[*model.Transaction]{
+		limit:    req.Limit,
+		offset:   req.Offset,
+		entities: entities,
+		isNext:   isNext,
+	})
+	ctx.JSON(paging)
 }
 
 // @Summary     Create a transaction

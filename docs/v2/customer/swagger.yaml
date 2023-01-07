@@ -1,5 +1,18 @@
 basePath: /api/customer/v1
 definitions:
+  customer.EntitiesResponseTemplate-customer_transactionResp:
+    properties:
+      count:
+        type: integer
+      next:
+        type: string
+      previous:
+        type: string
+      results:
+        items:
+          $ref: '#/definitions/customer.transactionResp'
+        type: array
+    type: object
   customer.bankAccountResp:
     properties:
       account_number:
@@ -1194,7 +1207,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/customer.transactionResp'
+            $ref: '#/definitions/customer.EntitiesResponseTemplate-customer_transactionResp'
         "500":
           description: Internal Server Error
           schema:

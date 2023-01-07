@@ -56,6 +56,9 @@ type (
 		RenewToken(context.Context, *string) (any, error)
 		Logout(context.Context) error
 	}
+	IIsNextUseCase[ModelType, ModelOrderInput, ModelWhereInput any] interface {
+		IsNext(context.Context, int, int, ModelOrderInput, ModelWhereInput) (bool, error)
+	}
 )
 
 type (
@@ -174,6 +177,7 @@ type (
 		ICustomerTransactionValidateConfirmInputUseCase
 		ICustomerTransactionListMineUseCase
 		ICustomerTransactionGetFirstMineUseCase
+		IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 	// debt
 	ICustomerDebtListUseCase interface {

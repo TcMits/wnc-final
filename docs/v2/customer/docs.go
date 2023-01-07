@@ -1238,7 +1238,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/customer.transactionResp"
+                            "$ref": "#/definitions/customer.EntitiesResponseTemplate-customer_transactionResp"
                         }
                     },
                     "500": {
@@ -1409,6 +1409,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "customer.EntitiesResponseTemplate-customer_transactionResp": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "next": {
+                    "type": "string"
+                },
+                "previous": {
+                    "type": "string"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/customer.transactionResp"
+                    }
+                }
+            }
+        },
         "customer.bankAccountResp": {
             "type": "object",
             "properties": {

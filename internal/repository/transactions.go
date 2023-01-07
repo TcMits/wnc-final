@@ -46,6 +46,11 @@ func GetTransactionConfirmSuccessRepository(
 		client: client,
 	}
 }
+func GetTransactionIsNextRepository(
+	client *ent.Client,
+) IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput] {
+	return getIsNextModelRepostiory(GetTransactionListRepository(client))
+}
 
 func newTransactionConfirmSuccessRepository(
 	client *ent.Client,

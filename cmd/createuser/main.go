@@ -9,6 +9,7 @@ import (
 	"github.com/TcMits/wnc-final/ent/customer"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
+	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/password"
 )
 
@@ -29,12 +30,35 @@ func main() {
 	l.Info("finish create user")
 }
 func createUser(client *ent.Client) {
+	ctx := context.Background()
 	hashPw, err := password.GetHashPassword("123456789")
 	if err != nil {
 		log.Fatalf("failed creating user: %v", err)
 	}
-	if len(client.Customer.Query().Where(customer.Username("superuser")).AllX(context.Background())) == 0 {
-		if _, err := client.Customer.Create().SetUsername("superuser").SetPassword(hashPw).SetEmail("su@gmail.com").SetPhoneNumber("+84923456789").SetIsActive(true).Save(context.Background()); err != nil {
+	if len(client.Customer.Query().Where(customer.Username("superuser")).AllX(ctx)) == 0 {
+		_, err = ent.CreateFakeCustomer(ctx, client, nil,
+			ent.Opt{
+				Key:   "Username",
+				Value: "superuser",
+			},
+			ent.Opt{
+				Key:   "Password",
+				Value: generic.GetPointer(hashPw),
+			},
+			ent.Opt{
+				Key:   "Email",
+				Value: "su@gmail.com",
+			},
+			ent.Opt{
+				Key:   "PhoneNumber",
+				Value: "+84923456789",
+			},
+			ent.Opt{
+				Key:   "IsActive",
+				Value: generic.GetPointer(true),
+			},
+		)
+		if err != nil {
 			log.Fatalf("failed creating user: %v", err)
 		}
 	}

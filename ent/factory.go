@@ -27,7 +27,11 @@ func getClient(ctx context.Context) (*Client, error) {
 	return client, nil
 }
 func EmbedClient(ctx *context.Context, v *Client) {
-	*ctx = context.WithValue(*ctx, "client", v)
+	c := *ctx
+	client := c.Value("client")
+	if client == nil {
+		*ctx = context.WithValue(*ctx, "client", v)
+	}
 }
 
 var customerFactory = factory.NewFactory(
@@ -299,6 +303,7 @@ func CreateFakeDebt(ctx context.Context, c *Client, i *DebtCreateInput, opts ...
 		ctx = context.Background()
 	}
 	if i == nil {
+		EmbedClient(&ctx, c)
 		i = DebtFactory(ctx, opts...)
 	}
 	return c.Debt.Create().SetInput(i).Save(ctx)
@@ -309,6 +314,7 @@ func CreateFakeCustomer(ctx context.Context, c *Client, i *CustomerCreateInput, 
 		ctx = context.Background()
 	}
 	if i == nil {
+		EmbedClient(&ctx, c)
 		i = CustomerFactory(ctx, opts...)
 	}
 	return c.Customer.Create().SetInput(i).Save(ctx)
@@ -318,12 +324,14 @@ func CreateFakeBankAccount(ctx context.Context, c *Client, i *BankAccountCreateI
 		ctx = context.Background()
 	}
 	if i == nil {
+		EmbedClient(&ctx, c)
 		i = BankAccountFactory(ctx, opts...)
 	}
 	return c.BankAccount.Create().SetInput(i).Save(ctx)
 }
 func CreateFakeContact(ctx context.Context, c *Client, i *ContactCreateInput) (*Contact, error) {
 	if ctx == nil {
+		EmbedClient(&ctx, c)
 		ctx = context.Background()
 	}
 	if i == nil {
@@ -337,6 +345,7 @@ func CreateFakeTransaction(ctx context.Context, c *Client, i *TransactionCreateI
 		ctx = context.Background()
 	}
 	if i == nil {
+		EmbedClient(&ctx, c)
 		i = TransactionFactory(ctx, opts...)
 	}
 	return c.Transaction.Create().SetInput(i).Save(ctx)

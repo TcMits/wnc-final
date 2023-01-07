@@ -29,7 +29,6 @@ func TestForgetPasswordUseCase(t *testing.T) {
 		{
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerForgetPasswordUseCase) {
 				user, _ := ent.CreateFakeCustomer(ctx, c, nil)
@@ -81,7 +80,6 @@ func TestValidateForgetPasswordUseCase(t *testing.T) {
 		{
 			name: "user does not exist",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerValidateForgetPasswordUsecase) {
 				i := &model.CustomerForgetPasswordInput{
@@ -127,10 +125,8 @@ func TestChangePasswordWithTokenUseCase(t *testing.T) {
 		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerChangePasswordWithTokenUseCase)
 	}{
 		{
-			name: "success",
-			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				ent.EmbedClient(ctx, c)
-			},
+			name:  "success",
+			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerChangePasswordWithTokenUseCase) {
 				user, _ := ent.CreateFakeCustomer(ctx, c, nil)
 				i := &model.CustomerChangePasswordWithTokenInput{
@@ -167,7 +163,6 @@ func TestValidateChangePasswordWithToken(t *testing.T) {
 		{
 			name: "user does not exist",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerValidateChangePasswordWithTokenUseCase) {
 				tk, _ := usecase.GenerateForgetPwdToken(
@@ -187,7 +182,6 @@ func TestValidateChangePasswordWithToken(t *testing.T) {
 		{
 			name: "otp invalid",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerValidateChangePasswordWithTokenUseCase) {
 				user, _ := ent.CreateFakeCustomer(ctx, c, nil, ent.Opt{Key: "Email", Value: "foo@gmail.com"})
@@ -210,7 +204,6 @@ func TestValidateChangePasswordWithToken(t *testing.T) {
 		{
 			name: "password not match",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerValidateChangePasswordWithTokenUseCase) {
 				user, _ := ent.CreateFakeCustomer(ctx, c, nil, ent.Opt{Key: "Email", Value: "foo@gmail.com"})
@@ -235,7 +228,6 @@ func TestValidateChangePasswordWithToken(t *testing.T) {
 		{
 			name: "new password match old password is not allowed",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerValidateChangePasswordWithTokenUseCase) {
 				user, _ := ent.CreateFakeCustomer(ctx, c, nil, ent.Opt{Key: "Email", Value: "foo@gmail.com"})
@@ -260,7 +252,6 @@ func TestValidateChangePasswordWithToken(t *testing.T) {
 		{
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerValidateChangePasswordWithTokenUseCase) {
 				user, _ := ent.CreateFakeCustomer(ctx, c, nil, ent.Opt{Key: "Email", Value: "foo@gmail.com"})

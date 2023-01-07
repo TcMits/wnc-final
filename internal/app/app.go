@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/TcMits/wnc-final/cmd/createuser"
+	"github.com/TcMits/wnc-final/cmd/migrate"
 	"github.com/TcMits/wnc-final/config"
 	v1 "github.com/TcMits/wnc-final/internal/controller/http/v1"
 	"github.com/TcMits/wnc-final/internal/repository"
@@ -28,6 +30,10 @@ import (
 // Run creates objects via constructors.
 func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
+
+	// setup
+	migrate.Migrate()
+	createuser.CreateUser()
 
 	// Repository
 	client, err := datastore.NewClient(cfg.DB.URL, cfg.DB.PoolMax, cfg.App.Debug)

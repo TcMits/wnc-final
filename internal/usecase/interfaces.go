@@ -19,6 +19,7 @@ type (
 	}
 	IOptionsUseCase interface {
 		GetDebtStatus(context.Context) []string
+		GetEvents(context.Context) []string
 	}
 	iListUseCase[ModelType, ModelOrderInput, ModelWhereInput any] interface {
 		List(context.Context, *int, *int, ModelOrderInput, ModelWhereInput) ([]ModelType, error)
@@ -54,6 +55,9 @@ type (
 		ValidateLoginInput(context.Context, LoginInput) (LoginInput, error)
 		RenewToken(context.Context, *string) (any, error)
 		Logout(context.Context) error
+	}
+	IIsNextUseCase[ModelType, ModelOrderInput, ModelWhereInput any] interface {
+		IsNext(context.Context, int, int, ModelOrderInput, ModelWhereInput) (bool, error)
 	}
 )
 
@@ -173,6 +177,7 @@ type (
 		ICustomerTransactionValidateConfirmInputUseCase
 		ICustomerTransactionListMineUseCase
 		ICustomerTransactionGetFirstMineUseCase
+		IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 	// debt
 	ICustomerDebtListUseCase interface {

@@ -22,7 +22,6 @@ func TestListUseCase(t *testing.T) {
 	defer c.Close()
 	ctx := context.Background()
 	authenticateCtx(&ctx, c, nil)
-	ent.EmbedClient(&ctx, c)
 	ent.CreateFakeContact(ctx, c, nil)
 	uc := contact.NewCustomerContactListUseCase(repository.GetContactListRepository(c))
 	l, o := 2, 0
@@ -42,7 +41,6 @@ func TestListMineUseCase(t *testing.T) {
 			name: "only my contacts",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerContactListMineUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -58,7 +56,6 @@ func TestListMineUseCase(t *testing.T) {
 			name: "my contacts and other",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerContactListMineUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -75,7 +72,6 @@ func TestListMineUseCase(t *testing.T) {
 			name: "only other",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerContactListMineUseCase) {
 				ent.CreateFakeContact(ctx, c, nil)
@@ -111,7 +107,6 @@ func TestGetFirstMineUseCase(t *testing.T) {
 			name: "only my contacts",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerContactGetFirstMineUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -127,7 +122,6 @@ func TestGetFirstMineUseCase(t *testing.T) {
 			name: "my contacts and other",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerContactGetFirstMineUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -167,7 +161,6 @@ func TestCreateUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerContactCreateUseCase) {
 				i := ent.ContactFactory(ctx)
@@ -203,7 +196,6 @@ func TestUpdateUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerContactUpdateUseCase) {
 				e, _ := ent.CreateFakeContact(ctx, c, nil)
@@ -242,7 +234,6 @@ func TestValidateCreateUseCase(t *testing.T) {
 			name: "duplicate constraint",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerContactValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -256,7 +247,6 @@ func TestValidateCreateUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerContactValidateCreateInputUseCase) {
 				i := ent.ContactFactory(ctx, ent.Opt{Key: "BankName", Value: "foo"})
@@ -298,7 +288,6 @@ func TestValidateUpdateUseCase(t *testing.T) {
 			name: "duplicate constraint",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerContactValidateUpdateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -317,7 +306,6 @@ func TestValidateUpdateUseCase(t *testing.T) {
 			name: "success with input has no fields",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerContactValidateUpdateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)

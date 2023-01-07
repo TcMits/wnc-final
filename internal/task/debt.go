@@ -2,7 +2,6 @@ package task
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/TcMits/wnc-final/internal/sse"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
@@ -29,12 +28,8 @@ func (s *DebtCreateTaskExecutor) ExecuteTask(ctx context.Context, pl *DebtNotify
 		msgpl.If = func(c *model.Customer) bool {
 			return c.ID == pl.UserID
 		}
-		var err error
-		msgpl.Msg, err = json.Marshal("hello world")
-		if err != nil {
-			s.l.Warn("Notify failed due to: %s", err)
-		}
-		err = s.b.Notify(msgpl)
+		msgpl.Msg = "hello world"
+		err := s.b.Notify(msgpl)
 		if err != nil {
 			s.l.Warn("Notify failed due to: %s", err)
 		}

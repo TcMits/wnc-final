@@ -21,6 +21,9 @@ type (
 	UpdateModelRepository[ModelType any, UpdateInputType any] interface {
 		Update(context.Context, ModelType, UpdateInputType) (ModelType, error)
 	}
+	IIsNextModelRepository[ModelType, OrderInputType, WhereInputType any] interface {
+		IsNext(context.Context, int, int, OrderInputType, WhereInputType) (bool, error)
+	}
 )
 
 type (

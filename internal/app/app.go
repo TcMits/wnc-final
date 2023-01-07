@@ -81,6 +81,7 @@ func Run(cfg *config.Config) {
 		repository.GetTransactionCreateRepository(client),
 		repository.GetTransactionListRepository(client),
 		repository.GetTransactionUpdateRepository(client),
+		repository.GetTransactionIsNextRepository(client),
 		repository.GetCustomerListRepository(client),
 		repository.GetBankAccountListRepository(client),
 		repository.GetBankAccountUpdateRepository(client),

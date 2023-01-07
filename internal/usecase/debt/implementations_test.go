@@ -28,7 +28,6 @@ func TestListUseCase(t *testing.T) {
 	c, _ := datastore.NewClientTestConnection(t)
 	defer c.Close()
 	ctx := context.Background()
-	ent.EmbedClient(&ctx, c)
 	ent.CreateFakeDebt(ctx, c, nil)
 	uc := debt.NewCustomerDebtListUseCase(repository.GetDebtListRepository(c))
 	l, o := 1, 0
@@ -48,7 +47,6 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -70,7 +68,6 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 			name: "back account receiver not for payment",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCreateInputUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -119,7 +116,6 @@ func TestCreateUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtCreateUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -170,7 +166,6 @@ func TestValidateCancelUseCase(t *testing.T) {
 			name: "not pending debt",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCancelUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -190,7 +185,6 @@ func TestValidateCancelUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateCancelUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -234,7 +228,6 @@ func TestCancelUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtCancelUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -287,7 +280,6 @@ func TestValidateFulfillUseCase(t *testing.T) {
 			name: "not pending debt",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillUseCase) {
 				e1, _ := ent.CreateFakeDebt(ctx, c, nil,
@@ -301,7 +293,6 @@ func TestValidateFulfillUseCase(t *testing.T) {
 			name: "fulfill owned debt",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -320,7 +311,6 @@ func TestValidateFulfillUseCase(t *testing.T) {
 			name: "insufficient ballence",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -339,7 +329,6 @@ func TestValidateFulfillUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -387,7 +376,6 @@ func TestFulfillWithTokenUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtFulfillWithTokenUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -456,7 +444,6 @@ func TestFulfillUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtFulfillUseCase) {
 				user := usecase.GetUserAsCustomer(ctx)
@@ -513,7 +500,6 @@ func TestValidateFulfillWithTokenUseCase(t *testing.T) {
 			name: "token expired",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillWithTokenUseCase) {
 				tk, _ := usecase.GenerateFulfillToken(ctx, "foo", "bar", time.Minute*30)
@@ -530,7 +516,6 @@ func TestValidateFulfillWithTokenUseCase(t *testing.T) {
 			name: "invalid otp",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillWithTokenUseCase) {
 				e, _ := ent.CreateFakeDebt(ctx, c, nil)
@@ -548,7 +533,6 @@ func TestValidateFulfillWithTokenUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerDebtValidateFulfillWithTokenUseCase) {
 				e, _ := ent.CreateFakeDebt(ctx, c, nil)

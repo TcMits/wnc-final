@@ -1,6 +1,8 @@
 package sse
 
 import (
+	"encoding/json"
+
 	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer/middleware"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
@@ -9,8 +11,13 @@ import (
 
 type (
 	MessagePayload struct {
-		Msg []byte
-		If  func(*model.Customer) bool
+		Msg   string
+		Event string
+		If    func(*model.Customer) bool
+	}
+	EventPayload struct {
+		Msg   string `json:"message"`
+		Event string `json:"event"`
 	}
 
 	Broker struct {
@@ -63,6 +70,15 @@ func (b *Broker) listen() {
 		}
 	}
 }
+
+func (b *Broker) marshal(i *MessagePayload) ([]byte, error) {
+	p := EventPayload{
+		Msg:   i.Msg,
+		Event: i.Event,
+	}
+	r, err := json.Marshal(p)
+	return r, err
+}
 func (b *Broker) ServeHTTP(ctx iris.Context) {
 	flusher, ok := ctx.ResponseWriter().Flusher()
 	if !ok {
@@ -94,8 +110,13 @@ func (b *Broker) ServeHTTP(ctx iris.Context) {
 	for {
 		data := <-messageChan
 		if data.If(user) {
-			ctx.Writef("data: %s\n\n", data.Msg)
-			flusher.Flush()
+			pl, err := b.marshal(&data)
+			if err != nil {
+				b.logger.Warn("internal.sse.Broker.ServeHTTP: %s", err)
+			} else {
+				ctx.Writef("%s\n\n", pl)
+				flusher.Flush()
+			}
 		}
 	}
 }

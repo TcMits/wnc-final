@@ -32,7 +32,6 @@ func TestChangePasswordUseCase(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerChangePasswordUseCase) {
 				hashPwd, _ := password.GetHashPassword("foobaz")
@@ -73,7 +72,6 @@ func TestValidateChangePassword(t *testing.T) {
 			name: "old password is invalid",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerValidateChangePasswordUseCase) {
 				i := &model.CustomerChangePasswordInput{
@@ -87,7 +85,6 @@ func TestValidateChangePassword(t *testing.T) {
 			name: "new password match old password is not allowed",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerValidateChangePasswordUseCase) {
 				i := &model.CustomerChangePasswordInput{
@@ -102,7 +99,6 @@ func TestValidateChangePassword(t *testing.T) {
 			name: "password not match",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerValidateChangePasswordUseCase) {
 				i := &model.CustomerChangePasswordInput{
@@ -118,7 +114,6 @@ func TestValidateChangePassword(t *testing.T) {
 			name: "success",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)
-				ent.EmbedClient(ctx, c)
 			},
 			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerValidateChangePasswordUseCase) {
 				i := &model.CustomerChangePasswordInput{

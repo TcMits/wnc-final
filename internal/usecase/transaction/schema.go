@@ -54,5 +54,6 @@ type (
 		usecase.ICustomerTransactionValidateConfirmInputUseCase
 		usecase.ICustomerTransactionListMineUseCase
 		usecase.ICustomerTransactionGetFirstMineUseCase
+		usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 )

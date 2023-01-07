@@ -1,19 +1,32 @@
 package customer
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/TcMits/wnc-final/ent/debt"
 	"github.com/TcMits/wnc-final/ent/transaction"
+	"github.com/TcMits/wnc-final/internal/sse"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
 	"github.com/google/uuid"
+	"github.com/kataras/iris/v12"
 	"github.com/shopspring/decimal"
 )
 
 type (
 	EntitiesResponseTemplate[EntityResponse any] struct {
-		Results []EntityResponse `json:"results"`
+		Count    uint             `json:"count"`
+		Next     string           `json:"next"`
+		Previous string           `json:"previous"`
+		Results  []EntityResponse `json:"results"`
+	}
+	pagingInput[ModelType any] struct {
+		limit        int
+		offset       int
+		noPagingResp *EntitiesResponseTemplate[any]
+		isNext       bool
+		entities     []ModelType
 	}
 	emptyResponse struct{}
 
@@ -109,6 +122,10 @@ type (
 	}
 	optionsResp struct {
 		DebtStatus []string `json:"debt_status"`
+		Events     []string `json:"events"`
+	}
+	eventResp struct {
+		*sse.EventPayload
 	}
 	// reference on docs
 )
@@ -254,11 +271,42 @@ func getResponse(entity any, args ...func(any) any) any {
 	return result
 }
 
-func getResponses[ModelType any](entities []ModelType, args ...func(any) any) any {
+func getResponses[ModelType any](entities []ModelType, args ...func(any) any) *EntitiesResponseTemplate[any] {
 	fr := make([]any, 0, len(entities))
 
 	for _, entity := range entities {
 		fr = append(fr, getResponse(entity, args...))
 	}
 	return &EntitiesResponseTemplate[any]{Results: fr}
+}
+
+func getPagingResponse[ModelType any](ctx iris.Context, i pagingInput[ModelType], args ...func(any) any) *EntitiesResponseTemplate[any] {
+	var pageResp *EntitiesResponseTemplate[any]
+	if i.noPagingResp != nil {
+		pageResp = i.noPagingResp
+	} else {
+		pageResp = getResponses(i.entities, args...)
+	}
+	if i.isNext {
+		originUrl := ctx.Request().URL
+		url := *originUrl
+		q := url.Query()
+		q.Set("limit", strconv.Itoa(i.limit))
+		offset := i.offset + i.limit
+		q.Set("offset", strconv.Itoa(offset))
+		url.RawQuery = q.Encode()
+		pageResp.Next = url.String()
+	}
+	if i.offset >= i.limit {
+		originUrl := ctx.Request().URL
+		url := *originUrl
+		q := url.Query()
+		q.Set("limit", strconv.Itoa(i.limit))
+		offset := i.offset - i.limit
+		q.Set("offset", strconv.Itoa(offset))
+		url.RawQuery = q.Encode()
+		pageResp.Previous = url.String()
+	}
+	pageResp.Count = uint(len(pageResp.Results))
+	return pageResp
 }

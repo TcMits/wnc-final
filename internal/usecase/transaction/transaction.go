@@ -106,6 +106,14 @@ func NewCustomerTransactionValidateConfirmInputUseCase(
 	}
 }
 
+func NewCustomerTransactionIsNextUseCase(
+	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput] {
+	return &CustomerTransactionIsNextUseCase{
+		iNUC: outliers.NewIsNextUseCase(repoIsNext),
+	}
+}
+
 func NewCustomerTransactionUseCase(
 	taskExctor task.IExecuteTask[*mail.EmailPayload],
 	repoConfirm repository.ITransactionConfirmSuccessRepository,
@@ -133,6 +141,6 @@ func NewCustomerTransactionUseCase(
 		ICustomerTransactionConfirmSuccessUseCase:      NewCustomerTransactionConfirmSuccessUseCase(repoConfirm, sk, prodOwnerName, fee, feeDesc),
 		ICustomerTransactionListMineUseCase:            NewCustomerTransactionListMineUseCase(repoList),
 		ICustomerTransactionGetFirstMineUseCase:        NewCustomerTransactionGetFirstMineUseCase(repoList),
-		IIsNextUseCase:                                 outliers.NewIsNextUseCase(repoIsNext),
+		IIsNextUseCase:                                 NewCustomerTransactionIsNextUseCase(repoIsNext),
 	}
 }

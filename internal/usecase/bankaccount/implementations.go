@@ -85,3 +85,12 @@ func (uc *CustomerBankAccountGetFirstMineUseCase) GetFirstMine(ctx context.Conte
 	}
 	return nil, nil
 }
+
+func (s *CustomerBankAccountIsNextUseCase) IsNext(ctx context.Context, limit, offset int, o *model.BankAccountOrderInput, w *model.BankAccountWhereInput) (bool, error) {
+	user := usecase.GetUserAsCustomer(ctx)
+	if w == nil {
+		w = new(model.BankAccountWhereInput)
+	}
+	w.CustomerID = generic.GetPointer(user.ID)
+	return s.iNUC.IsNext(ctx, limit, offset, o, w)
+}

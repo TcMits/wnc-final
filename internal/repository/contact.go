@@ -28,3 +28,9 @@ func GetContactDeleteRepository(
 ) DeleteModelRepository[*model.Contact] {
 	return ent.NewContactDeleteRepository(client, false)
 }
+
+func GetContactIsNextRepository(
+	client *ent.Client,
+) IIsNextModelRepository[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput] {
+	return getIsNextModelRepostiory(GetContactListRepository(client))
+}

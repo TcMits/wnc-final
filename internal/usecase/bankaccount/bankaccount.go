@@ -5,6 +5,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
+	"github.com/TcMits/wnc-final/internal/usecase/outliers"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
@@ -54,10 +55,18 @@ func NewCustomerBankAccountGetFirstMineUseCase(
 		bALMUC: NewCustomerBankAccountListMineUseCase(repoList),
 	}
 }
+func NewCustomerBankAccountIsNextUseCase(
+	repoIsNext repository.IIsNextModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput] {
+	return &CustomerBankAccountIsNextUseCase{
+		iNUC: outliers.NewIsNextUseCase(repoIsNext),
+	}
+}
 
 func NewCustomerBankAccountUseCase(
 	repoUpdate repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
 	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	repoIsNext repository.IIsNextModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	sk *string,
 	prodOwnerName *string,
@@ -73,5 +82,6 @@ func NewCustomerBankAccountUseCase(
 		ICustomerBankAccountGetFirstMineUseCase:        NewCustomerBankAccountGetFirstMineUseCase(repoList),
 		ICustomerBankAccountListMineUseCase:            NewCustomerBankAccountListMineUseCase(repoList),
 		ICustomerBankAccountGetFirstUseCase:            NewCustomerBankAccountGetFirstUseCase(repoList),
+		IIsNextUseCase:                                 NewCustomerBankAccountIsNextUseCase(repoIsNext),
 	}
 }

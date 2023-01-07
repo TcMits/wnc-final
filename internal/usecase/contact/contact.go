@@ -5,6 +5,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
+	"github.com/TcMits/wnc-final/internal/usecase/outliers"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
@@ -65,12 +66,20 @@ func NewCustomerContactValidateCreateInputUseCase(
 		cfUC:  config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 	}
 }
+func NewCustomerBankAccountIsNextUseCase(
+	repoIsNext repository.IIsNextModelRepository[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput],
+) usecase.IIsNextUseCase[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput] {
+	return &CustomerContactIsNextUseCase{
+		iNUC: outliers.NewIsNextUseCase(repoIsNext),
+	}
+}
 
 func NewCustomerContactUseCase(
 	repoList repository.ListModelRepository[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput],
 	repoUpdate repository.UpdateModelRepository[*model.Contact, *model.ContactUpdateInput],
 	repoCreate repository.CreateModelRepository[*model.Contact, *model.ContactCreateInput],
 	repoDelete repository.DeleteModelRepository[*model.Contact],
+	repoIsNext repository.IIsNextModelRepository[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput],
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	sk,
 	prodOwnerName,
@@ -88,5 +97,6 @@ func NewCustomerContactUseCase(
 		ICustomerContactCreateUseCase:              NewCustomerContactCreateUseCase(repoCreate),
 		ICustomerContactValidateCreateInputUseCase: NewCustomerContactValidateCreateInputUseCase(repoList, sk, prodOwnerName, feeDesc, fee),
 		ICustomerContactDeleteUseCase:              NewCustomerContactDeleteUseCase(repoDelete),
+		IIsNextUseCase:                             NewCustomerBankAccountIsNextUseCase(repoIsNext),
 	}
 }

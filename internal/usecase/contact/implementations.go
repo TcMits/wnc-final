@@ -102,3 +102,12 @@ func (s *CustomerContactValidateUpdateInputUseCase) ValidateUpdate(ctx context.C
 	i.OwnerID = nil
 	return i, nil
 }
+
+func (s *CustomerContactIsNextUseCase) IsNext(ctx context.Context, limit, offset int, o *model.ContactOrderInput, w *model.ContactWhereInput) (bool, error) {
+	user := usecase.GetUserAsCustomer(ctx)
+	if w == nil {
+		w = new(model.ContactWhereInput)
+	}
+	w.OwnerID = generic.GetPointer(user.ID)
+	return s.iNUC.IsNext(ctx, limit, offset, o, w)
+}

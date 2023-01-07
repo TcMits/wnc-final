@@ -142,6 +142,7 @@ type (
 		ICustomerBankAccountGetFirstMineUseCase
 		ICustomerBankAccountListMineUseCase
 		ICustomerBankAccountGetFirstUseCase
+		IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
 	ICustomerTransactionValidateConfirmInputUseCase interface {
 		ValidateConfirmInput(context.Context, *model.Transaction, *model.TransactionConfirmUseCaseInput) error
@@ -230,6 +231,7 @@ type (
 		ICustomerDebtFulfillUseCase
 		ICustomerDebtValidateFulfillWithTokenUseCase
 		ICustomerDebtFulfillWithTokenUseCase
+		IIsNextUseCase[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput]
 	}
 	// stream
 	ICustomerStreamUseCase interface {
@@ -272,5 +274,6 @@ type (
 		ICustomerContactUpdateUseCase
 		ICustomerContactValidateUpdateInputUseCase
 		ICustomerContactDeleteUseCase
+		IIsNextUseCase[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput]
 	}
 )

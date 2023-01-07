@@ -28,3 +28,9 @@ func GetBankAccountUpdateRepository(
 ) UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput] {
 	return ent.NewBankAccountUpdateRepository(client, false)
 }
+
+func GetBankAccountIsNextRepository(
+	client *ent.Client,
+) IIsNextModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput] {
+	return getIsNextModelRepostiory(GetBankAccountListRepository(client))
+}

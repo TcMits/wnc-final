@@ -44,6 +44,9 @@ type (
 		cGFUC  usecase.ICustomerGetFirstUseCase
 		tLUC   usecase.ICustomerTransactionListUseCase
 	}
+	CustomerTransactionIsNextUseCase struct {
+		iNUC usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
 	CustomerTransactionUseCase struct {
 		usecase.ICustomerTransactionValidateCreateInputUseCase
 		usecase.ICustomerTransactionCreateUseCase

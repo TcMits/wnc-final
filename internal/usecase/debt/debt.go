@@ -10,6 +10,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
+	"github.com/TcMits/wnc-final/internal/usecase/outliers"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/mail"
 )
@@ -124,11 +125,19 @@ func NewCustomerDebtFulfillWithTokenUseCase(
 ) usecase.ICustomerDebtFulfillWithTokenUseCase {
 	return &CustomerDebtFulfillWithTokenUseCase{repoFulfill: repoFulfill, cGFUC: customer.NewCustomerGetFirstUseCase(rlc), taskExecutor: taskExctor}
 }
+func NewCustomerDebtIsNextUseCase(
+	repoIsNext repository.IIsNextModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput],
+) usecase.IIsNextUseCase[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput] {
+	return &CustomerDebtIsNextUseCase{
+		iNUC: outliers.NewIsNextUseCase(repoIsNext),
+	}
+}
 func NewCustomerDebtUseCase(
 	repoList repository.ListModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput],
 	repoCreate repository.CreateModelRepository[*model.Debt, *model.DebtCreateInput],
 	repoUpdate repository.UpdateModelRepository[*model.Debt, *model.DebtUpdateInput],
 	repoFulfill repository.IDebtFullfillRepository,
+	repoIsNext repository.IIsNextModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput],
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	rlba repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	notifyTask task.IExecuteTask[*task.DebtNotifyPayload],
@@ -154,5 +163,6 @@ func NewCustomerDebtUseCase(
 		ICustomerDebtValidateFulfillUseCase:     NewCustomerDebtValidateFulfillUseCase(rlc, rlba),
 		ICustomerDebtFulfillUseCase:             NewCustomerDebtFulfillUseCase(mailTask, sk, prodOwnerName, feeDesc, debtFulfillSubjectMail, debtFulfillEmailTemplate, fee, otpTimeout),
 		ICustomerDebtFulfillWithTokenUseCase:    NewCustomerDebtFulfillWithTokenUseCase(repoFulfill, rlc, notifyTask),
+		IIsNextUseCase:                          NewCustomerDebtIsNextUseCase(repoIsNext),
 	}
 }

@@ -282,3 +282,15 @@ func (s *CustomerDebtFulfillWithTokenUseCase) FulfillWithToken(ctx context.Conte
 	}
 	return e, nil
 }
+
+func (s *CustomerDebtIsNextUseCase) IsNext(ctx context.Context, limit, offset int, o *model.DebtOrderInput, w *model.DebtWhereInput) (bool, error) {
+	user := usecase.GetUserAsCustomer(ctx)
+	if w == nil {
+		w = new(model.DebtWhereInput)
+	}
+	w.Or = []*model.DebtWhereInput{
+		{HasReceiverWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}}},
+		{HasOwnerWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}}},
+	}
+	return s.iNUC.IsNext(ctx, limit, offset, o, w)
+}

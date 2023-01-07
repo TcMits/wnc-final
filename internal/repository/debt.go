@@ -156,3 +156,9 @@ func (s *DebtFullfillRepository) Fulfill(ctx context.Context, e *model.Debt, i *
 	}
 	return e, nil
 }
+
+func GetDebtIsNextRepository(
+	client *ent.Client,
+) IIsNextModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput] {
+	return getIsNextModelRepostiory(GetDebtListRepository(client))
+}

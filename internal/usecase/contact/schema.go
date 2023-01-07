@@ -32,6 +32,9 @@ type (
 		cGFUC usecase.ICustomerContactListMineUseCase
 		cfUC  usecase.ICustomerConfigUseCase
 	}
+	CustomerContactIsNextUseCase struct {
+		iNUC usecase.IIsNextUseCase[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput]
+	}
 	CustomerContactUseCase struct {
 		usecase.ICustomerConfigUseCase
 		usecase.ICustomerGetUserUseCase
@@ -43,5 +46,6 @@ type (
 		usecase.ICustomerContactCreateUseCase
 		usecase.ICustomerContactValidateCreateInputUseCase
 		usecase.ICustomerContactDeleteUseCase
+		usecase.IIsNextUseCase[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput]
 	}
 )

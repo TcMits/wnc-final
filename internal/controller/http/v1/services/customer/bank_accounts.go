@@ -37,7 +37,7 @@ func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc us
 // @Security 	Bearer
 // @Accept      json
 // @Produce     json
-// @Success     200 {object} bankAccountResp
+// @Success     200 {object} EntitiesResponseTemplate[bankAccountResp]
 // @Failure     500 {object} errorResponse
 // @Router      /bank-accounts [get]
 func (r *bankAccountRoute) listing(ctx iris.Context) {
@@ -51,7 +51,18 @@ func (r *bankAccountRoute) listing(ctx iris.Context) {
 		HandleError(ctx, err, r.logger)
 		return
 	}
-	ctx.JSON(getResponses(entities))
+	isNext, err := r.uc.IsNext(ctx, req.Limit, req.Offset, nil, nil)
+	if err != nil {
+		HandleError(ctx, err, r.logger)
+		return
+	}
+	paging := getPagingResponse(ctx, pagingInput[*model.BankAccount]{
+		limit:    req.Limit,
+		offset:   req.Offset,
+		entities: entities,
+		isNext:   isNext,
+	})
+	ctx.JSON(paging)
 }
 
 // @Summary     Show guest bank accounts

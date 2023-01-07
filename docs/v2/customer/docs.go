@@ -48,7 +48,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/customer.bankAccountResp"
+                            "$ref": "#/definitions/customer.EntitiesResponseTemplate-customer_bankAccountResp"
                         }
                     },
                     "500": {
@@ -327,7 +327,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/customer.contactResp"
+                            "$ref": "#/definitions/customer.EntitiesResponseTemplate-customer_contactResp"
                         }
                     },
                     "500": {
@@ -578,7 +578,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/customer.debtResp"
+                            "$ref": "#/definitions/customer.EntitiesResponseTemplate-customer_debtResp"
                         }
                     },
                     "500": {
@@ -1409,6 +1409,66 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "customer.EntitiesResponseTemplate-customer_bankAccountResp": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "next": {
+                    "type": "string"
+                },
+                "previous": {
+                    "type": "string"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/customer.bankAccountResp"
+                    }
+                }
+            }
+        },
+        "customer.EntitiesResponseTemplate-customer_contactResp": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "next": {
+                    "type": "string"
+                },
+                "previous": {
+                    "type": "string"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/customer.contactResp"
+                    }
+                }
+            }
+        },
+        "customer.EntitiesResponseTemplate-customer_debtResp": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "next": {
+                    "type": "string"
+                },
+                "previous": {
+                    "type": "string"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/customer.debtResp"
+                    }
+                }
+            }
+        },
         "customer.EntitiesResponseTemplate-customer_transactionResp": {
             "type": "object",
             "properties": {

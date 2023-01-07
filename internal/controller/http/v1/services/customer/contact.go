@@ -65,7 +65,7 @@ func (s *contactRoute) detail(ctx iris.Context) {
 // @Security 	Bearer
 // @Accept      json
 // @Produce     json
-// @Success     200 {object} contactResp
+// @Success     200 {object} EntitiesResponseTemplate[contactResp]
 // @Failure     500 {object} errorResponse
 // @Router      /contacts [get]
 func (s *contactRoute) listing(ctx iris.Context) {
@@ -79,7 +79,18 @@ func (s *contactRoute) listing(ctx iris.Context) {
 		HandleError(ctx, err, s.logger)
 		return
 	}
-	ctx.JSON(getResponses(entities))
+	isNext, err := s.uc.IsNext(ctx, req.Limit, req.Offset, nil, nil)
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	paging := getPagingResponse(ctx, pagingInput[*model.Contact]{
+		limit:    req.Limit,
+		offset:   req.Offset,
+		entities: entities,
+		isNext:   isNext,
+	})
+	ctx.JSON(paging)
 }
 
 // @Summary     Create a contact

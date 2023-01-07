@@ -37,3 +37,4 @@ ent-clean-template
 .envs/.local/.sqlite
 
 db.*
+/heroku

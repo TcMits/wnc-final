@@ -277,3 +277,30 @@ type (
 		IIsNextUseCase[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput]
 	}
 )
+
+type (
+	IEmployeeListUseCase interface {
+		iListUseCase[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput]
+	}
+	IEmployeeGetFirstUseCase interface {
+		GetFirst(context.Context, *model.EmployeeOrderInput, *model.EmployeeWhereInput) (*model.Employee, error)
+	}
+	IEmployeeConfigUseCase interface {
+		IGetConfigUseCase
+	}
+	IEmployeeGetUserUseCase interface {
+		IGetUserUseCase
+	}
+	IEmployeeCustomerValidateCreateUseCase interface {
+		iValidateCreateInput[*model.CustomerCreateInput]
+	}
+	IEmployeeCustomerCreateUseCase interface {
+		iCreateUseCase[*model.Customer, *model.CustomerCreateInput]
+	}
+	IEmployeeCustomerUseCase interface {
+		IEmployeeConfigUseCase
+		IEmployeeGetUserUseCase
+		IEmployeeCustomerCreateUseCase
+		IEmployeeCustomerValidateCreateUseCase
+	}
+)

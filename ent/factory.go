@@ -60,7 +60,7 @@ var bankAccountFactory = factory.NewFactory(
 		IsForPayment: generic.GetPointer(false),
 	},
 ).SeqString("AccountNumber", func(s string) (interface{}, error) {
-	return generic.GetPointer(fmt.Sprintf("%s%s", randomdata.Digits(10), s)), nil
+	return generic.GetPointer(fmt.Sprintf("%s%s", randomdata.Digits(16), s)), nil
 }).Attr("CustomerID", func(a factory.Args) (interface{}, error) {
 	client, err := getClient(a.Context())
 	if err != nil {

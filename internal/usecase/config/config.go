@@ -19,9 +19,14 @@ type (
 
 	CustomerConfigUseCase struct {
 		usecase.IGetConfigUseCase
-		usecase.ICustomerGetUserUseCase
 		feeAmount *float64
 		feeDesc   *string
+	}
+)
+
+type (
+	EmployeeConfigUseCase struct {
+		usecase.IGetConfigUseCase
 	}
 )
 
@@ -32,6 +37,15 @@ func NewGetConfigUseCase(
 	return &GetConfigUseCase{
 		GetSecretUseCase:           &GetSecretUseCase{secretKey: secretKey},
 		GetProductOwnerNameUseCase: &GetProductOwnerNameUseCase{name: prodOwnerName},
+	}
+}
+
+func NewEmployeeConfigUseCase(
+	secretKey *string,
+	prodOwnerName *string,
+) usecase.IEmployeeConfigUseCase {
+	return &EmployeeConfigUseCase{
+		IGetConfigUseCase: NewGetConfigUseCase(secretKey, prodOwnerName),
 	}
 }
 

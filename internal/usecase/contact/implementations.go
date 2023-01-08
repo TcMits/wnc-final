@@ -76,6 +76,9 @@ func (s *CustomerContactValidateCreateInputUseCase) ValidateCreate(ctx context.C
 	}
 	user := usecase.GetUserAsCustomer(ctx)
 	i.OwnerID = user.ID
+	if i.SuggestName == "" {
+		i.SuggestName = user.GetName()
+	}
 	return i, nil
 }
 func (s *CustomerContactValidateUpdateInputUseCase) ValidateUpdate(ctx context.Context, e *model.Contact, i *model.ContactUpdateInput) (*model.ContactUpdateInput, error) {

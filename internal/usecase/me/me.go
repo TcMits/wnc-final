@@ -94,3 +94,36 @@ func (s *CustomerGetUserFromCtx) GetUserFromCtx(ctx context.Context) (*model.Cus
 	user := usecase.GetUserAsCustomer(ctx)
 	return user, nil
 }
+
+// employee
+type (
+	EmployeeGetUserFromCtx struct{}
+
+	EmployeeMeUseCase struct {
+		usecase.IEmployeeConfigUseCase
+		usecase.IEmployeeGetUserUseCase
+		usecase.IEmployeeGetUserFromCtxUseCase
+	}
+)
+
+func (s *EmployeeGetUserFromCtx) GetUserFromCtx(ctx context.Context) (*model.Employee, error) {
+	user := usecase.GetUserAsEmployee(ctx)
+	return user, nil
+}
+func NewEmployeeGetUserFromCtxUserCase() usecase.IEmployeeGetUserFromCtxUseCase {
+	return &EmployeeGetUserFromCtx{}
+}
+
+func NewEmployeeMeUseCase(
+	repoList repository.ListModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput],
+	repoUpdate repository.UpdateModelRepository[*model.Employee, *model.EmployeeUpdateInput],
+	sk *string,
+	prodOwnerName *string,
+) usecase.IEmployeeMeUseCase {
+	uc := &EmployeeMeUseCase{
+		IEmployeeConfigUseCase:         config.NewEmployeeConfigUseCase(sk, prodOwnerName),
+		IEmployeeGetUserUseCase:        auth.NewEmployeeGetUserUseCase(repoList),
+		IEmployeeGetUserFromCtxUseCase: NewEmployeeGetUserFromCtxUserCase(),
+	}
+	return uc
+}

@@ -1,16 +1,16 @@
-package customer
+package employee
 
 import (
 	"html/template"
 
-	_ "github.com/TcMits/wnc-final/docs/v2/customer"
+	_ "github.com/TcMits/wnc-final/docs/v2/employee"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/kataras/iris/v12"
 	"github.com/swaggo/swag"
 )
 
 const (
-	_swaggerDocPath     = _customerV1SubPath + "/swagger/doc.json"
+	_swaggerDocPath     = _employeeV1SubPath + "/swagger/doc.json"
 	_swaggerSubPath     = "/swagger"
 	_swaggerWideSubPath = "/swagger/{any:path}"
 	_swaggerDocSubPath  = "/swagger/doc.json"
@@ -32,7 +32,7 @@ func RegisterDocsController(handler iris.Party, l logger.Interface) {
 
 func docJSONHandler(ctx iris.Context) {
 	ctx.ContentType("application/json")
-	doc, err := swag.ReadDoc("customer")
+	doc, err := swag.ReadDoc("employee")
 	if err != nil {
 		panic(err)
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
+	"github.com/TcMits/wnc-final/internal/usecase/outliers"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 )
@@ -33,6 +34,9 @@ type (
 		usecase.IEmployeeGetUserUseCase
 		usecase.IEmployeeCustomerCreateUseCase
 		usecase.IEmployeeCustomerValidateCreateUseCase
+		usecase.IEmployeeCustomerListUseCase
+		usecase.IEmployeeCustomerGetFirstUseCase
+		usecase.IIsNextUseCase[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
 	}
 )
 
@@ -82,6 +86,7 @@ func NewCustomerListUseCase(
 func NewEmployeeCustomerUseCase(
 	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	repoCreate repository.CreateModelRepository[*model.Customer, *model.CustomerCreateInput],
+	repoIsNext repository.IIsNextModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	rle repository.ListModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput],
 	secretKey *string,
 	prodOwnerName *string,
@@ -90,6 +95,9 @@ func NewEmployeeCustomerUseCase(
 		IEmployeeCustomerCreateUseCase:         NewCustomerCreateUseCase(repoCreate),
 		IEmployeeCustomerValidateCreateUseCase: NewCustomerValidateCreateUseCase(repoList),
 		IEmployeeConfigUseCase:                 config.NewEmployeeConfigUseCase(secretKey, prodOwnerName),
+		IEmployeeCustomerListUseCase:           NewCustomerListUseCase(repoList),
+		IIsNextUseCase:                         outliers.NewIsNextUseCase(repoIsNext),
+		IEmployeeCustomerGetFirstUseCase:       NewCustomerGetFirstUseCase(repoList),
 	}
 }
 
@@ -156,6 +164,7 @@ func (s *CustomerValidateCreateUseCase) ValidateCreate(ctx context.Context, i *m
 		return nil, usecase.WrapError(fmt.Errorf("phone number %s is in use", i.PhoneNumber))
 	}
 	i.Password = generic.GetPointer("12345678")
+	i.IsActive = generic.GetPointer(true)
 	return i, nil
 }
 

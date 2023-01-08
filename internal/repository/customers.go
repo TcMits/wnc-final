@@ -28,6 +28,11 @@ func newCustomerCreateRepository(client *ent.Client) *customerCreateRepository {
 		repo: ent.NewCustomerCreateRepository(client, false),
 	}
 }
+func GetCustomerIsNextRepository(
+	client *ent.Client,
+) IIsNextModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput] {
+	return getIsNextModelRepostiory(GetCustomerListRepository(client))
+}
 
 func GetCustomerListRepository(
 	client *ent.Client,

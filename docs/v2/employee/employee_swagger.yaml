@@ -1,0 +1,291 @@
+definitions:
+  employee.EntitiesResponseTemplate-employee_customerResponse:
+    properties:
+      count:
+        type: integer
+      next:
+        type: string
+      previous:
+        type: string
+      results:
+        items:
+          $ref: '#/definitions/employee.customerResponse'
+        type: array
+    type: object
+  employee.customerCreateReq:
+    properties:
+      email:
+        type: string
+      phone_number:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - phone_number
+    - username
+    type: object
+  employee.customerResponse:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      phone_number:
+        type: string
+      username:
+        type: string
+    type: object
+  employee.errorResponse:
+    properties:
+      code:
+        type: string
+      detail:
+        type: string
+      message:
+        type: string
+    type: object
+  employee.loginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  employee.meResponse:
+    properties:
+      first_name:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      username:
+        type: string
+    type: object
+  employee.renewTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  employee.tokenPairResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /customers:
+    get:
+      consumes:
+      - application/json
+      description: Show customers
+      operationId: customer-listing
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.EntitiesResponseTemplate-employee_customerResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show customers
+      tags:
+      - Customer
+    post:
+      consumes:
+      - application/json
+      description: Create a customer
+      operationId: customer-create
+      parameters:
+      - description: Create a customer
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/employee.customerCreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/employee.customerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Create a customer
+      tags:
+      - Customer
+  /customers/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a customer
+      operationId: customer-get
+      parameters:
+      - description: ID of customer
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.customerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a customer
+      tags:
+      - Customer
+  /login:
+    delete:
+      consumes:
+      - application/json
+      description: Logout
+      operationId: logout
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Logout
+      tags:
+      - Authentication
+    post:
+      consumes:
+      - application/json
+      description: Login
+      operationId: login
+      parameters:
+      - description: Login
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/employee.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.tokenPairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      summary: Login
+      tags:
+      - Authentication
+  /me/:
+    get:
+      consumes:
+      - application/json
+      description: Get profile
+      operationId: me
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.meResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get profile
+      tags:
+      - Me
+  /token:
+    post:
+      consumes:
+      - application/json
+      description: Renew token
+      operationId: renewtoken
+      parameters:
+      - description: Renew token
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/employee.renewTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.tokenPairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      summary: Renew token
+      tags:
+      - Authentication
+swagger: "2.0"

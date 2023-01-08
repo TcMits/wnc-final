@@ -13,6 +13,9 @@ type (
 	EmployeeListUseCase struct {
 		repoList repository.ListModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput]
 	}
+	EmployeeUpdateUseCase struct {
+		repoUpdate repository.UpdateModelRepository[*model.Employee, *model.EmployeeUpdateInput]
+	}
 	EmployeeGetFirstUseCase struct {
 		eLUC usecase.IEmployeeListUseCase
 	}
@@ -35,6 +38,13 @@ func NewEmployeeListUseCase(
 	}
 	return uc
 }
+func NewEmployeeUpdateUseCase(
+	repoUpdate repository.UpdateModelRepository[*model.Employee, *model.EmployeeUpdateInput],
+) usecase.IEmployeeUpdateUseCase {
+	return &EmployeeUpdateUseCase{
+		repoUpdate: repoUpdate,
+	}
+}
 
 func (uc *EmployeeGetFirstUseCase) GetFirst(ctx context.Context, o *model.EmployeeOrderInput, w *model.EmployeeWhereInput) (*model.Employee, error) {
 	l, of := 1, 0
@@ -54,4 +64,12 @@ func (uc *EmployeeListUseCase) List(ctx context.Context, limit, offset *int, o *
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.employee.EmployeeListUseCase.List: %s", err))
 	}
 	return entities, nil
+}
+
+func (s *EmployeeUpdateUseCase) Update(ctx context.Context, e *model.Employee, i *model.EmployeeUpdateInput) (*model.Employee, error) {
+	e, err := s.repoUpdate.Update(ctx, e, i)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.employee.employee.EmployeeUpdateUseCase.Update: %s", err))
+	}
+	return e, nil
 }

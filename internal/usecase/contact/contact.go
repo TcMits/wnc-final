@@ -66,7 +66,7 @@ func NewCustomerContactValidateCreateInputUseCase(
 		cfUC:  config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 	}
 }
-func NewCustomerBankAccountIsNextUseCase(
+func NewCustomerContactIsNextUseCase(
 	repoIsNext repository.IIsNextModelRepository[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput],
 ) usecase.IIsNextUseCase[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput] {
 	return &CustomerContactIsNextUseCase{
@@ -97,6 +97,6 @@ func NewCustomerContactUseCase(
 		ICustomerContactCreateUseCase:              NewCustomerContactCreateUseCase(repoCreate),
 		ICustomerContactValidateCreateInputUseCase: NewCustomerContactValidateCreateInputUseCase(repoList, sk, prodOwnerName, feeDesc, fee),
 		ICustomerContactDeleteUseCase:              NewCustomerContactDeleteUseCase(repoDelete),
-		IIsNextUseCase:                             NewCustomerBankAccountIsNextUseCase(repoIsNext),
+		IIsNextUseCase:                             NewCustomerContactIsNextUseCase(repoIsNext),
 	}
 }

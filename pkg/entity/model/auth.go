@@ -27,3 +27,10 @@ type (
 		Token string
 	}
 )
+
+type (
+	EmployeeLoginInput struct {
+		Username *string
+		Password *string
+	}
+)

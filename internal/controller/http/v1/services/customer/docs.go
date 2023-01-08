@@ -24,10 +24,11 @@ type swaggerUIBundle struct {
 }
 
 func RegisterDocsController(handler iris.Party, l logger.Interface) {
+	h := handler.Party("/")
 	docHandler := getDocHandler()
-	handler.Get(_swaggerDocSubPath, docJSONHandler)
-	handler.Get(_swaggerSubPath, docHandler)
-	handler.Get(_swaggerWideSubPath, docHandler)
+	h.Get(_swaggerDocSubPath, docJSONHandler)
+	h.Get(_swaggerSubPath, docHandler)
+	h.Get(_swaggerWideSubPath, docHandler)
 }
 
 func docJSONHandler(ctx iris.Context) {

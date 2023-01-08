@@ -41,17 +41,14 @@ func RegisterCustomerServices(
 	// logger
 	l logger.Interface,
 ) {
-	// HTTP middlewares
-	h := handler.Party(
-		_customerV1SubPath,
-	)
+	h := handler.Party(_customerV1SubPath)
 	// routes
 	{
 		RegisterDocsController(h, l)
 		RegisterAuthController(h, l, aUc)
 		RegisterStreamController(h, l, broker, sUc)
 		RegisterOptionController(h, l, cOUc)
-		h := h.Party(
+		h = h.Party(
 			"/me",
 		)
 		{

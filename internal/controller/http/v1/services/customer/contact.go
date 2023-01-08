@@ -14,18 +14,19 @@ type contactRoute struct {
 }
 
 func RegisterContactController(handler iris.Party, l logger.Interface, uc usecase.ICustomerContactUseCase) {
+	h := handler.Party("/")
 	route := &contactRoute{
 		uc:     uc,
 		logger: l,
 	}
-	handler.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
-	handler.Get("/contacts/{id:uuid}", route.detail)
-	handler.Put("/contacts/{id:uuid}", route.update)
-	handler.Delete("/contacts/{id:uuid}", route.delete)
-	handler.Get("/contacts", route.listing)
-	handler.Post("/contacts", route.create)
-	handler.Options("/contacts", func(_ iris.Context) {})
-	handler.Head("/contacts", func(_ iris.Context) {})
+	h.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
+	h.Get("/contacts/{id:uuid}", route.detail)
+	h.Put("/contacts/{id:uuid}", route.update)
+	h.Delete("/contacts/{id:uuid}", route.delete)
+	h.Get("/contacts", route.listing)
+	h.Post("/contacts", route.create)
+	h.Options("/contacts", func(_ iris.Context) {})
+	h.Head("/contacts", func(_ iris.Context) {})
 }
 
 // @Summary     Get a contact

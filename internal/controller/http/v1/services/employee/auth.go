@@ -14,17 +14,18 @@ type authRoute struct {
 }
 
 func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.IEmployeeAuthUseCase) {
+	h := handler.Party("/")
 	route := &authRoute{
 		uc:     uc,
 		logger: l,
 	}
-	handler.Post("/token", route.renewToken)
-	handler.Post("/login", route.login)
-	handler.Delete("/login", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.logout)
-	handler.Options("/login", func(_ iris.Context) {})
-	handler.Options("/token", func(_ iris.Context) {})
-	handler.Head("/login", func(_ iris.Context) {})
-	handler.Head("/token", func(_ iris.Context) {})
+	h.Post("/token", route.renewToken)
+	h.Post("/login", route.login)
+	h.Delete("/login", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.logout)
+	h.Options("/login", func(_ iris.Context) {})
+	h.Options("/token", func(_ iris.Context) {})
+	h.Head("/login", func(_ iris.Context) {})
+	h.Head("/token", func(_ iris.Context) {})
 }
 
 // @Summary     Login

@@ -14,20 +14,21 @@ type bankAccountRoute struct {
 }
 
 func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc usecase.ICustomerBankAccountUseCase) {
+	h := handler.Party("/")
 	route := &bankAccountRoute{
 		uc:     uc,
 		logger: l,
 	}
-	handler.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
-	handler.Get("/bank-accounts/guest/{id:uuid}", route.guestDetail)
-	handler.Get("/bank-accounts/guest", route.guestListing)
-	handler.Put("/bank-accounts/{id:uuid}", route.update)
-	handler.Get("/bank-accounts/{id:uuid}", route.detail)
-	handler.Get("/bank-accounts", route.listing)
-	handler.Options("/bank-accounts/guest", func(_ iris.Context) {})
-	handler.Options("/bank-accounts", func(_ iris.Context) {})
-	handler.Head("/bank-accounts/guest", func(_ iris.Context) {})
-	handler.Head("/bank-accounts", func(_ iris.Context) {})
+	h.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
+	h.Get("/bank-accounts/guest/{id:uuid}", route.guestDetail)
+	h.Get("/bank-accounts/guest", route.guestListing)
+	h.Put("/bank-accounts/{id:uuid}", route.update)
+	h.Get("/bank-accounts/{id:uuid}", route.detail)
+	h.Get("/bank-accounts", route.listing)
+	h.Options("/bank-accounts/guest", func(_ iris.Context) {})
+	h.Options("/bank-accounts", func(_ iris.Context) {})
+	h.Head("/bank-accounts/guest", func(_ iris.Context) {})
+	h.Head("/bank-accounts", func(_ iris.Context) {})
 }
 
 // @Summary     Show bank accounts

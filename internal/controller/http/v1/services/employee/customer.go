@@ -14,16 +14,17 @@ type customerRoute struct {
 }
 
 func RegisterCustomerController(handler iris.Party, l logger.Interface, uc usecase.IEmployeeCustomerUseCase) {
+	h := handler.Party("/")
 	route := &customerRoute{
 		uc:     uc,
 		logger: l,
 	}
-	handler.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
-	handler.Get("/customers/{id:uuid}", route.detail)
-	handler.Post("/customers", route.create)
-	handler.Get("/customers", route.listing)
-	handler.Options("/customers", func(_ iris.Context) {})
-	handler.Head("/customers", func(_ iris.Context) {})
+	h.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
+	h.Get("/customers/{id:uuid}", route.detail)
+	h.Post("/customers", route.create)
+	h.Get("/customers", route.listing)
+	h.Options("/customers", func(_ iris.Context) {})
+	h.Head("/customers", func(_ iris.Context) {})
 }
 
 // @Summary     Create a customer

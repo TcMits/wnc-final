@@ -14,3 +14,7 @@ func WrapError(err error) error {
 	}
 	return err
 }
+
+func ValidationError(err error) error {
+	return WrapError(wrapper.NewValidationError(err))
+}

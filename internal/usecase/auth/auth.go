@@ -12,7 +12,6 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/employee"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
-	"github.com/TcMits/wnc-final/pkg/error/wrapper"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
 	"github.com/TcMits/wnc-final/pkg/tool/mail"
@@ -229,16 +228,16 @@ func (uc *CustomerValidateLoginInputUseCase) ValidateLoginInput(
 	if err != nil {
 		return nil, err
 	}
-	if entityAny == nil {
-		return nil, usecase.WrapError(fmt.Errorf("invalid username"))
-	}
 	entity := entityAny.(*model.Customer)
+	if entity == nil {
+		return nil, usecase.ValidationError((fmt.Errorf("invalid username")))
+	}
 	if !entity.IsActive {
-		return nil, usecase.WrapError(fmt.Errorf("user is not active"))
+		return nil, usecase.ValidationError(fmt.Errorf("user is not active"))
 	}
 	err = password.ValidatePassword(entity.Password, *input.Password)
 	if err != nil {
-		return nil, usecase.WrapError(wrapper.NewValidationError(fmt.Errorf("password is invalid")))
+		return nil, usecase.ValidationError(fmt.Errorf("password is invalid"))
 	}
 	return input, nil
 }
@@ -249,7 +248,7 @@ func (uc *CustomerRenewAccessTokenUseCase) RenewToken(
 ) (any, error) {
 	payload, err := jwt.ParseJWT(*refreshToken, *uc.secretKey)
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("invalid token"))
+		return nil, usecase.ValidationError(fmt.Errorf("invalid token"))
 	}
 	userAny, err := uc.gUUC.GetUser(ctx, map[string]any{"username": payload["username"]})
 	if err != nil {
@@ -322,7 +321,7 @@ func (s *CustomerValidateForgetPassword) ValidateForgetPassword(ctx context.Cont
 		return nil, err
 	}
 	if user == nil {
-		return nil, usecase.WrapError(fmt.Errorf("user does not exist"))
+		return nil, usecase.ValidationError(fmt.Errorf("user does not exist"))
 	}
 	i.User = user
 	return i, nil
@@ -342,40 +341,40 @@ func (s *CustomerChangePasswordWithTokenUseCase) ChangePasswordWithToken(ctx con
 func (s *CustomerValidateChangePasswordWithTokenUseCase) ValidateChangePasswordWithToken(ctx context.Context, i *model.CustomerChangePasswordWithTokenInput) (*model.CustomerChangePasswordWithTokenInput, error) {
 	pl, err := usecase.ParseToken(ctx, i.Token, *s.cfUC.GetSecret())
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("token expired"))
+		return nil, usecase.ValidationError(fmt.Errorf("token expired"))
 	}
 	eAny, ok := pl["email"]
 	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("invaid token due to email missing"))
+		return nil, usecase.ValidationError(fmt.Errorf("invaid token due to email missing"))
 	}
 	tkAny, ok := pl["token"]
 	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("invaid token due to token missing"))
+		return nil, usecase.ValidationError(fmt.Errorf("invaid token due to token missing"))
 	}
 	tk, ok := tkAny.(string)
 	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("invaid token due to token wrong type"))
+		return nil, usecase.ValidationError(fmt.Errorf("invaid token due to token wrong type"))
 	}
 	email, ok := eAny.(string)
 	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("invaid token due to email wrong type"))
+		return nil, usecase.ValidationError(fmt.Errorf("invaid token due to email wrong type"))
 	}
 	user, err := s.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{Email: &email})
 	if err != nil {
 		return nil, err
 	}
 	if user == nil {
-		return nil, usecase.WrapError(fmt.Errorf("user does not exist"))
+		return nil, usecase.ValidationError(fmt.Errorf("user does not exist"))
 	}
 	err = usecase.ValidateHashInfo(usecase.MakeOTPValue(usecase.EmbedUser(ctx, user), i.Otp), tk)
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("otp invalid"))
+		return nil, usecase.ValidationError(fmt.Errorf("otp invalid"))
 	}
 	if i.Password != i.ConfirmPassword {
-		return nil, usecase.WrapError(fmt.Errorf("password not match"))
+		return nil, usecase.ValidationError(fmt.Errorf("password not match"))
 	}
 	if err = password.ValidatePassword(user.Password, i.Password); err == nil {
-		return nil, usecase.WrapError(fmt.Errorf("new password match old password is not allowed"))
+		return nil, usecase.ValidationError(fmt.Errorf("new password match old password is not allowed"))
 	}
 	hashPwd, err := password.GetHashPassword(i.Password)
 	if err != nil {
@@ -389,7 +388,7 @@ func (s *CustomerValidateChangePasswordWithTokenUseCase) ValidateChangePasswordW
 func (useCase *CustomerGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
 	usernameAny, ok := input["username"]
 	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("username is required"))
+		return nil, usecase.ValidationError(fmt.Errorf("username is required"))
 	}
 	username, ok := usernameAny.(string)
 	if !ok {
@@ -511,16 +510,16 @@ func (uc *EmployeeValidateLoginInputUseCase) ValidateLoginInput(
 	if err != nil {
 		return nil, err
 	}
-	if entityAny == nil {
-		return nil, usecase.WrapError(fmt.Errorf("invalid username"))
-	}
 	entity := entityAny.(*model.Employee)
+	if entity == nil {
+		return nil, usecase.ValidationError(fmt.Errorf("invalid username"))
+	}
 	if !entity.IsActive {
-		return nil, usecase.WrapError(fmt.Errorf("user is not active"))
+		return nil, usecase.ValidationError(fmt.Errorf("user is not active"))
 	}
 	err = password.ValidatePassword(entity.Password, *input.Password)
 	if err != nil {
-		return nil, usecase.WrapError(wrapper.NewValidationError(fmt.Errorf("password is invalid")))
+		return nil, usecase.ValidationError(fmt.Errorf("password is invalid"))
 	}
 	return input, nil
 }

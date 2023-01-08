@@ -33,16 +33,13 @@ func RegisterEmployeeServices(
 	// logger
 	l logger.Interface,
 ) {
-	// HTTP middlewares
-	h := handler.Party(
-		_employeeV1SubPath,
-	)
+	h := handler.Party(_employeeV1SubPath)
 	// routes
 	{
 		RegisterDocsController(h, l)
 		RegisterCustomerController(h, l, uc1)
 		RegisterAuthController(h, l, uc2)
-		h := h.Party(
+		h = h.Party(
 			"/me",
 		)
 		{

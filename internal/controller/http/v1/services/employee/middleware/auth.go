@@ -26,6 +26,7 @@ func BaseAuthenticator(secretKey *string, userGetter func(goCtx.Context, map[str
 			}
 		}
 		if token == "" {
+			fmt.Println(ctx.FullRequestURI())
 			ctx.StatusCode(iris.StatusTokenRequired)
 			return
 		}

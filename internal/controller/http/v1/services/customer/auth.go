@@ -14,23 +14,24 @@ type authRoute struct {
 }
 
 func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.ICustomerAuthUseCase) {
+	h := handler.Party("/")
 	route := &authRoute{
 		uc:     uc,
 		logger: l,
 	}
-	handler.Post("/forget-password", route.forgetPassword)
-	handler.Post("/change-password-with-token", route.changePassword)
-	handler.Post("/token", route.renewToken)
-	handler.Post("/login", route.login)
-	handler.Delete("/login", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.logout)
-	handler.Options("/forget-password", func(_ iris.Context) {})
-	handler.Options("/change-password-with-token", func(_ iris.Context) {})
-	handler.Options("/login", func(_ iris.Context) {})
-	handler.Options("/token", func(_ iris.Context) {})
-	handler.Head("/forget-password", func(_ iris.Context) {})
-	handler.Head("/change-password-with-token", func(_ iris.Context) {})
-	handler.Head("/login", func(_ iris.Context) {})
-	handler.Head("/token", func(_ iris.Context) {})
+	h.Post("/forget-password", route.forgetPassword)
+	h.Post("/change-password-with-token", route.changePassword)
+	h.Post("/token", route.renewToken)
+	h.Post("/login", route.login)
+	h.Delete("/login", middleware.Authenticator(uc.GetSecret(), uc.GetUser), route.logout)
+	h.Options("/forget-password", func(_ iris.Context) {})
+	h.Options("/change-password-with-token", func(_ iris.Context) {})
+	h.Options("/login", func(_ iris.Context) {})
+	h.Options("/token", func(_ iris.Context) {})
+	h.Head("/forget-password", func(_ iris.Context) {})
+	h.Head("/change-password-with-token", func(_ iris.Context) {})
+	h.Head("/login", func(_ iris.Context) {})
+	h.Head("/token", func(_ iris.Context) {})
 }
 
 // @Summary     Login

@@ -27,6 +27,13 @@ type (
 		Email       string `json:"email" validate:"required,email"`
 		PhoneNumber string `json:"phone_number" validate:"required"`
 	}
+	bankAccountFilterReq struct {
+		AccountNumber *string `url:"account_number"`
+		Username      *string `url:"username"`
+	}
+	bankAccountUpdateReq struct {
+		CashIn *float64 `json:"cash_in" validate:"required"`
+	}
 )
 
 func newListRequest() *listRequest {

@@ -40,3 +40,26 @@ type (
 		usecase.IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
 )
+
+type (
+	EmployeeBankAccountValidateUpdateInputUseCase struct {
+	}
+	EmployeeBankAccountUpdateUseCase struct {
+		repoUpdate repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput]
+	}
+	EmployeeBankAccountListUseCase struct {
+		repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
+	EmployeeBankAccountGetFirstUseCase struct {
+		bALUC usecase.IEmployeeBankAccountListUseCase
+	}
+	EmployeeBankAccountUseCase struct {
+		usecase.IEmployeeConfigUseCase
+		usecase.IEmployeeGetUserUseCase
+		usecase.IEmployeeBankAccountUpdateUseCase
+		usecase.IEmployeeBankAccountValidateUpdateInputUseCase
+		usecase.IEmployeeBankAccountGetFirstUseCase
+		usecase.IEmployeeBankAccountListUseCase
+		usecase.IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
+)

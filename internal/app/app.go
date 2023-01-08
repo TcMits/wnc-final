@@ -164,6 +164,14 @@ func Run(cfg *config.Config) {
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)
+	eUc4 := bankaccount.NewEmployeeBankAccountUseCase(
+		repository.GetBankAccountUpdateRepository(client),
+		repository.GetBankAccountListRepository(client),
+		repository.GetBankAccountIsNextRepository(client),
+		repository.GetEmployeeListRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
 
 	v1.RegisterV1HTTPServices(
 		handler,
@@ -178,6 +186,7 @@ func Run(cfg *config.Config) {
 		eUc2,
 		eUc1,
 		eUc3,
+		eUc4,
 		b,
 		l,
 	)

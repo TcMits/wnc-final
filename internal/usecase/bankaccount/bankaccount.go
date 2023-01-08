@@ -85,3 +85,50 @@ func NewCustomerBankAccountUseCase(
 		IIsNextUseCase:                                 NewCustomerBankAccountIsNextUseCase(repoIsNext),
 	}
 }
+
+func NewEmployeeBankAccountGetFirstUseCase(
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.IEmployeeBankAccountGetFirstUseCase {
+	return &EmployeeBankAccountGetFirstUseCase{
+		bALUC: NewEmployeeBankAccountListUseCase(repoList),
+	}
+}
+
+func NewEmployeeBankAccountListUseCase(
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.IEmployeeBankAccountListUseCase {
+	return &EmployeeBankAccountListUseCase{
+		repoList: repoList,
+	}
+}
+
+func NewEmployeeBankAccountValidateUpdateInputUseCase() usecase.IEmployeeBankAccountValidateUpdateInputUseCase {
+	return &EmployeeBankAccountValidateUpdateInputUseCase{}
+}
+
+func NewEmployeeBankAccountUpdateUseCase(
+	repoUpdate repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
+) usecase.IEmployeeBankAccountUpdateUseCase {
+	return &EmployeeBankAccountUpdateUseCase{
+		repoUpdate: repoUpdate,
+	}
+}
+
+func NewEmployeeBankAccountUseCase(
+	repoUpdate repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	repoIsNext repository.IIsNextModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	rle repository.ListModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput],
+	sk *string,
+	prodOwnerName *string,
+) usecase.IEmployeeBankAcountUseCase {
+	return &EmployeeBankAccountUseCase{
+		IEmployeeBankAccountUpdateUseCase:              NewEmployeeBankAccountUpdateUseCase(repoUpdate),
+		IEmployeeBankAccountValidateUpdateInputUseCase: NewEmployeeBankAccountValidateUpdateInputUseCase(),
+		IEmployeeConfigUseCase:                         config.NewEmployeeConfigUseCase(sk, prodOwnerName),
+		IEmployeeGetUserUseCase:                        auth.NewEmployeeGetUserUseCase(rle),
+		IEmployeeBankAccountGetFirstUseCase:            NewEmployeeBankAccountGetFirstUseCase(repoList),
+		IEmployeeBankAccountListUseCase:                NewEmployeeBankAccountListUseCase(repoList),
+		IIsNextUseCase:                                 outliers.NewIsNextUseCase(repoIsNext),
+	}
+}

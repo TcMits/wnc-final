@@ -315,6 +315,27 @@ type (
 		IEmployeeCustomerGetFirstUseCase
 		IIsNextUseCase[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
 	}
+	IEmployeeBankAccountValidateUpdateInputUseCase interface {
+		iValidateUpdateInput[*model.BankAccount, *model.BankAccountUpdateInput]
+	}
+	IEmployeeBankAccountUpdateUseCase interface {
+		iUpdateUseCase[*model.BankAccount, *model.BankAccountUpdateInput]
+	}
+	IEmployeeBankAccountListUseCase interface {
+		iListUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
+	IEmployeeBankAccountGetFirstUseCase interface {
+		GetFirst(context.Context, *model.BankAccountOrderInput, *model.BankAccountWhereInput) (*model.BankAccount, error)
+	}
+	IEmployeeBankAcountUseCase interface {
+		IEmployeeConfigUseCase
+		IEmployeeGetUserUseCase
+		IEmployeeBankAccountUpdateUseCase
+		IEmployeeBankAccountValidateUpdateInputUseCase
+		IEmployeeBankAccountGetFirstUseCase
+		IEmployeeBankAccountListUseCase
+		IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
 	IEmployeeAuthUseCase interface {
 		iAuthenticationUseCase[*model.EmployeeLoginInput, *model.Employee]
 	}

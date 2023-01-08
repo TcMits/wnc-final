@@ -70,7 +70,7 @@ func (s *transactionConfirmSuccessRepository) subtractSenderBankAccount(ctx cont
 	bA := bAs[0]
 	aM, _ := txc.Amount.Float64()
 	bA, err := s.bAUR.Update(ctx, bA, &model.BankAccountUpdateInput{
-		CashOut: generic.GetPointer(bA.CashOut + aM),
+		CashOut: generic.GetPointer(aM),
 	})
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (s *transactionConfirmSuccessRepository) addReceiverBankAccount(ctx context
 	bA := bAs[0]
 	aM, _ := txc.Amount.Float64()
 	bA, err := s.bAUR.Update(ctx, bA, &model.BankAccountUpdateInput{
-		CashIn: generic.GetPointer(bA.CashIn + aM),
+		CashIn: generic.GetPointer(aM),
 	})
 	if err != nil {
 		return nil, err

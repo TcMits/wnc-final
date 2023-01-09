@@ -6,7 +6,6 @@ import (
 
 	"github.com/TcMits/wnc-final/config"
 	"github.com/TcMits/wnc-final/ent"
-	"github.com/TcMits/wnc-final/ent/customer"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
@@ -25,55 +24,88 @@ func GenData() {
 		log.Fatalf("failed opening database client: %v", err)
 	}
 	defer client.Close()
-	genData(client)
+	genData(client, cfg)
 	l.Info("finish create data")
 }
-func genData(client *ent.Client) {
+func genData(client *ent.Client, cfg *config.Config) {
+	// flush db
 	ctx := context.Background()
-	_, err := client.Customer.Query().Where(customer.Email("dinhphat611@gmail.com")).First(ctx)
-	if err != nil && !ent.IsNotFound(err) {
+	err := client.Flush(ctx)
+	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
-	if ent.IsNotFound(err) {
-		user, err := ent.CreateFakeCustomer(ctx, client, nil,
+	user, err := ent.CreateFakeCustomer(ctx, client, nil,
+		ent.Opt{
+			Key:   "Email",
+			Value: "dinhphat611@gmail.com",
+		},
+	)
+	if err != nil {
+		log.Fatalf("failed generate data: %v", err)
+	}
+	bA, err := ent.CreateFakeBankAccount(ctx, client, nil,
+		ent.Opt{
+			Key:   "CustomerID",
+			Value: user.ID,
+		},
+		ent.Opt{
+			Key:   "CashIn",
+			Value: float64(100000000),
+		},
+		ent.Opt{
+			Key:   "IsForPayment",
+			Value: generic.GetPointer(true),
+		},
+	)
+	if err != nil {
+		log.Fatalf("failed generate data: %v", err)
+	}
+	// transactions
+	for i := 1; i < 3; i++ {
+		_, err = ent.CreateFakeTransaction(ctx, client, nil,
 			ent.Opt{
-				Key:   "Email",
-				Value: "dinhphat611@gmail.com",
+				Key:   "SenderID",
+				Value: bA.ID,
 			},
 		)
 		if err != nil {
 			log.Fatalf("failed generate data: %v", err)
-		}
-		bA, err := ent.CreateFakeBankAccount(ctx, client, nil,
-			ent.Opt{
-				Key:   "CustomerID",
-				Value: user.ID,
-			},
-			ent.Opt{
-				Key:   "CashIn",
-				Value: float64(100000000),
-			},
-			ent.Opt{
-				Key:   "IsForPayment",
-				Value: generic.GetPointer(true),
-			},
-		)
-		if err != nil {
-			log.Fatalf("failed generate data: %v", err)
-		}
-		// transactions
-		for i := 1; i < 3; i++ {
-			_, err = ent.CreateFakeTransaction(ctx, client, nil,
-				ent.Opt{
-					Key:   "SenderID",
-					Value: bA.ID,
-				},
-			)
-			if err != nil {
-				log.Fatalf("failed generate data: %v", err)
-			}
 		}
 	}
+	// contacts
+	for i := 1; i < 3; i++ {
+		_, err = ent.CreateFakeContact(ctx, client, nil,
+			ent.Opt{
+				Key:   "BankName",
+				Value: cfg.App.Name,
+			},
+			ent.Opt{
+				Key:   "OwnerID",
+				Value: user.ID,
+			},
+		)
+		if err != nil {
+			log.Fatalf("failed generate data: %v", err)
+		}
+	}
+	// debts
+	for i := 1; i < 3; i++ {
+		ent.CreateFakeDebt(ctx, client, nil,
+			ent.Opt{
+				Key:   "OwnerID",
+				Value: bA.ID,
+			},
+			ent.Opt{
+				Key:   "OwnerBankName",
+				Value: cfg.App.Name,
+			},
+			ent.Opt{
+				Key:   "ReceiverBankName",
+				Value: cfg.App.Name,
+			},
+		)
+	}
+	// customers
 	u1, err := ent.CreateFakeCustomer(ctx, client, nil,
 		ent.Opt{
 			Key:   "Username",

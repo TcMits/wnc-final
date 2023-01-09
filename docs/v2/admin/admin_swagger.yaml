@@ -1,4 +1,17 @@
 definitions:
+  admin.EntitiesResponseTemplate-admin_transactionResp:
+    properties:
+      count:
+        type: integer
+      next:
+        type: string
+      previous:
+        type: string
+      results:
+        items:
+          $ref: '#/definitions/admin.transactionResp'
+        type: array
+    type: object
   admin.errorResponse:
     properties:
       code:
@@ -45,6 +58,61 @@ definitions:
       refresh_token:
         type: string
     type: object
+  admin.transactionResp:
+    properties:
+      amount:
+        type: number
+      create_time:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      receiver_bank_account_number:
+        type: string
+      receiver_bank_name:
+        type: string
+      receiver_id:
+        type: string
+      receiver_name:
+        type: string
+      sender_bank_account_number:
+        type: string
+      sender_bank_name:
+        type: string
+      sender_id:
+        type: string
+      sender_name:
+        type: string
+      source_transaction_id:
+        type: string
+      status:
+        $ref: '#/definitions/transaction.Status'
+      transaction_type:
+        $ref: '#/definitions/transaction.TransactionType'
+      update_time:
+        type: string
+    type: object
+  transaction.Status:
+    enum:
+    - draft
+    - draft
+    - verified
+    - success
+    type: string
+    x-enum-varnames:
+    - DefaultStatus
+    - StatusDraft
+    - StatusVerified
+    - StatusSuccess
+  transaction.TransactionType:
+    enum:
+    - internal
+    - external
+    type: string
+    x-enum-varnames:
+    - TransactionTypeInternal
+    - TransactionTypeExternal
 info:
   contact: {}
 paths:
@@ -159,4 +227,79 @@ paths:
       summary: Renew token
       tags:
       - Authentication
+  /transactions:
+    get:
+      consumes:
+      - application/json
+      description: Show transactions
+      operationId: transaction-listing
+      parameters:
+      - description: True if sort ascent by update_time otherwise ignored
+        in: query
+        name: update_time
+        type: boolean
+      - description: True if sort descent by update_time otherwise ignored
+        in: query
+        name: -update_time
+        type: boolean
+      - description: Date start
+        in: query
+        name: date_start
+        type: integer
+      - description: Date end
+        in: query
+        name: date_end
+        type: integer
+      - description: Bank name
+        in: query
+        name: bank_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.EntitiesResponseTemplate-admin_transactionResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show transactions
+      tags:
+      - Transaction
+  /transactions/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a transaction
+      operationId: transaction-get
+      parameters:
+      - description: ID of transaction
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.transactionResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a transaction
+      tags:
+      - Transaction
 swagger: "2.0"

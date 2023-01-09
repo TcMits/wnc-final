@@ -84,6 +84,25 @@ func getDefaultResponse(entity any) any {
 			AccessToken:  rs.AccessToken,
 			RefreshToken: rs.RefreshToken,
 		}
+	case *model.Transaction:
+		rs, _ := entity.(*model.Transaction)
+		result = &transactionResp{
+			ID:                        rs.ID,
+			CreateTime:                rs.CreateTime,
+			UpdateTime:                rs.UpdateTime,
+			SourceTransactionID:       rs.SourceTransactionID,
+			Status:                    rs.Status,
+			ReceiverBankAccountNumber: rs.ReceiverBankAccountNumber,
+			ReceiverBankName:          rs.ReceiverBankName,
+			ReceiverName:              rs.ReceiverName,
+			ReceiverID:                rs.ReceiverID,
+			SenderBankAccountNumber:   rs.SenderBankAccountNumber,
+			SenderName:                rs.SenderName,
+			SenderID:                  rs.SenderID,
+			Amount:                    rs.Amount,
+			TransactionType:           rs.TransactionType,
+			Description:               rs.Description,
+		}
 	default:
 		result = entity
 	}

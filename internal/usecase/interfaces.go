@@ -390,4 +390,17 @@ type (
 		IAdminGetUserUseCase
 		IAdminGetUserFromCtxUseCase
 	}
+	IAdminTransactionListUseCase interface {
+		iListUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+	IAdminTransactionGetFirstUseCase interface {
+		GetFirst(context.Context, *model.TransactionOrderInput, *model.TransactionWhereInput) (*model.Transaction, error)
+	}
+	IAdminTransactionUseCase interface {
+		IAdminConfigUseCase
+		IAdminGetUserUseCase
+		IAdminTransactionListUseCase
+		IAdminTransactionGetFirstUseCase
+		IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
 )

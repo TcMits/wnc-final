@@ -182,3 +182,41 @@ func NewEmployeeTransactionUseCase(
 		IIsNextUseCase:                      NewEmployeeTransactionIsNextUseCase(repoIsNext),
 	}
 }
+
+func NewAdminTransactionIsNextUseCase(
+	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput] {
+	return &AdminTransactionIsNextUseCase{
+		iNUC: outliers.NewIsNextUseCase(repoIsNext),
+	}
+}
+func NewAdminTransactionListUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IAdminTransactionListUseCase {
+	return &AdminTransactionListUseCase{
+		repoList: repoList,
+	}
+}
+func NewAdminTransactionGetFirstUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IAdminTransactionGetFirstUseCase {
+	return &AdminTransactionGetFirstUseCase{
+		tLTUC: NewAdminTransactionListUseCase(repoList),
+	}
+}
+
+func NewAdminTransactionUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+	rle repository.ListModelRepository[*model.Admin, *model.AdminOrderInput, *model.AdminWhereInput],
+	sk,
+	prodOwnerName *string,
+) usecase.IAdminTransactionUseCase {
+	return &AdminTransactionUseCase{
+		IAdminTransactionListUseCase:     NewAdminTransactionListUseCase(repoList),
+		IAdminConfigUseCase:              config.NewAdminConfigUseCase(sk, prodOwnerName),
+		IAdminGetUserUseCase:             auth.NewAdminGetUserUseCase(rle),
+		IAdminTransactionGetFirstUseCase: NewAdminTransactionGetFirstUseCase(repoList),
+		IIsNextUseCase:                   NewAdminTransactionIsNextUseCase(repoIsNext),
+	}
+}

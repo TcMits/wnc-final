@@ -5,6 +5,7 @@ package ent
 import (
 	"time"
 
+	"github.com/TcMits/wnc-final/ent/admin"
 	"github.com/TcMits/wnc-final/ent/bankaccount"
 	"github.com/TcMits/wnc-final/ent/contact"
 	"github.com/TcMits/wnc-final/ent/customer"
@@ -19,6 +20,67 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	adminMixin := schema.Admin{}.Mixin()
+	adminMixinFields0 := adminMixin[0].Fields()
+	_ = adminMixinFields0
+	adminFields := schema.Admin{}.Fields()
+	_ = adminFields
+	// adminDescCreateTime is the schema descriptor for create_time field.
+	adminDescCreateTime := adminMixinFields0[0].Descriptor()
+	// admin.DefaultCreateTime holds the default value on creation for the create_time field.
+	admin.DefaultCreateTime = adminDescCreateTime.Default.(func() time.Time)
+	// adminDescUpdateTime is the schema descriptor for update_time field.
+	adminDescUpdateTime := adminMixinFields0[1].Descriptor()
+	// admin.DefaultUpdateTime holds the default value on creation for the update_time field.
+	admin.DefaultUpdateTime = adminDescUpdateTime.Default.(func() time.Time)
+	// admin.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	admin.UpdateDefaultUpdateTime = adminDescUpdateTime.UpdateDefault.(func() time.Time)
+	// adminDescJwtTokenKey is the schema descriptor for jwt_token_key field.
+	adminDescJwtTokenKey := adminFields[1].Descriptor()
+	// admin.DefaultJwtTokenKey holds the default value on creation for the jwt_token_key field.
+	admin.DefaultJwtTokenKey = adminDescJwtTokenKey.Default.(func() string)
+	// adminDescPassword is the schema descriptor for password field.
+	adminDescPassword := adminFields[2].Descriptor()
+	// admin.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
+	admin.PasswordValidator = adminDescPassword.Validators[0].(func(string) error)
+	// adminDescUsername is the schema descriptor for username field.
+	adminDescUsername := adminFields[3].Descriptor()
+	// admin.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	admin.UsernameValidator = func() func(string) error {
+		validators := adminDescUsername.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(username string) error {
+			for _, fn := range fns {
+				if err := fn(username); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// adminDescFirstName is the schema descriptor for first_name field.
+	adminDescFirstName := adminFields[4].Descriptor()
+	// admin.DefaultFirstName holds the default value on creation for the first_name field.
+	admin.DefaultFirstName = adminDescFirstName.Default.(string)
+	// admin.FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
+	admin.FirstNameValidator = adminDescFirstName.Validators[0].(func(string) error)
+	// adminDescLastName is the schema descriptor for last_name field.
+	adminDescLastName := adminFields[5].Descriptor()
+	// admin.DefaultLastName holds the default value on creation for the last_name field.
+	admin.DefaultLastName = adminDescLastName.Default.(string)
+	// admin.LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
+	admin.LastNameValidator = adminDescLastName.Validators[0].(func(string) error)
+	// adminDescIsActive is the schema descriptor for is_active field.
+	adminDescIsActive := adminFields[6].Descriptor()
+	// admin.DefaultIsActive holds the default value on creation for the is_active field.
+	admin.DefaultIsActive = adminDescIsActive.Default.(bool)
+	// adminDescID is the schema descriptor for id field.
+	adminDescID := adminFields[0].Descriptor()
+	// admin.DefaultID holds the default value on creation for the id field.
+	admin.DefaultID = adminDescID.Default.(func() uuid.UUID)
 	bankaccountMixin := schema.BankAccount{}.Mixin()
 	bankaccountMixinFields0 := bankaccountMixin[0].Fields()
 	_ = bankaccountMixinFields0

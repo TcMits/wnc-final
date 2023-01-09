@@ -51,6 +51,7 @@ func RegisterV1HTTPServices(
 	employeeUc2 usecase.IEmployeeMeUseCase,
 	employeeUc3 usecase.IEmployeeCustomerUseCase,
 	employeeUc4 usecase.IEmployeeBankAcountUseCase,
+	employeeUc5 usecase.IEmployeeTransactionUseCase,
 	// broker
 	b *sse.Broker,
 	// logger
@@ -62,6 +63,6 @@ func RegisterV1HTTPServices(
 	RegisterHealthCheckController(handler)
 
 	customer.RegisterCustomerServices(handler, customerUc1, customerUc2, customerUc3, customerUc4, customerUc5, customerUc6, customerUc7, customerUc8, b, l)
-	employee.RegisterEmployeeServices(handler, employeeUc3, employeeUc1, employeeUc2, employeeUc4, l)
+	employee.RegisterEmployeeServices(handler, employeeUc3, employeeUc1, employeeUc2, employeeUc4, employeeUc5, l)
 
 }

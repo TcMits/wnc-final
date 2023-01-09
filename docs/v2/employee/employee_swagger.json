@@ -465,6 +465,123 @@
                     }
                 }
             }
+        },
+        "/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Show transactions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Show transactions",
+                "operationId": "transaction-listing",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "True if sort ascent by update_time otherwise ignored",
+                        "name": "update_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "True if sort descent by update_time otherwise ignored",
+                        "name": "-update_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "True if only debt transaction otherwise ignored",
+                        "name": "only_debt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of bank account",
+                        "name": "sender_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of bank account",
+                        "name": "receiver_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/employee.EntitiesResponseTemplate-employee_transactionResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/employee.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Get a transaction",
+                "operationId": "transaction-get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of transaction",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/employee.transactionResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/employee.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/employee.errorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -504,6 +621,26 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/employee.customerResponse"
+                    }
+                }
+            }
+        },
+        "employee.EntitiesResponseTemplate-employee_transactionResp": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "next": {
+                    "type": "string"
+                },
+                "previous": {
+                    "type": "string"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/employee.transactionResp"
                     }
                 }
             }
@@ -663,6 +800,85 @@
                     "type": "string"
                 }
             }
+        },
+        "employee.transactionResp": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "create_time": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "receiver_bank_account_number": {
+                    "type": "string"
+                },
+                "receiver_bank_name": {
+                    "type": "string"
+                },
+                "receiver_id": {
+                    "type": "string"
+                },
+                "receiver_name": {
+                    "type": "string"
+                },
+                "sender_bank_account_number": {
+                    "type": "string"
+                },
+                "sender_bank_name": {
+                    "type": "string"
+                },
+                "sender_id": {
+                    "type": "string"
+                },
+                "sender_name": {
+                    "type": "string"
+                },
+                "source_transaction_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/transaction.Status"
+                },
+                "transaction_type": {
+                    "$ref": "#/definitions/transaction.TransactionType"
+                },
+                "update_time": {
+                    "type": "string"
+                }
+            }
+        },
+        "transaction.Status": {
+            "type": "string",
+            "enum": [
+                "draft",
+                "draft",
+                "verified",
+                "success"
+            ],
+            "x-enum-varnames": [
+                "DefaultStatus",
+                "StatusDraft",
+                "StatusVerified",
+                "StatusSuccess"
+            ]
+        },
+        "transaction.TransactionType": {
+            "type": "string",
+            "enum": [
+                "internal",
+                "external"
+            ],
+            "x-enum-varnames": [
+                "TransactionTypeInternal",
+                "TransactionTypeExternal"
+            ]
         }
     }
 }

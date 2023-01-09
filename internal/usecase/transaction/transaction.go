@@ -144,3 +144,41 @@ func NewCustomerTransactionUseCase(
 		IIsNextUseCase:                                 NewCustomerTransactionIsNextUseCase(repoIsNext),
 	}
 }
+
+func NewEmployeeTransactionIsNextUseCase(
+	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput] {
+	return &EmployeeTransactionIsNextUseCase{
+		iNUC: outliers.NewIsNextUseCase(repoIsNext),
+	}
+}
+func NewEmployeeTransactionListUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IEmployeeTransactionListUseCase {
+	return &EmployeeTransactionListUseCase{
+		repoList: repoList,
+	}
+}
+func NewEmployeeTransactionGetFirstUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IEmployeeTransactionGetFirstUseCase {
+	return &EmployeeTransactionGetFirstUseCase{
+		tLTUC: NewEmployeeTransactionListUseCase(repoList),
+	}
+}
+
+func NewEmployeeTransactionUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+	rle repository.ListModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput],
+	sk,
+	prodOwnerName *string,
+) usecase.IEmployeeTransactionUseCase {
+	return &EmployeeTransactionUseCase{
+		IEmployeeTransactionListUseCase:     NewEmployeeTransactionListUseCase(repoList),
+		IEmployeeConfigUseCase:              config.NewEmployeeConfigUseCase(sk, prodOwnerName),
+		IEmployeeGetUserUseCase:             auth.NewEmployeeGetUserUseCase(rle),
+		IEmployeeTransactionGetFirstUseCase: NewEmployeeTransactionGetFirstUseCase(repoList),
+		IIsNextUseCase:                      NewEmployeeTransactionIsNextUseCase(repoIsNext),
+	}
+}

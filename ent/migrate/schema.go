@@ -8,6 +8,31 @@ import (
 )
 
 var (
+	// AdminsColumns holds the columns for the "admins" table.
+	AdminsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "update_time", Type: field.TypeTime},
+		{Name: "jwt_token_key", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "password", Type: field.TypeString, Nullable: true, Size: 255, SchemaType: map[string]string{"mysql": "char(32)"}},
+		{Name: "username", Type: field.TypeString, Unique: true, Size: 128},
+		{Name: "first_name", Type: field.TypeString, Nullable: true, Size: 128, Default: ""},
+		{Name: "last_name", Type: field.TypeString, Nullable: true, Size: 128, Default: ""},
+		{Name: "is_active", Type: field.TypeBool, Nullable: true, Default: true},
+	}
+	// AdminsTable holds the schema information for the "admins" table.
+	AdminsTable = &schema.Table{
+		Name:       "admins",
+		Columns:    AdminsColumns,
+		PrimaryKey: []*schema.Column{AdminsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "admin_create_time",
+				Unique:  false,
+				Columns: []*schema.Column{AdminsColumns[1]},
+			},
+		},
+	}
 	// BankAccountsColumns holds the columns for the "bank_accounts" table.
 	BankAccountsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -298,6 +323,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AdminsTable,
 		BankAccountsTable,
 		ContactsTable,
 		CustomersTable,

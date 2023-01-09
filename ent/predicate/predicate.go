@@ -8,6 +8,9 @@ import (
 
 type FilterFunc func(*sql.Selector)
 
+// Admin is the predicate function for admin builders.
+type Admin = FilterFunc
+
 // BankAccount is the predicate function for bankaccount builders.
 type BankAccount = FilterFunc
 

@@ -27,6 +27,16 @@ type orderField struct {
 	fieldName string
 }
 
+type AdminOrderInput []OrderField
+
+func (i *AdminOrderInput) Order(q *AdminQuery) *AdminQuery {
+	orderFunctions := make([]OrderFunc, 0, len(*i))
+	for _, field := range *i {
+		orderFunctions = append(orderFunctions, field.GetOrderFunc())
+	}
+	return q.Order(orderFunctions...)
+}
+
 type BankAccountOrderInput []OrderField
 
 func (i *BankAccountOrderInput) Order(q *BankAccountQuery) *BankAccountQuery {

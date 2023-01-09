@@ -1,0 +1,162 @@
+definitions:
+  admin.errorResponse:
+    properties:
+      code:
+        type: string
+      detail:
+        type: string
+      message:
+        type: string
+    type: object
+  admin.loginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  admin.meResponse:
+    properties:
+      first_name:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      username:
+        type: string
+    type: object
+  admin.renewTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  admin.tokenPairResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /login:
+    delete:
+      consumes:
+      - application/json
+      description: Logout
+      operationId: logout
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      security:
+      - Bearer: []
+      summary: Logout
+      tags:
+      - Authentication
+    post:
+      consumes:
+      - application/json
+      description: Login
+      operationId: login
+      parameters:
+      - description: Login
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/admin.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.tokenPairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      summary: Login
+      tags:
+      - Authentication
+  /me/:
+    get:
+      consumes:
+      - application/json
+      description: Get profile
+      operationId: me
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.meResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get profile
+      tags:
+      - Me
+  /token:
+    post:
+      consumes:
+      - application/json
+      description: Renew token
+      operationId: renewtoken
+      parameters:
+      - description: Renew token
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/admin.renewTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.tokenPairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      summary: Renew token
+      tags:
+      - Authentication
+swagger: "2.0"

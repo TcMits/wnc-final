@@ -184,6 +184,21 @@ func Run(cfg *config.Config) {
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)
+	// Admin UseCase
+	aUc1 := me.NewAdminMeUseCase(
+		repository.GetAdminListRepository(client),
+		repository.GetAdminUpdateRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
+	aUc2 := auth.NewAdminAuthUseCase(
+		repository.GetAdminListRepository(client),
+		repository.GetAdminUpdateRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		cfg.AuthUseCase.AccessTTL,
+		cfg.AuthUseCase.RefreshTTL,
+	)
 
 	v1.RegisterV1HTTPServices(
 		handler,
@@ -200,6 +215,8 @@ func Run(cfg *config.Config) {
 		eUc3,
 		eUc4,
 		eUc5,
+		aUc1,
+		aUc2,
 		b,
 		l,
 	)

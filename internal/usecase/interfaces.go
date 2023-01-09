@@ -362,3 +362,32 @@ type (
 		IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 )
+
+type (
+	IAdminListUseCase interface {
+		iListUseCase[*model.Admin, *model.AdminOrderInput, *model.AdminWhereInput]
+	}
+	IAdminAuthUseCase interface {
+		iAuthenticationUseCase[*model.AdminLoginInput, *model.Admin]
+	}
+	IAdminUpdateUseCase interface {
+		iUpdateUseCase[*model.Admin, *model.AdminUpdateInput]
+	}
+	IAdminGetUserFromCtxUseCase interface {
+		GetUserFromCtx(context.Context) (*model.Admin, error)
+	}
+	IAdminGetFirstUseCase interface {
+		GetFirst(context.Context, *model.AdminOrderInput, *model.AdminWhereInput) (*model.Admin, error)
+	}
+	IAdminConfigUseCase interface {
+		IGetConfigUseCase
+	}
+	IAdminGetUserUseCase interface {
+		IGetUserUseCase
+	}
+	IAdminMeUseCase interface {
+		IAdminConfigUseCase
+		IAdminGetUserUseCase
+		IAdminGetUserFromCtxUseCase
+	}
+)

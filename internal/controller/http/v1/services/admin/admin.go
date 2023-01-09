@@ -1,4 +1,4 @@
-package employee
+package admin
 
 import (
 	"github.com/TcMits/wnc-final/internal/usecase"
@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	_employeeV1SubPath = "/api/employee/v1"
+	_adminV1SubPath = "/api/admin/v1"
 )
 
 // @title Swagger Example API
@@ -23,31 +23,25 @@ const (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @host localhost:8080
-// @BasePath /api/employee/v1
+// @BasePath /api/admin/v1
 func RegisterServices(
 	handler iris.Party,
 	// adding more usecases here
-	uc1 usecase.IEmployeeCustomerUseCase,
-	uc2 usecase.IEmployeeAuthUseCase,
-	uc3 usecase.IEmployeeMeUseCase,
-	uc4 usecase.IEmployeeBankAcountUseCase,
-	uc5 usecase.IEmployeeTransactionUseCase,
+	uc1 usecase.IAdminAuthUseCase,
+	uc2 usecase.IAdminMeUseCase,
 	// logger
 	l logger.Interface,
 ) {
-	h := handler.Party(_employeeV1SubPath)
+	h := handler.Party(_adminV1SubPath)
 	// routes
 	{
 		RegisterDocsController(h, l)
-		RegisterCustomerController(h, l, uc1)
-		RegisterAuthController(h, l, uc2)
-		RegisterBankAccountController(h, l, uc4)
-		RegisterTransactionController(h, l, uc5)
+		RegisterAuthController(h, l, uc1)
 		h = h.Party(
 			"/me",
 		)
 		{
-			RegisterMeController(h, l, uc3)
+			RegisterMeController(h, l, uc2)
 		}
 	}
 }

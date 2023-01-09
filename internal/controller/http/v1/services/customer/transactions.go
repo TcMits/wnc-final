@@ -19,19 +19,20 @@ type transactionRoute struct {
 }
 
 func RegisterTransactionController(handler iris.Party, l logger.Interface, uc usecase.ICustomerTransactionUseCase) {
+	h := handler.Party("/")
 	route := &transactionRoute{
 		uc:     uc,
 		logger: l,
 	}
-	handler.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
-	handler.Put("/transactions/confirm-success/{id:uuid}", route.confirmSuccess)
-	handler.Get("/transactions/{id:uuid}", route.detail)
-	handler.Get("/transactions", route.listing)
-	handler.Post("/transactions", route.create)
-	handler.Options("/transactions/confirm-success", func(_ iris.Context) {})
-	handler.Options("/transactions", func(_ iris.Context) {})
-	handler.Head("/transactions/confirm-success", func(_ iris.Context) {})
-	handler.Head("/transactions", func(_ iris.Context) {})
+	h.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
+	h.Put("/transactions/confirm-success/{id:uuid}", route.confirmSuccess)
+	h.Get("/transactions/{id:uuid}", route.detail)
+	h.Get("/transactions", route.listing)
+	h.Post("/transactions", route.create)
+	h.Options("/transactions/confirm-success", func(_ iris.Context) {})
+	h.Options("/transactions", func(_ iris.Context) {})
+	h.Head("/transactions/confirm-success", func(_ iris.Context) {})
+	h.Head("/transactions", func(_ iris.Context) {})
 }
 
 // @Summary     Show transactions
@@ -128,12 +129,9 @@ func (r *transactionRoute) create(ctx iris.Context) {
 	}
 	in := &model.TransactionCreateUseCaseInput{
 		TransactionCreateInput: &model.TransactionCreateInput{
-			ReceiverBankAccountNumber: createInReq.ReceiverBankAccountNumber,
-			ReceiverBankName:          createInReq.ReceiverBankName,
-			ReceiverName:              createInReq.ReceiverName,
-			ReceiverID:                createInReq.ReceiverID,
-			Amount:                    createInReq.Amount,
-			Description:               &createInReq.Description,
+			ReceiverID:  createInReq.ReceiverID,
+			Amount:      createInReq.Amount,
+			Description: &createInReq.Description,
 		},
 		IsFeePaidByMe: createInReq.IsFeePaidByMe,
 	}

@@ -56,6 +56,13 @@ func GetUserAsCustomer(ctx context.Context) *model.Customer {
 	}
 	return user
 }
+func GetUserAsEmployee(ctx context.Context) *model.Employee {
+	user, ok := ctx.Value(string(UserCtxKey)).(*model.Employee)
+	if !ok {
+		return nil
+	}
+	return user
+}
 func EmbedUser(ctx context.Context, u *model.Customer) context.Context {
 	newCtx := context.WithValue(ctx, UserCtxKey, UserCtxVal)
 	newCtx = context.WithValue(newCtx, UserCtxVal, u)

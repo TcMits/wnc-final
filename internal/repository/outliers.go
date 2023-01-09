@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 )
 
 type IsNextModelRepository[ModelType, OrderInputType, WhereInputType any] struct {
@@ -13,7 +12,7 @@ func (s *IsNextModelRepository[ModelType, OrderInputType, WhereInputType]) IsNex
 	limit = limit + 1
 	entities, err := s.repo.List(ctx, &limit, &offset, or, w)
 	if err != nil {
-		return false, fmt.Errorf("internal.repository.outliers.NextModelRepository.IsNext: %s", err)
+		return false, err
 	}
 	return len(entities) > 0, nil
 }

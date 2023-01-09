@@ -52,6 +52,20 @@ var customerFactory = factory.NewFactory(
 }).Attr("IsActive", func(a factory.Args) (interface{}, error) {
 	return generic.GetPointer(true), nil
 })
+var employeeFactory = factory.NewFactory(
+	&EmployeeCreateInput{},
+).Attr("Password", func(a factory.Args) (interface{}, error) {
+	pwd, err := password.GetHashPassword("123456789")
+	return generic.GetPointer(pwd), err
+}).SeqString("Username", func(s string) (interface{}, error) {
+	return fmt.Sprintf("username%s", s), nil
+}).Attr("FirstName", func(a factory.Args) (interface{}, error) {
+	return generic.GetPointer(randomdata.FirstName(randomdata.RandomGender)), nil
+}).Attr("LastName", func(a factory.Args) (interface{}, error) {
+	return generic.GetPointer(randomdata.LastName()), nil
+}).Attr("IsActive", func(a factory.Args) (interface{}, error) {
+	return generic.GetPointer(true), nil
+})
 
 var bankAccountFactory = factory.NewFactory(
 	&BankAccountCreateInput{
@@ -60,7 +74,7 @@ var bankAccountFactory = factory.NewFactory(
 		IsForPayment: generic.GetPointer(false),
 	},
 ).SeqString("AccountNumber", func(s string) (interface{}, error) {
-	return generic.GetPointer(fmt.Sprintf("%s%s", randomdata.Digits(10), s)), nil
+	return generic.GetPointer(fmt.Sprintf("%s%s", randomdata.Digits(16), s)), nil
 }).Attr("CustomerID", func(a factory.Args) (interface{}, error) {
 	client, err := getClient(a.Context())
 	if err != nil {
@@ -268,6 +282,13 @@ func TransactionFactory(ctx context.Context, opts ...Opt) *TransactionCreateInpu
 	}
 	return transactionFactory.MustCreateWithContextAndOption(ctx, optMap).(*TransactionCreateInput)
 }
+func EmployeeFactory(ctx context.Context, opts ...Opt) *EmployeeCreateInput {
+	optMap := make(map[string]any)
+	for _, opt := range opts {
+		optMap[opt.Key] = opt.Value
+	}
+	return employeeFactory.MustCreateWithContextAndOption(ctx, optMap).(*EmployeeCreateInput)
+}
 func CustomerFactory(ctx context.Context, opts ...Opt) *CustomerCreateInput {
 	optMap := make(map[string]any)
 	for _, opt := range opts {
@@ -349,4 +370,14 @@ func CreateFakeTransaction(ctx context.Context, c *Client, i *TransactionCreateI
 		i = TransactionFactory(ctx, opts...)
 	}
 	return c.Transaction.Create().SetInput(i).Save(ctx)
+}
+func CreateFakeEmployee(ctx context.Context, c *Client, i *EmployeeCreateInput, opts ...Opt) (*Employee, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if i == nil {
+		EmbedClient(&ctx, c)
+		i = EmployeeFactory(ctx, opts...)
+	}
+	return c.Employee.Create().SetInput(i).Save(ctx)
 }

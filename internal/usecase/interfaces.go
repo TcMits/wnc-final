@@ -18,6 +18,7 @@ type (
 		GetSecret() *string
 	}
 	IOptionsUseCase interface {
+		IGetConfigUseCase
 		GetDebtStatus(context.Context) []string
 		GetEvents(context.Context) []string
 	}
@@ -275,5 +276,76 @@ type (
 		ICustomerContactValidateUpdateInputUseCase
 		ICustomerContactDeleteUseCase
 		IIsNextUseCase[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput]
+	}
+)
+
+type (
+	IEmployeeListUseCase interface {
+		iListUseCase[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput]
+	}
+	IEmployeeUpdateUseCase interface {
+		iUpdateUseCase[*model.Employee, *model.EmployeeUpdateInput]
+	}
+	IEmployeeGetFirstUseCase interface {
+		GetFirst(context.Context, *model.EmployeeOrderInput, *model.EmployeeWhereInput) (*model.Employee, error)
+	}
+	IEmployeeConfigUseCase interface {
+		IGetConfigUseCase
+	}
+	IEmployeeGetUserUseCase interface {
+		IGetUserUseCase
+	}
+	IEmployeeCustomerValidateCreateUseCase interface {
+		iValidateCreateInput[*model.CustomerCreateInput]
+	}
+	IEmployeeCustomerCreateUseCase interface {
+		iCreateUseCase[*model.Customer, *model.CustomerCreateInput]
+	}
+	IEmployeeCustomerListUseCase interface {
+		ICustomerListUseCase
+	}
+	IEmployeeCustomerGetFirstUseCase interface {
+		ICustomerGetFirstUseCase
+	}
+	IEmployeeCustomerUseCase interface {
+		IEmployeeConfigUseCase
+		IEmployeeGetUserUseCase
+		IEmployeeCustomerCreateUseCase
+		IEmployeeCustomerValidateCreateUseCase
+		IEmployeeCustomerListUseCase
+		IEmployeeCustomerGetFirstUseCase
+		IIsNextUseCase[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
+	}
+	IEmployeeBankAccountValidateUpdateInputUseCase interface {
+		iValidateUpdateInput[*model.BankAccount, *model.BankAccountUpdateInput]
+	}
+	IEmployeeBankAccountUpdateUseCase interface {
+		iUpdateUseCase[*model.BankAccount, *model.BankAccountUpdateInput]
+	}
+	IEmployeeBankAccountListUseCase interface {
+		iListUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
+	IEmployeeBankAccountGetFirstUseCase interface {
+		GetFirst(context.Context, *model.BankAccountOrderInput, *model.BankAccountWhereInput) (*model.BankAccount, error)
+	}
+	IEmployeeBankAcountUseCase interface {
+		IEmployeeConfigUseCase
+		IEmployeeGetUserUseCase
+		IEmployeeBankAccountUpdateUseCase
+		IEmployeeBankAccountValidateUpdateInputUseCase
+		IEmployeeBankAccountGetFirstUseCase
+		IEmployeeBankAccountListUseCase
+		IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
+	IEmployeeAuthUseCase interface {
+		iAuthenticationUseCase[*model.EmployeeLoginInput, *model.Employee]
+	}
+	IEmployeeGetUserFromCtxUseCase interface {
+		GetUserFromCtx(context.Context) (*model.Employee, error)
+	}
+	IEmployeeMeUseCase interface {
+		IEmployeeConfigUseCase
+		IEmployeeGetUserUseCase
+		IEmployeeGetUserFromCtxUseCase
 	}
 )

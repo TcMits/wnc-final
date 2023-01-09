@@ -16,12 +16,14 @@ import (
 // @Failure     500 {object} errorResponse
 // @Router      /options [get]
 func RegisterOptionController(handler iris.Party, l logger.Interface, uc usecase.IOptionsUseCase) {
-	handler.Get("/options", func(ctx iris.Context) {
+	h := handler.Party("/")
+	h.Get("/options", func(ctx iris.Context) {
 		resp := new(optionsResp)
 		resp.DebtStatus = uc.GetDebtStatus(ctx)
 		resp.Events = uc.GetEvents(ctx)
+		resp.ProdOwnerName = *uc.GetProductOwnerName()
 		ctx.JSON(resp)
 	})
-	handler.Head("/options", func(_ iris.Context) {})
-	handler.Options("/options", func(_ iris.Context) {})
+	h.Head("/options", func(_ iris.Context) {})
+	h.Options("/options", func(_ iris.Context) {})
 }

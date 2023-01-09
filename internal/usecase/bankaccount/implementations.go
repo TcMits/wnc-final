@@ -94,3 +94,37 @@ func (s *CustomerBankAccountIsNextUseCase) IsNext(ctx context.Context, limit, of
 	w.CustomerID = generic.GetPointer(user.ID)
 	return s.iNUC.IsNext(ctx, limit, offset, o, w)
 }
+
+func (s *EmployeeBankAccountValidateUpdateInputUseCase) ValidateUpdate(ctx context.Context, m *model.BankAccount, i *model.BankAccountUpdateInput) (*model.BankAccountUpdateInput, error) {
+	if !m.IsForPayment {
+		return nil, usecase.ValidationError(fmt.Errorf("bank account not for payment"))
+	}
+	return i, nil
+}
+
+func (s *EmployeeBankAccountGetFirstUseCase) GetFirst(ctx context.Context, o *model.BankAccountOrderInput, w *model.BankAccountWhereInput) (*model.BankAccount, error) {
+	l, of := 1, 0
+	entities, err := s.bALUC.List(ctx, &l, &of, o, w)
+	if err != nil {
+		return nil, err
+	}
+	if len(entities) > 0 {
+		return entities[0], nil
+	}
+	return nil, nil
+}
+
+func (s *EmployeeBankAccountListUseCase) List(ctx context.Context, limit, offset *int, o *model.BankAccountOrderInput, w *model.BankAccountWhereInput) ([]*model.BankAccount, error) {
+	entites, err := s.repoList.List(ctx, limit, offset, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.EmployeeBankAccountListUseCase.List: %s", err))
+	}
+	return entites, nil
+}
+func (s *EmployeeBankAccountUpdateUseCase) Update(ctx context.Context, m *model.BankAccount, i *model.BankAccountUpdateInput) (*model.BankAccount, error) {
+	m, err := s.repoUpdate.Update(ctx, m, i)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.CustomerBankAccountUpdateUseCase.Update: %s", err))
+	}
+	return m, nil
+}

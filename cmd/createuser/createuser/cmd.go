@@ -7,6 +7,7 @@ import (
 	"github.com/TcMits/wnc-final/config"
 	"github.com/TcMits/wnc-final/ent"
 	"github.com/TcMits/wnc-final/ent/customer"
+	"github.com/TcMits/wnc-final/ent/employee"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
@@ -52,6 +53,25 @@ func createUser(client *ent.Client) {
 			ent.Opt{
 				Key:   "PhoneNumber",
 				Value: "+84923456789",
+			},
+			ent.Opt{
+				Key:   "IsActive",
+				Value: generic.GetPointer(true),
+			},
+		)
+		if err != nil {
+			log.Fatalf("failed creating user: %v", err)
+		}
+	}
+	if len(client.Employee.Query().Where(employee.Username("superuser")).AllX(ctx)) == 0 {
+		_, err = ent.CreateFakeEmployee(ctx, client, nil,
+			ent.Opt{
+				Key:   "Username",
+				Value: "superuser",
+			},
+			ent.Opt{
+				Key:   "Password",
+				Value: generic.GetPointer(hashPw),
 			},
 			ent.Opt{
 				Key:   "IsActive",

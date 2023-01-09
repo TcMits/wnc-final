@@ -4,22 +4,13 @@ package customer
 
 import "github.com/swaggo/swag"
 
-const docTemplate = `{
+const docTemplatecustomer = `{
     "schemes": {{ marshal .Schemes }},
     "swagger": "2.0",
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -1863,6 +1854,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "prod_owner_name": {
+                    "type": "string"
                 }
             }
         },
@@ -1909,10 +1903,7 @@ const docTemplate = `{
                 "amount",
                 "description",
                 "is_fee_paid_by_me",
-                "receiver_bank_account_number",
-                "receiver_bank_name",
-                "receiver_id",
-                "receiver_name"
+                "receiver_id"
             ],
             "properties": {
                 "amount": {
@@ -1924,16 +1915,7 @@ const docTemplate = `{
                 "is_fee_paid_by_me": {
                     "type": "boolean"
                 },
-                "receiver_bank_account_number": {
-                    "type": "string"
-                },
-                "receiver_bank_name": {
-                    "type": "string"
-                },
                 "receiver_id": {
-                    "type": "string"
-                },
-                "receiver_name": {
                     "type": "string"
                 }
             }
@@ -2091,18 +2073,18 @@ const docTemplate = `{
     }
 }`
 
-// SwaggerInfo holds exported Swagger Info so clients can modify it
-var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/api/customer/v1",
+// SwaggerInfocustomer holds exported Swagger Info so clients can modify it
+var SwaggerInfocustomer = &swag.Spec{
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Swagger Example API",
-	Description:      "This is a sample server.",
-	InfoInstanceName: "swagger",
-	SwaggerTemplate:  docTemplate,
+	Title:            "",
+	Description:      "",
+	InfoInstanceName: "customer",
+	SwaggerTemplate:  docTemplatecustomer,
 }
 
 func init() {
-	swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
+	swag.Register(SwaggerInfocustomer.InstanceName(), SwaggerInfocustomer)
 }

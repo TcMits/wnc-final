@@ -6,6 +6,7 @@ import (
 
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
+	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
@@ -13,9 +14,6 @@ import (
 )
 
 type (
-	CustomerGetUserUseCase struct {
-		gFUC usecase.ICustomerGetFirstUseCase
-	}
 	CustomerChangePasswordUseCase struct {
 		cUUC usecase.ICustomerUpdateUseCase
 	}
@@ -43,14 +41,6 @@ func NewCustomerGetUserFromCtxUserCase() usecase.ICustomerGetUserFromCtxUseCase 
 	return &CustomerGetUserFromCtx{}
 }
 
-func NewCustomerGetUserUseCase(
-	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
-) usecase.ICustomerGetUserUseCase {
-	uc := &CustomerGetUserUseCase{
-		gFUC: customer.NewCustomerGetFirstUseCase(repoList),
-	}
-	return uc
-}
 func NewCustomerMeUseCase(
 	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	repoUpdate repository.UpdateModelRepository[*model.Customer, *model.CustomerUpdateInput],
@@ -61,32 +51,12 @@ func NewCustomerMeUseCase(
 ) usecase.ICustomerMeUseCase {
 	uc := &CustomerMeUseCase{
 		ICustomerConfigUseCase:                 config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
-		ICustomerGetUserUseCase:                NewCustomerGetUserUseCase(repoList),
+		ICustomerGetUserUseCase:                auth.NewCustomerGetUserUseCase(repoList),
 		ICustomerChangePasswordUseCase:         NewCustomerChangePasswordUseCase(repoUpdate),
 		ICustomerValidateChangePasswordUseCase: NewCustomerValidateChangePasswordUseCase(),
 		ICustomerGetUserFromCtxUseCase:         NewCustomerGetUserFromCtxUserCase(),
 	}
 	return uc
-}
-
-func (useCase *CustomerGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
-	usernameAny, ok := input["username"]
-	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("username is required"))
-	}
-	username, ok := usernameAny.(string)
-	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))
-	}
-	u, err := useCase.gFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{
-		Or: []*model.CustomerWhereInput{
-			{Username: &username}, {PhoneNumber: &username}, {Email: &username},
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	return u, nil
 }
 
 func (s *CustomerChangePasswordUseCase) ChangePassword(ctx context.Context, i *model.CustomerChangePasswordInput) (*model.Customer, error) {
@@ -123,4 +93,37 @@ func (s *CustomerValidateChangePasswordUseCase) ValidateChangePassword(ctx conte
 func (s *CustomerGetUserFromCtx) GetUserFromCtx(ctx context.Context) (*model.Customer, error) {
 	user := usecase.GetUserAsCustomer(ctx)
 	return user, nil
+}
+
+// employee
+type (
+	EmployeeGetUserFromCtx struct{}
+
+	EmployeeMeUseCase struct {
+		usecase.IEmployeeConfigUseCase
+		usecase.IEmployeeGetUserUseCase
+		usecase.IEmployeeGetUserFromCtxUseCase
+	}
+)
+
+func (s *EmployeeGetUserFromCtx) GetUserFromCtx(ctx context.Context) (*model.Employee, error) {
+	user := usecase.GetUserAsEmployee(ctx)
+	return user, nil
+}
+func NewEmployeeGetUserFromCtxUserCase() usecase.IEmployeeGetUserFromCtxUseCase {
+	return &EmployeeGetUserFromCtx{}
+}
+
+func NewEmployeeMeUseCase(
+	repoList repository.ListModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput],
+	repoUpdate repository.UpdateModelRepository[*model.Employee, *model.EmployeeUpdateInput],
+	sk *string,
+	prodOwnerName *string,
+) usecase.IEmployeeMeUseCase {
+	uc := &EmployeeMeUseCase{
+		IEmployeeConfigUseCase:         config.NewEmployeeConfigUseCase(sk, prodOwnerName),
+		IEmployeeGetUserUseCase:        auth.NewEmployeeGetUserUseCase(repoList),
+		IEmployeeGetUserFromCtxUseCase: NewEmployeeGetUserFromCtxUserCase(),
+	}
+	return uc
 }

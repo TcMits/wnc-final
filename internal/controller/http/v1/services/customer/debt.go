@@ -14,25 +14,26 @@ type debtRoute struct {
 }
 
 func RegisterDebtController(handler iris.Party, l logger.Interface, uc usecase.ICustomerDebtUseCase) {
+	h := handler.Party("/")
 	route := &debtRoute{
 		uc:     uc,
 		logger: l,
 	}
-	handler.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
-	handler.Put("/debts/fulfill-with-token/{id:uuid}", route.fulfillWithToken)
-	handler.Put("/debts/cancel/{id:uuid}", route.cancel)
-	handler.Put("/debts/fulfill/{id:uuid}", route.fulfill)
-	handler.Get("/debts/{id:uuid}", route.detail)
-	handler.Get("/debts", route.listing)
-	handler.Post("/debts", route.create)
-	handler.Options("/debts/cancel", func(_ iris.Context) {})
-	handler.Options("/debts/fulfill-with-token", func(_ iris.Context) {})
-	handler.Options("/debts/fulfill", func(_ iris.Context) {})
-	handler.Options("/debts", func(_ iris.Context) {})
-	handler.Head("/debts/cancel", func(_ iris.Context) {})
-	handler.Head("/debts/fulfill-with-token", func(_ iris.Context) {})
-	handler.Head("/debts/fulfill", func(_ iris.Context) {})
-	handler.Head("/debts", func(_ iris.Context) {})
+	h.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
+	h.Put("/debts/fulfill-with-token/{id:uuid}", route.fulfillWithToken)
+	h.Put("/debts/cancel/{id:uuid}", route.cancel)
+	h.Put("/debts/fulfill/{id:uuid}", route.fulfill)
+	h.Get("/debts/{id:uuid}", route.detail)
+	h.Get("/debts", route.listing)
+	h.Post("/debts", route.create)
+	h.Options("/debts/cancel", func(_ iris.Context) {})
+	h.Options("/debts/fulfill-with-token", func(_ iris.Context) {})
+	h.Options("/debts/fulfill", func(_ iris.Context) {})
+	h.Options("/debts", func(_ iris.Context) {})
+	h.Head("/debts/cancel", func(_ iris.Context) {})
+	h.Head("/debts/fulfill-with-token", func(_ iris.Context) {})
+	h.Head("/debts/fulfill", func(_ iris.Context) {})
+	h.Head("/debts", func(_ iris.Context) {})
 }
 
 // @Summary     Get a debt

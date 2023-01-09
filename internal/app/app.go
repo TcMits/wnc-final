@@ -17,6 +17,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
 	"github.com/TcMits/wnc-final/internal/usecase/contact"
+	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/debt"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/internal/usecase/option"
@@ -50,7 +51,7 @@ func Run(cfg *config.Config) {
 	// Broker Server sent event
 	b := sse.NewBroker(l)
 
-	// Usecase
+	// Customer Usecase
 	CMeUc := me.NewCustomerMeUseCase(
 		repository.GetCustomerListRepository(client),
 		repository.GetCustomerUpdateRepository(client),
@@ -63,7 +64,6 @@ func Run(cfg *config.Config) {
 		task.GetEmailTaskExecutor(cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, l),
 		repository.GetCustomerListRepository(client),
 		repository.GetCustomerUpdateRepository(client),
-		repository.GetCustomerListRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 		&cfg.Mail.ConfirmEmailSubject,
@@ -139,7 +139,42 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeDesc,
 		&cfg.TransactionUseCase.FeeAmount,
 	)
-	cCOUc := option.NewOptionUseCase()
+	cCOUc := option.NewOptionUseCase(
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
+
+	// Employee UseCase
+	eUc1 := me.NewEmployeeMeUseCase(
+		repository.GetEmployeeListRepository(client),
+		repository.GetEmployeeUpdateRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
+	eUc2 := auth.NewEmployeeAuthUseCase(
+		repository.GetEmployeeListRepository(client),
+		repository.GetEmployeeUpdateRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		cfg.AuthUseCase.AccessTTL,
+		cfg.AuthUseCase.RefreshTTL,
+	)
+	eUc3 := customer.NewEmployeeCustomerUseCase(
+		repository.GetCustomerListRepository(client),
+		repository.GetCustomerCreateRepository(client),
+		repository.GetCustomerIsNextRepository(client),
+		repository.GetEmployeeListRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
+	eUc4 := bankaccount.NewEmployeeBankAccountUseCase(
+		repository.GetBankAccountUpdateRepository(client),
+		repository.GetBankAccountListRepository(client),
+		repository.GetBankAccountIsNextRepository(client),
+		repository.GetEmployeeListRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
 
 	v1.RegisterV1HTTPServices(
 		handler,
@@ -151,6 +186,10 @@ func Run(cfg *config.Config) {
 		cDUc,
 		cCUc,
 		cCOUc,
+		eUc2,
+		eUc1,
+		eUc3,
+		eUc4,
 		b,
 		l,
 	)

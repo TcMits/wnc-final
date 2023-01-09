@@ -3,8 +3,8 @@ package stream
 import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
+	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
-	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
@@ -22,6 +22,6 @@ func NewCustomerStreamUseCase(
 ) usecase.ICustomerStreamUseCase {
 	return &CustomerStreamUseCase{
 		ICustomerConfigUseCase:  config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
-		ICustomerGetUserUseCase: me.NewCustomerGetUserUseCase(rlc),
+		ICustomerGetUserUseCase: auth.NewCustomerGetUserUseCase(rlc),
 	}
 }

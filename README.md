@@ -29,7 +29,11 @@ goi18n extract -sourceLanguage=en-US -outdir=./locales/en-US/ -format=yaml ./
 
 Generate docs customer app files:
 ```sh
-swag init -g ./internal/controller/http/v1/services/customer/customer.go -o ./docs/v2/customer/
+swag init --exclude ./internal/controller/http/v1/services/employee -o ./docs/v2/customer/ --instanceName customer
+```
+Generate docs employee app files:
+```sh
+swag init --exclude ./internal/controller/http/v1/services/customer -o ./docs/v2/employee/ --instanceName employee
 ```
 
 Convert OpenApi v2 to v3 (yaml):

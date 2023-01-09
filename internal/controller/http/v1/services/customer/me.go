@@ -14,17 +14,18 @@ type meRoute struct {
 }
 
 func RegisterMeController(handler iris.Party, l logger.Interface, uc usecase.ICustomerMeUseCase) {
+	h := handler.Party("/")
 	route := &meRoute{
 		uc:     uc,
 		logger: l,
 	}
-	handler.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
-	handler.Post("/change-password", route.changePassword)
-	handler.Get("/", route.detail)
-	handler.Options("/change-password", func(_ iris.Context) {})
-	handler.Options("/", func(_ iris.Context) {})
-	handler.Head("/change-password", func(_ iris.Context) {})
-	handler.Head("/", func(_ iris.Context) {})
+	h.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
+	h.Post("/change-password", route.changePassword)
+	h.Get("/", route.detail)
+	h.Options("/change-password", func(_ iris.Context) {})
+	h.Options("/", func(_ iris.Context) {})
+	h.Head("/change-password", func(_ iris.Context) {})
+	h.Head("/", func(_ iris.Context) {})
 }
 
 // @Summary     Get profile

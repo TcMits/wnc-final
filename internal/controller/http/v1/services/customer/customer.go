@@ -1,12 +1,10 @@
 package customer
 
 import (
-	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer/middleware"
 	"github.com/TcMits/wnc-final/internal/sse"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/middleware/cors"
 )
 
 const (
@@ -43,19 +41,14 @@ func RegisterCustomerServices(
 	// logger
 	l logger.Interface,
 ) {
-	// HTTP middlewares
-	h := handler.Party(
-		_customerV1SubPath,
-		cors.New().Handler(),
-		middleware.Logger(l),
-	)
+	h := handler.Party(_customerV1SubPath)
 	// routes
 	{
 		RegisterDocsController(h, l)
 		RegisterAuthController(h, l, aUc)
 		RegisterStreamController(h, l, broker, sUc)
 		RegisterOptionController(h, l, cOUc)
-		h := h.Party(
+		h = h.Party(
 			"/me",
 		)
 		{

@@ -2,11 +2,14 @@ package v1
 
 import (
 	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer"
+	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer/middleware"
+	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/employee"
 	"github.com/TcMits/wnc-final/internal/sse"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/middleware/cors"
 	"github.com/kataras/iris/v12/middleware/recover"
 )
 
@@ -34,22 +37,31 @@ func NewHandler() *iris.Application {
 
 func RegisterV1HTTPServices(
 	handler iris.Party,
-	// adding more usecases here
-	cMeUc usecase.ICustomerMeUseCase,
-	cAuthUc usecase.ICustomerAuthUseCase,
-	cBankAccountUc usecase.ICustomerBankAccountUseCase,
-	cStreamUc usecase.ICustomerStreamUseCase,
-	cTxcUc usecase.ICustomerTransactionUseCase,
-	cDUc usecase.ICustomerDebtUseCase,
-	cCUc usecase.ICustomerContactUseCase,
-	cOUc usecase.IOptionsUseCase,
+	// adding more customer usecases here
+	customerUc1 usecase.ICustomerMeUseCase,
+	customerUc2 usecase.ICustomerAuthUseCase,
+	customerUc3 usecase.ICustomerBankAccountUseCase,
+	customerUc4 usecase.ICustomerStreamUseCase,
+	customerUc5 usecase.ICustomerTransactionUseCase,
+	customerUc6 usecase.ICustomerDebtUseCase,
+	customerUc7 usecase.ICustomerContactUseCase,
+	customerUc8 usecase.IOptionsUseCase,
+	// adding more employee usecases here
+	employeeUc1 usecase.IEmployeeAuthUseCase,
+	employeeUc2 usecase.IEmployeeMeUseCase,
+	employeeUc3 usecase.IEmployeeCustomerUseCase,
+	employeeUc4 usecase.IEmployeeBankAcountUseCase,
 	// broker
 	b *sse.Broker,
 	// logger
 	l logger.Interface,
 ) {
 	handler.UseRouter(recover.New())
+	handler.UseRouter(middleware.Logger(l))
+	handler.UseRouter(cors.New().Handler())
 	RegisterHealthCheckController(handler)
 
-	customer.RegisterCustomerServices(handler, cMeUc, cAuthUc, cBankAccountUc, cStreamUc, cTxcUc, cDUc, cCUc, cOUc, b, l)
+	customer.RegisterCustomerServices(handler, customerUc1, customerUc2, customerUc3, customerUc4, customerUc5, customerUc6, customerUc7, customerUc8, b, l)
+	employee.RegisterEmployeeServices(handler, employeeUc3, employeeUc1, employeeUc2, employeeUc4, l)
+
 }

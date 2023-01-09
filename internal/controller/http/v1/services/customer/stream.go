@@ -19,8 +19,8 @@ import (
 // @Failure     505 {object} errorResponse
 // @Router      /stream [get]
 func RegisterStreamController(handler iris.Party, l logger.Interface, broker *sse.Broker, uc usecase.ICustomerStreamUseCase) {
-
-	handler.Get("/stream", middleware.Authenticator(uc.GetSecret(), uc.GetUser), func(ctx iris.Context) {
+	h := handler.Party("/")
+	h.Get("/stream", middleware.Authenticator(uc.GetSecret(), uc.GetUser), func(ctx iris.Context) {
 		broker.ServeHTTP(ctx)
 	})
 }

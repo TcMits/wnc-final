@@ -1854,6 +1854,9 @@ const docTemplatecustomer = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "prod_owner_name": {
+                    "type": "string"
                 }
             }
         },

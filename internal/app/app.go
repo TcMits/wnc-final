@@ -139,7 +139,10 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeDesc,
 		&cfg.TransactionUseCase.FeeAmount,
 	)
-	cCOUc := option.NewOptionUseCase()
+	cCOUc := option.NewOptionUseCase(
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
 
 	// Employee UseCase
 	eUc1 := me.NewEmployeeMeUseCase(

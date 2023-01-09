@@ -18,6 +18,7 @@ type (
 		GetSecret() *string
 	}
 	IOptionsUseCase interface {
+		IGetConfigUseCase
 		GetDebtStatus(context.Context) []string
 		GetEvents(context.Context) []string
 	}

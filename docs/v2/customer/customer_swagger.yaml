@@ -299,6 +299,8 @@ definitions:
         items:
           type: string
         type: array
+      prod_owner_name:
+        type: string
     type: object
   customer.renewTokenRequest:
     properties:

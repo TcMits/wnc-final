@@ -74,4 +74,26 @@ func genData(client *ent.Client) {
 			}
 		}
 	}
+	u1, err := ent.CreateFakeCustomer(ctx, client, nil,
+		ent.Opt{
+			Key:   "Username",
+			Value: "alanwalker",
+		},
+	)
+	if err != nil {
+		log.Fatalf("failed generate data: %v", err)
+	}
+	_, err = ent.CreateFakeBankAccount(ctx, client, nil,
+		ent.Opt{
+			Key:   "IsForPayment",
+			Value: generic.GetPointer(true),
+		},
+		ent.Opt{
+			Key:   "CustomerID",
+			Value: u1.ID,
+		},
+	)
+	if err != nil {
+		log.Fatalf("failed generate data: %v", err)
+	}
 }

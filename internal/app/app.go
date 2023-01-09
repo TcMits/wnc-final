@@ -177,6 +177,13 @@ func Run(cfg *config.Config) {
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)
+	eUc5 := transaction.NewEmployeeTransactionUseCase(
+		repository.GetTransactionListRepository(client),
+		repository.GetTransactionIsNextRepository(client),
+		repository.GetEmployeeListRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
 
 	v1.RegisterV1HTTPServices(
 		handler,
@@ -192,6 +199,7 @@ func Run(cfg *config.Config) {
 		eUc1,
 		eUc3,
 		eUc4,
+		eUc5,
 		b,
 		l,
 	)

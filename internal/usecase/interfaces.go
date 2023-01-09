@@ -348,4 +348,17 @@ type (
 		IEmployeeGetUserUseCase
 		IEmployeeGetUserFromCtxUseCase
 	}
+	IEmployeeTransactionListUseCase interface {
+		iListUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+	IEmployeeTransactionGetFirstUseCase interface {
+		GetFirst(context.Context, *model.TransactionOrderInput, *model.TransactionWhereInput) (*model.Transaction, error)
+	}
+	IEmployeeTransactionUseCase interface {
+		IEmployeeConfigUseCase
+		IEmployeeGetUserUseCase
+		IEmployeeTransactionListUseCase
+		IEmployeeTransactionGetFirstUseCase
+		IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
 )

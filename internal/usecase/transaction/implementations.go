@@ -242,3 +242,28 @@ func (s *CustomerTransactionIsNextUseCase) IsNext(ctx context.Context, limit, of
 	}
 	return s.iNUC.IsNext(ctx, limit, offset, o, w)
 }
+
+// employee
+
+func (s *EmployeeTransactionListUseCase) List(ctx context.Context, limit, offset *int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) ([]*model.Transaction, error) {
+	entites, err := s.repoList.List(ctx, limit, offset, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.EmployeeTransactionListUseCase.List: %s", err))
+	}
+	return entites, nil
+}
+func (s *EmployeeTransactionGetFirstUseCase) GetFirst(ctx context.Context, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (*model.Transaction, error) {
+	l, of := 1, 0
+	entities, err := s.tLTUC.List(ctx, &l, &of, o, w)
+	if err != nil {
+		return nil, err
+	}
+	if len(entities) > 0 {
+		return entities[0], nil
+	}
+	return nil, nil
+}
+
+func (s *EmployeeTransactionIsNextUseCase) IsNext(ctx context.Context, limit, offset int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (bool, error) {
+	return s.iNUC.IsNext(ctx, limit, offset, o, w)
+}

@@ -4,10 +4,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/TcMits/wnc-final/ent/transaction"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
 	"github.com/google/uuid"
 	"github.com/kataras/iris/v12"
+	"github.com/shopspring/decimal"
 )
 
 type (
@@ -61,6 +63,24 @@ type (
 		CashOut       float64   `json:"cash_out"`
 		AccountNumber string    `json:"account_number"`
 		IsForPayment  bool      `json:"is_for_payment"`
+	}
+	transactionResp struct {
+		ID                        uuid.UUID                   `json:"id"`
+		CreateTime                time.Time                   `json:"create_time"`
+		UpdateTime                time.Time                   `json:"update_time"`
+		SourceTransactionID       *uuid.UUID                  `json:"source_transaction_id"`
+		Status                    transaction.Status          `json:"status"`
+		ReceiverBankAccountNumber string                      `json:"receiver_bank_account_number"`
+		ReceiverBankName          string                      `json:"receiver_bank_name"`
+		ReceiverName              string                      `json:"receiver_name"`
+		ReceiverID                *uuid.UUID                  `json:"receiver_id"`
+		SenderBankAccountNumber   string                      `json:"sender_bank_account_number"`
+		SenderBankName            string                      `json:"sender_bank_name"`
+		SenderName                string                      `json:"sender_name"`
+		SenderID                  *uuid.UUID                  `json:"sender_id"`
+		Amount                    decimal.Decimal             `json:"amount"`
+		TransactionType           transaction.TransactionType `json:"transaction_type"`
+		Description               string                      `json:"description"`
 	}
 	// reference on docs
 )

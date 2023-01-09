@@ -26,10 +26,10 @@ type (
 		cGFUC usecase.ICustomerContactListMineUseCase
 	}
 	CustomerContactValidateUpdateInputUseCase struct {
-		cGFUC usecase.ICustomerContactListMineUseCase
+		gFMUc usecase.ICustomerContactGetFirstMineUseCase
 	}
 	CustomerContactValidateCreateInputUseCase struct {
-		cGFUC usecase.ICustomerContactListMineUseCase
+		gFMUc usecase.ICustomerContactGetFirstMineUseCase
 		cfUC  usecase.ICustomerConfigUseCase
 	}
 	CustomerContactIsNextUseCase struct {

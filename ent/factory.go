@@ -46,7 +46,7 @@ var customerFactory = factory.NewFactory(
 }).Attr("LastName", func(a factory.Args) (interface{}, error) {
 	return generic.GetPointer(randomdata.LastName()), nil
 }).SeqString("PhoneNumber", func(s string) (interface{}, error) {
-	return fmt.Sprintf("%s%s", randomdata.PhoneNumber(), s), nil
+	return fmt.Sprintf("+849%s%s", randomdata.Digits(7), s), nil
 }).SeqString("Email", func(s string) (interface{}, error) {
 	return fmt.Sprintf("%s%s", s, randomdata.Email()), nil
 }).Attr("IsActive", func(a factory.Args) (interface{}, error) {

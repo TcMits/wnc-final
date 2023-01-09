@@ -259,8 +259,21 @@ var contactFactory = factory.NewFactory(
 	&ContactCreateInput{
 		BankName: "Bank name",
 	},
-).SeqString("AccountNumber", func(s string) (interface{}, error) {
-	return fmt.Sprintf("%s%s", randomdata.Digits(10), s), nil
+).Attr("AccountNumber", func(a factory.Args) (interface{}, error) {
+	client, err := getClient(a.Context())
+	if err != nil {
+		return nil, err
+	}
+	e, err := CreateFakeBankAccount(a.Context(), client, nil,
+		Opt{
+			Key:   "IsForPayment",
+			Value: generic.GetPointer(true),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return e.AccountNumber, nil
 }).SeqString("SuggestName", func(s string) (interface{}, error) {
 	return randomdata.FullName(randomdata.RandomGender), nil
 }).Attr("OwnerID", func(a factory.Args) (interface{}, error) {
@@ -338,7 +351,15 @@ func CreateFakeCustomer(ctx context.Context, c *Client, i *CustomerCreateInput, 
 		EmbedClient(&ctx, c)
 		i = CustomerFactory(ctx, opts...)
 	}
-	return c.Customer.Create().SetInput(i).Save(ctx)
+	e, err := c.Customer.Create().SetInput(i).Save(ctx)
+	for idx := 0; idx < 10 && err != nil; idx++ {
+		i = CustomerFactory(ctx, opts...)
+		e, err = c.Customer.Create().SetInput(i).Save(ctx)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return e, nil
 }
 func CreateFakeBankAccount(ctx context.Context, c *Client, i *BankAccountCreateInput, opts ...Opt) (*BankAccount, error) {
 	if ctx == nil {
@@ -350,13 +371,13 @@ func CreateFakeBankAccount(ctx context.Context, c *Client, i *BankAccountCreateI
 	}
 	return c.BankAccount.Create().SetInput(i).Save(ctx)
 }
-func CreateFakeContact(ctx context.Context, c *Client, i *ContactCreateInput) (*Contact, error) {
+func CreateFakeContact(ctx context.Context, c *Client, i *ContactCreateInput, opts ...Opt) (*Contact, error) {
 	if ctx == nil {
-		EmbedClient(&ctx, c)
 		ctx = context.Background()
 	}
 	if i == nil {
-		i = ContactFactory(ctx)
+		EmbedClient(&ctx, c)
+		i = ContactFactory(ctx, opts...)
 	}
 	return c.Contact.Create().SetInput(i).Save(ctx)
 }

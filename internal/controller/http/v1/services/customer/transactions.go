@@ -129,12 +129,9 @@ func (r *transactionRoute) create(ctx iris.Context) {
 	}
 	in := &model.TransactionCreateUseCaseInput{
 		TransactionCreateInput: &model.TransactionCreateInput{
-			ReceiverBankAccountNumber: createInReq.ReceiverBankAccountNumber,
-			ReceiverBankName:          createInReq.ReceiverBankName,
-			ReceiverName:              createInReq.ReceiverName,
-			ReceiverID:                createInReq.ReceiverID,
-			Amount:                    createInReq.Amount,
-			Description:               &createInReq.Description,
+			ReceiverID:  createInReq.ReceiverID,
+			Amount:      createInReq.Amount,
+			Description: &createInReq.Description,
 		},
 		IsFeePaidByMe: createInReq.IsFeePaidByMe,
 	}

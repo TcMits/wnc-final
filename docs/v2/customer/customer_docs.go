@@ -1903,10 +1903,7 @@ const docTemplatecustomer = `{
                 "amount",
                 "description",
                 "is_fee_paid_by_me",
-                "receiver_bank_account_number",
-                "receiver_bank_name",
-                "receiver_id",
-                "receiver_name"
+                "receiver_id"
             ],
             "properties": {
                 "amount": {
@@ -1918,16 +1915,7 @@ const docTemplatecustomer = `{
                 "is_fee_paid_by_me": {
                     "type": "boolean"
                 },
-                "receiver_bank_account_number": {
-                    "type": "string"
-                },
-                "receiver_bank_name": {
-                    "type": "string"
-                },
                 "receiver_id": {
-                    "type": "string"
-                },
-                "receiver_name": {
                     "type": "string"
                 }
             }

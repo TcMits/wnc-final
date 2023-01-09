@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/TcMits/wnc-final/cmd/createuser/createuser"
+	"github.com/TcMits/wnc-final/cmd/gendata/gendata"
 	"github.com/TcMits/wnc-final/cmd/migrate/migrate"
 	"github.com/TcMits/wnc-final/config"
 	v1 "github.com/TcMits/wnc-final/internal/controller/http/v1"
@@ -36,6 +37,7 @@ func Run(cfg *config.Config) {
 	if !cfg.App.Debug {
 		migrate.Migrate()
 		createuser.CreateUser()
+		gendata.GenData()
 	}
 
 	// Repository
@@ -175,6 +177,35 @@ func Run(cfg *config.Config) {
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)
+	eUc5 := transaction.NewEmployeeTransactionUseCase(
+		repository.GetTransactionListRepository(client),
+		repository.GetTransactionIsNextRepository(client),
+		repository.GetEmployeeListRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
+	// Admin UseCase
+	aUc1 := me.NewAdminMeUseCase(
+		repository.GetAdminListRepository(client),
+		repository.GetAdminUpdateRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
+	aUc2 := auth.NewAdminAuthUseCase(
+		repository.GetAdminListRepository(client),
+		repository.GetAdminUpdateRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		cfg.AuthUseCase.AccessTTL,
+		cfg.AuthUseCase.RefreshTTL,
+	)
+	aUc3 := transaction.NewAdminTransactionUseCase(
+		repository.GetTransactionListRepository(client),
+		repository.GetTransactionIsNextRepository(client),
+		repository.GetAdminListRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
 
 	v1.RegisterV1HTTPServices(
 		handler,
@@ -190,6 +221,10 @@ func Run(cfg *config.Config) {
 		eUc1,
 		eUc3,
 		eUc4,
+		eUc5,
+		aUc1,
+		aUc2,
+		aUc3,
 		b,
 		l,
 	)

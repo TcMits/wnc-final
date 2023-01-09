@@ -28,6 +28,9 @@ type (
 	EmployeeConfigUseCase struct {
 		usecase.IGetConfigUseCase
 	}
+	AdminConfigUseCase struct {
+		usecase.IGetConfigUseCase
+	}
 )
 
 func NewGetConfigUseCase(
@@ -45,6 +48,14 @@ func NewEmployeeConfigUseCase(
 	prodOwnerName *string,
 ) usecase.IEmployeeConfigUseCase {
 	return &EmployeeConfigUseCase{
+		IGetConfigUseCase: NewGetConfigUseCase(secretKey, prodOwnerName),
+	}
+}
+func NewAdminConfigUseCase(
+	secretKey *string,
+	prodOwnerName *string,
+) usecase.IAdminConfigUseCase {
+	return &AdminConfigUseCase{
 		IGetConfigUseCase: NewGetConfigUseCase(secretKey, prodOwnerName),
 	}
 }

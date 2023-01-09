@@ -40,7 +40,7 @@ func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc us
 // @Produce     json
 // @Success     200 {object} EntitiesResponseTemplate[bankAccountResp]
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts [get]
+// @Router      /me/bank-accounts [get]
 func (r *bankAccountRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -76,7 +76,7 @@ func (r *bankAccountRoute) listing(ctx iris.Context) {
 // @Param       account_number query string false "Bank account number"
 // @Success     200 {object} guestBankAccountResp
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts/guest [get]
+// @Router      /me/bank-accounts/guest [get]
 func (r *bankAccountRoute) guestListing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -110,7 +110,7 @@ func (r *bankAccountRoute) guestListing(ctx iris.Context) {
 // @Success     200 {object} bankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts/{id} [put]
+// @Router      /me/bank-accounts/{id} [put]
 func (r *bankAccountRoute) update(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {
@@ -158,7 +158,7 @@ func (r *bankAccountRoute) update(ctx iris.Context) {
 // @Success     200 {object} bankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts/{id} [get]
+// @Router      /me/bank-accounts/{id} [get]
 func (s *bankAccountRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {
@@ -188,7 +188,7 @@ func (s *bankAccountRoute) detail(ctx iris.Context) {
 // @Success     200 {object} guestBankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts/guest/{id} [get]
+// @Router      /me/bank-accounts/guest/{id} [get]
 func (s *bankAccountRoute) guestDetail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {

@@ -25,8 +25,10 @@ func (s *Customer) GetName() string {
 
 func NormalizeName(n ...string) string {
 	var name string
-	for _, e := range n {
-		name += " "
+	for idx, e := range n {
+		if idx > 0 {
+			name += " "
+		}
 		name += e
 	}
 	return name

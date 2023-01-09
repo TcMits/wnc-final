@@ -34,6 +34,15 @@ type (
 	bankAccountUpdateReq struct {
 		CashIn *float64 `json:"cash_in" validate:"required"`
 	}
+	transactionFilterReq struct {
+		SenderID   *uuid.UUID `url:"sender_id"`
+		ReceiverID *uuid.UUID `url:"receiver_id"`
+		OnlyDebt   bool       `url:"only_debt"`
+	}
+	transactionOrderReq struct {
+		UpdateTimeAsc  bool `url:"update_time"`
+		UpdateTimeDesc bool `url:"-update_time"`
+	}
 )
 
 func newListRequest() *listRequest {

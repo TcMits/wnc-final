@@ -14,7 +14,7 @@ type (
 		repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
 	CustomerBankAccountValidateUpdateInputUseCase struct {
-		bALUC usecase.ICustomerBankAccountListUseCase
+		gFMUC usecase.ICustomerBankAccountGetFirstMineUseCase
 	}
 	CustomerBankAccountGetFirstUseCase struct {
 		bALUC usecase.ICustomerBankAccountListUseCase

@@ -1,6 +1,8 @@
 package model
 
-import "github.com/TcMits/wnc-final/ent"
+import (
+	"github.com/TcMits/wnc-final/ent"
+)
 
 type (
 	Transaction                   = ent.Transaction

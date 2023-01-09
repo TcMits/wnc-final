@@ -24,13 +24,14 @@ const (
 
 // @host localhost:8080
 // @BasePath /api/employee/v1
-func RegisterEmployeeServices(
+func RegisterServices(
 	handler iris.Party,
 	// adding more usecases here
 	uc1 usecase.IEmployeeCustomerUseCase,
 	uc2 usecase.IEmployeeAuthUseCase,
 	uc3 usecase.IEmployeeMeUseCase,
 	uc4 usecase.IEmployeeBankAcountUseCase,
+	uc5 usecase.IEmployeeTransactionUseCase,
 	// logger
 	l logger.Interface,
 ) {
@@ -41,6 +42,7 @@ func RegisterEmployeeServices(
 		RegisterCustomerController(h, l, uc1)
 		RegisterAuthController(h, l, uc2)
 		RegisterBankAccountController(h, l, uc4)
+		RegisterTransactionController(h, l, uc5)
 		h = h.Party(
 			"/me",
 		)

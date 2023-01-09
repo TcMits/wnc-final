@@ -211,6 +211,7 @@ func getDefaultResponse(entity any) any {
 			ReceiverName:              rs.ReceiverName,
 			ReceiverID:                rs.ReceiverID,
 			OwnerBankAccountNumber:    rs.OwnerBankAccountNumber,
+			OwnerBankName:             rs.OwnerBankName,
 			OwnerName:                 rs.OwnerName,
 			OwnerID:                   rs.OwnerID,
 			Amount:                    rs.Amount,

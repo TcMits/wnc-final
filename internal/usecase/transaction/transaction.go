@@ -144,3 +144,79 @@ func NewCustomerTransactionUseCase(
 		IIsNextUseCase:                                 NewCustomerTransactionIsNextUseCase(repoIsNext),
 	}
 }
+
+func NewEmployeeTransactionIsNextUseCase(
+	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput] {
+	return &EmployeeTransactionIsNextUseCase{
+		iNUC: outliers.NewIsNextUseCase(repoIsNext),
+	}
+}
+func NewEmployeeTransactionListUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IEmployeeTransactionListUseCase {
+	return &EmployeeTransactionListUseCase{
+		repoList: repoList,
+	}
+}
+func NewEmployeeTransactionGetFirstUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IEmployeeTransactionGetFirstUseCase {
+	return &EmployeeTransactionGetFirstUseCase{
+		tLTUC: NewEmployeeTransactionListUseCase(repoList),
+	}
+}
+
+func NewEmployeeTransactionUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+	rle repository.ListModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput],
+	sk,
+	prodOwnerName *string,
+) usecase.IEmployeeTransactionUseCase {
+	return &EmployeeTransactionUseCase{
+		IEmployeeTransactionListUseCase:     NewEmployeeTransactionListUseCase(repoList),
+		IEmployeeConfigUseCase:              config.NewEmployeeConfigUseCase(sk, prodOwnerName),
+		IEmployeeGetUserUseCase:             auth.NewEmployeeGetUserUseCase(rle),
+		IEmployeeTransactionGetFirstUseCase: NewEmployeeTransactionGetFirstUseCase(repoList),
+		IIsNextUseCase:                      NewEmployeeTransactionIsNextUseCase(repoIsNext),
+	}
+}
+
+func NewAdminTransactionIsNextUseCase(
+	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput] {
+	return &AdminTransactionIsNextUseCase{
+		iNUC: outliers.NewIsNextUseCase(repoIsNext),
+	}
+}
+func NewAdminTransactionListUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IAdminTransactionListUseCase {
+	return &AdminTransactionListUseCase{
+		repoList: repoList,
+	}
+}
+func NewAdminTransactionGetFirstUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+) usecase.IAdminTransactionGetFirstUseCase {
+	return &AdminTransactionGetFirstUseCase{
+		tLTUC: NewAdminTransactionListUseCase(repoList),
+	}
+}
+
+func NewAdminTransactionUseCase(
+	repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
+	rle repository.ListModelRepository[*model.Admin, *model.AdminOrderInput, *model.AdminWhereInput],
+	sk,
+	prodOwnerName *string,
+) usecase.IAdminTransactionUseCase {
+	return &AdminTransactionUseCase{
+		IAdminTransactionListUseCase:     NewAdminTransactionListUseCase(repoList),
+		IAdminConfigUseCase:              config.NewAdminConfigUseCase(sk, prodOwnerName),
+		IAdminGetUserUseCase:             auth.NewAdminGetUserUseCase(rle),
+		IAdminTransactionGetFirstUseCase: NewAdminTransactionGetFirstUseCase(repoList),
+		IIsNextUseCase:                   NewAdminTransactionIsNextUseCase(repoIsNext),
+	}
+}

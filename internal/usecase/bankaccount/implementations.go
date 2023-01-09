@@ -26,28 +26,19 @@ func (uc *CustomerBankAccountListUseCase) List(ctx context.Context, limit, offse
 }
 
 func (uc *CustomerBankAccountValidateUpdateInputUseCase) ValidateUpdate(ctx context.Context, m *model.BankAccount, i *model.BankAccountUpdateInput) (*model.BankAccountUpdateInput, error) {
-	userAny := ctx.Value("user")
-	if userAny == nil {
-		return nil, usecase.WrapError(fmt.Errorf("user is invalid"))
-	}
-	user, ok := userAny.(*model.Customer)
-	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("user is invalid"))
-	}
+	user := usecase.GetUserAsCustomer(ctx)
 	if user.ID != m.CustomerID {
-		return nil, usecase.WrapError(fmt.Errorf("the bank account is not owned by user"))
+		return nil, usecase.ValidationError(fmt.Errorf("the bank account is not owned by user"))
 	}
 	if *i.IsForPayment {
-		l, o := 1, 0
-		iFP := true
-		entities, err := uc.bALUC.List(ctx, &l, &o, nil, &model.BankAccountWhereInput{
-			IsForPayment: &iFP,
+		e, err := uc.gFMUC.GetFirstMine(ctx, nil, &model.BankAccountWhereInput{
+			IsForPayment: generic.GetPointer(true),
 		})
 		if err != nil {
 			return nil, err
 		}
-		if len(entities) > 0 {
-			return nil, usecase.WrapError(fmt.Errorf("payment account already existed"))
+		if e != nil {
+			return nil, usecase.ValidationError(fmt.Errorf("payment account already existed"))
 		}
 	}
 	return i, nil

@@ -127,3 +127,36 @@ func NewEmployeeMeUseCase(
 	}
 	return uc
 }
+
+// admin
+type (
+	AdminGetUserFromCtx struct{}
+
+	AdminMeUseCase struct {
+		usecase.IAdminConfigUseCase
+		usecase.IAdminGetUserUseCase
+		usecase.IAdminGetUserFromCtxUseCase
+	}
+)
+
+func (s *AdminGetUserFromCtx) GetUserFromCtx(ctx context.Context) (*model.Admin, error) {
+	user := usecase.GetUserAsAdmin(ctx)
+	return user, nil
+}
+func NewAdminGetUserFromCtxUserCase() usecase.IAdminGetUserFromCtxUseCase {
+	return &AdminGetUserFromCtx{}
+}
+
+func NewAdminMeUseCase(
+	repoList repository.ListModelRepository[*model.Admin, *model.AdminOrderInput, *model.AdminWhereInput],
+	repoUpdate repository.UpdateModelRepository[*model.Admin, *model.AdminUpdateInput],
+	sk *string,
+	prodOwnerName *string,
+) usecase.IAdminMeUseCase {
+	uc := &AdminMeUseCase{
+		IAdminConfigUseCase:         config.NewAdminConfigUseCase(sk, prodOwnerName),
+		IAdminGetUserUseCase:        auth.NewAdminGetUserUseCase(repoList),
+		IAdminGetUserFromCtxUseCase: NewAdminGetUserFromCtxUserCase(),
+	}
+	return uc
+}

@@ -59,20 +59,20 @@ func (s *CustomerContactUpdateUseCase) Update(ctx context.Context, e *model.Cont
 }
 func (s *CustomerContactValidateCreateInputUseCase) ValidateCreate(ctx context.Context, i *model.ContactCreateInput) (*model.ContactCreateInput, error) {
 	if i == nil {
-		return nil, usecase.WrapError(fmt.Errorf("invalid input"))
+		return nil, usecase.ValidationError(fmt.Errorf("invalid input"))
 	}
 	if i.BankName == "" {
 		i.BankName = *s.cfUC.GetProductOwnerName()
 	}
-	entites, err := s.cGFUC.ListMine(ctx, generic.GetPointer(1), generic.GetPointer(0), nil, &model.ContactWhereInput{
+	e, err := s.gFMUc.GetFirstMine(ctx, nil, &model.ContactWhereInput{
 		AccountNumber: &i.AccountNumber,
 		BankName:      &i.BankName,
 	})
 	if err != nil {
 		return nil, err
 	}
-	if len(entites) > 0 {
-		return nil, usecase.WrapError(fmt.Errorf("the account number of the bank already existed"))
+	if e != nil {
+		return nil, usecase.ValidationError(fmt.Errorf("the account number of the bank already existed"))
 	}
 	user := usecase.GetUserAsCustomer(ctx)
 	i.OwnerID = user.ID
@@ -83,7 +83,7 @@ func (s *CustomerContactValidateCreateInputUseCase) ValidateCreate(ctx context.C
 }
 func (s *CustomerContactValidateUpdateInputUseCase) ValidateUpdate(ctx context.Context, e *model.Contact, i *model.ContactUpdateInput) (*model.ContactUpdateInput, error) {
 	if i == nil {
-		return nil, usecase.WrapError(fmt.Errorf("invalid input"))
+		return nil, usecase.ValidationError(fmt.Errorf("invalid input"))
 	}
 	if i.BankName == nil || *i.BankName == "" {
 		i.BankName = &e.BankName
@@ -91,7 +91,7 @@ func (s *CustomerContactValidateUpdateInputUseCase) ValidateUpdate(ctx context.C
 	if i.AccountNumber == nil || *i.AccountNumber == "" {
 		i.AccountNumber = &e.AccountNumber
 	}
-	entites, err := s.cGFUC.ListMine(ctx, generic.GetPointer(1), generic.GetPointer(0), nil, &model.ContactWhereInput{
+	e, err := s.gFMUc.GetFirstMine(ctx, nil, &model.ContactWhereInput{
 		AccountNumber: i.AccountNumber,
 		BankName:      i.BankName,
 		IDNEQ:         generic.GetPointer(e.ID),
@@ -99,8 +99,8 @@ func (s *CustomerContactValidateUpdateInputUseCase) ValidateUpdate(ctx context.C
 	if err != nil {
 		return nil, err
 	}
-	if len(entites) > 0 {
-		return nil, usecase.WrapError(fmt.Errorf("the account number of the bank already existed"))
+	if e != nil {
+		return nil, usecase.ValidationError(fmt.Errorf("the account number of the bank already existed"))
 	}
 	i.OwnerID = nil
 	return i, nil

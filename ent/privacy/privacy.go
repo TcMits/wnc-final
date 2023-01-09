@@ -150,6 +150,30 @@ func DenyMutationOperationRule(op ent.Op) MutationRule {
 	return OnMutationOperation(rule, op)
 }
 
+// The AdminQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type AdminQueryRuleFunc func(context.Context, *ent.AdminQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f AdminQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.AdminQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.AdminQuery", q)
+}
+
+// The AdminMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type AdminMutationRuleFunc func(context.Context, *ent.AdminMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f AdminMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.AdminMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.AdminMutation", m)
+}
+
 // The BankAccountQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type BankAccountQueryRuleFunc func(context.Context, *ent.BankAccountQuery) error
@@ -329,6 +353,8 @@ var _ QueryMutationRule = FilterFunc(nil)
 
 func queryFilter(q ent.Query) (Filter, error) {
 	switch q := q.(type) {
+	case *ent.AdminQuery:
+		return q.Filter(), nil
 	case *ent.BankAccountQuery:
 		return q.Filter(), nil
 	case *ent.ContactQuery:
@@ -348,6 +374,8 @@ func queryFilter(q ent.Query) (Filter, error) {
 
 func mutationFilter(m ent.Mutation) (Filter, error) {
 	switch m := m.(type) {
+	case *ent.AdminMutation:
+		return m.Filter(), nil
 	case *ent.BankAccountMutation:
 		return m.Filter(), nil
 	case *ent.ContactMutation:

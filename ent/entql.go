@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"github.com/TcMits/wnc-final/ent/admin"
 	"github.com/TcMits/wnc-final/ent/bankaccount"
 	"github.com/TcMits/wnc-final/ent/contact"
 	"github.com/TcMits/wnc-final/ent/customer"
@@ -19,8 +20,29 @@ import (
 
 // schemaGraph holds a representation of ent/schema at runtime.
 var schemaGraph = func() *sqlgraph.Schema {
-	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 6)}
+	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 7)}
 	graph.Nodes[0] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   admin.Table,
+			Columns: admin.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUUID,
+				Column: admin.FieldID,
+			},
+		},
+		Type: "Admin",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			admin.FieldCreateTime:  {Type: field.TypeTime, Column: admin.FieldCreateTime},
+			admin.FieldUpdateTime:  {Type: field.TypeTime, Column: admin.FieldUpdateTime},
+			admin.FieldJwtTokenKey: {Type: field.TypeString, Column: admin.FieldJwtTokenKey},
+			admin.FieldPassword:    {Type: field.TypeString, Column: admin.FieldPassword},
+			admin.FieldUsername:    {Type: field.TypeString, Column: admin.FieldUsername},
+			admin.FieldFirstName:   {Type: field.TypeString, Column: admin.FieldFirstName},
+			admin.FieldLastName:    {Type: field.TypeString, Column: admin.FieldLastName},
+			admin.FieldIsActive:    {Type: field.TypeBool, Column: admin.FieldIsActive},
+		},
+	}
+	graph.Nodes[1] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   bankaccount.Table,
 			Columns: bankaccount.Columns,
@@ -40,7 +62,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			bankaccount.FieldIsForPayment:  {Type: field.TypeBool, Column: bankaccount.FieldIsForPayment},
 		},
 	}
-	graph.Nodes[1] = &sqlgraph.Node{
+	graph.Nodes[2] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   contact.Table,
 			Columns: contact.Columns,
@@ -59,7 +81,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			contact.FieldBankName:      {Type: field.TypeString, Column: contact.FieldBankName},
 		},
 	}
-	graph.Nodes[2] = &sqlgraph.Node{
+	graph.Nodes[3] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   customer.Table,
 			Columns: customer.Columns,
@@ -82,7 +104,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			customer.FieldIsActive:    {Type: field.TypeBool, Column: customer.FieldIsActive},
 		},
 	}
-	graph.Nodes[3] = &sqlgraph.Node{
+	graph.Nodes[4] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   debt.Table,
 			Columns: debt.Columns,
@@ -109,7 +131,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			debt.FieldAmount:                    {Type: field.TypeFloat64, Column: debt.FieldAmount},
 		},
 	}
-	graph.Nodes[4] = &sqlgraph.Node{
+	graph.Nodes[5] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   employee.Table,
 			Columns: employee.Columns,
@@ -130,7 +152,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			employee.FieldIsActive:    {Type: field.TypeBool, Column: employee.FieldIsActive},
 		},
 	}
-	graph.Nodes[5] = &sqlgraph.Node{
+	graph.Nodes[6] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   transaction.Table,
 			Columns: transaction.Columns,
@@ -360,6 +382,86 @@ type predicateAdder interface {
 }
 
 // addPredicate implements the predicateAdder interface.
+func (aq *AdminQuery) addPredicate(pred func(s *sql.Selector)) {
+	aq.predicates = append(aq.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the AdminQuery builder.
+func (aq *AdminQuery) Filter() *AdminFilter {
+	return &AdminFilter{config: aq.config, predicateAdder: aq}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *AdminMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the AdminMutation builder.
+func (m *AdminMutation) Filter() *AdminFilter {
+	return &AdminFilter{config: m.config, predicateAdder: m}
+}
+
+// AdminFilter provides a generic filtering capability at runtime for AdminQuery.
+type AdminFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *AdminFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[0].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql [16]byte predicate on the id field.
+func (f *AdminFilter) WhereID(p entql.ValueP) {
+	f.Where(p.Field(admin.FieldID))
+}
+
+// WhereCreateTime applies the entql time.Time predicate on the create_time field.
+func (f *AdminFilter) WhereCreateTime(p entql.TimeP) {
+	f.Where(p.Field(admin.FieldCreateTime))
+}
+
+// WhereUpdateTime applies the entql time.Time predicate on the update_time field.
+func (f *AdminFilter) WhereUpdateTime(p entql.TimeP) {
+	f.Where(p.Field(admin.FieldUpdateTime))
+}
+
+// WhereJwtTokenKey applies the entql string predicate on the jwt_token_key field.
+func (f *AdminFilter) WhereJwtTokenKey(p entql.StringP) {
+	f.Where(p.Field(admin.FieldJwtTokenKey))
+}
+
+// WherePassword applies the entql string predicate on the password field.
+func (f *AdminFilter) WherePassword(p entql.StringP) {
+	f.Where(p.Field(admin.FieldPassword))
+}
+
+// WhereUsername applies the entql string predicate on the username field.
+func (f *AdminFilter) WhereUsername(p entql.StringP) {
+	f.Where(p.Field(admin.FieldUsername))
+}
+
+// WhereFirstName applies the entql string predicate on the first_name field.
+func (f *AdminFilter) WhereFirstName(p entql.StringP) {
+	f.Where(p.Field(admin.FieldFirstName))
+}
+
+// WhereLastName applies the entql string predicate on the last_name field.
+func (f *AdminFilter) WhereLastName(p entql.StringP) {
+	f.Where(p.Field(admin.FieldLastName))
+}
+
+// WhereIsActive applies the entql bool predicate on the is_active field.
+func (f *AdminFilter) WhereIsActive(p entql.BoolP) {
+	f.Where(p.Field(admin.FieldIsActive))
+}
+
+// addPredicate implements the predicateAdder interface.
 func (baq *BankAccountQuery) addPredicate(pred func(s *sql.Selector)) {
 	baq.predicates = append(baq.predicates, pred)
 }
@@ -388,7 +490,7 @@ type BankAccountFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *BankAccountFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[0].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[1].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -533,7 +635,7 @@ type ContactFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *ContactFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[1].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[2].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -617,7 +719,7 @@ type CustomerFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *CustomerFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[2].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[3].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -735,7 +837,7 @@ type DebtFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *DebtFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[3].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[4].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -887,7 +989,7 @@ type EmployeeFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *EmployeeFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[4].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[5].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})
@@ -967,7 +1069,7 @@ type TransactionFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *TransactionFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[5].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[6].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})

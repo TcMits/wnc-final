@@ -60,3 +60,41 @@ type (
 		usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 )
+
+type (
+	EmployeeTransactionIsNextUseCase struct {
+		iNUC usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+	EmployeeTransactionListUseCase struct {
+		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+	EmployeeTransactionGetFirstUseCase struct {
+		tLTUC usecase.IEmployeeTransactionListUseCase
+	}
+	EmployeeTransactionUseCase struct {
+		usecase.IEmployeeConfigUseCase
+		usecase.IEmployeeGetUserUseCase
+		usecase.IEmployeeTransactionListUseCase
+		usecase.IEmployeeTransactionGetFirstUseCase
+		usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+)
+
+type (
+	AdminTransactionIsNextUseCase struct {
+		iNUC usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+	AdminTransactionListUseCase struct {
+		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+	AdminTransactionGetFirstUseCase struct {
+		tLTUC usecase.IAdminTransactionListUseCase
+	}
+	AdminTransactionUseCase struct {
+		usecase.IAdminConfigUseCase
+		usecase.IAdminGetUserUseCase
+		usecase.IAdminTransactionListUseCase
+		usecase.IAdminTransactionGetFirstUseCase
+		usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+)

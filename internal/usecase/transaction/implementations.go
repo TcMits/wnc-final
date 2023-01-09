@@ -24,31 +24,31 @@ func (uc *CustomerTransactionValidateConfirmInputUseCase) ValidateConfirmInput(c
 	if e.Status == transaction.StatusDraft {
 		pl, err := usecase.ParseToken(ctx, i.Token, *uc.cfUC.GetSecret())
 		if err != nil {
-			return usecase.WrapError(fmt.Errorf("token expired"))
+			return usecase.ValidationError(fmt.Errorf("token expired"))
 		}
 		iFPBMAny, ok := pl["is_fee_paid_by_me"]
 		if !ok {
-			return usecase.WrapError(fmt.Errorf("invalid token"))
+			return usecase.ValidationError(fmt.Errorf("invalid token"))
 		}
 		_, ok = iFPBMAny.(bool)
 		if !ok {
-			return usecase.WrapError(fmt.Errorf("invalid token"))
+			return usecase.ValidationError(fmt.Errorf("invalid token"))
 		}
 		tkAny, ok := pl["token"]
 		if !ok {
-			return usecase.WrapError(fmt.Errorf("invalid token"))
+			return usecase.ValidationError(fmt.Errorf("invalid token"))
 		}
 		tk, ok := tkAny.(string)
 		if !ok {
-			return usecase.WrapError(fmt.Errorf("invalid token"))
+			return usecase.ValidationError(fmt.Errorf("invalid token"))
 		}
 		err = usecase.ValidateHashInfo(usecase.MakeOTPValue(ctx, i.Otp), tk)
 		if err != nil {
-			return usecase.WrapError(fmt.Errorf("invalid token"))
+			return usecase.ValidationError(fmt.Errorf("invalid token"))
 		}
 		return nil
 	}
-	return usecase.WrapError(fmt.Errorf("cannot confirm %s transaction", e.Status))
+	return usecase.ValidationError(fmt.Errorf("cannot confirm %s transaction", e.Status))
 }
 func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.Context, e *model.Transaction, token *string) (*model.Transaction, error) {
 	if e.TransactionType == transaction.TransactionTypeInternal {
@@ -133,7 +133,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx co
 		return usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.doesHaveDraftTxc: %s", err))
 	}
 	if len(entities) > 0 {
-		return usecase.WrapError(fmt.Errorf("there is a draft transaction to be processed. Cannot create a new transaction"))
+		return usecase.ValidationError(fmt.Errorf("there is a draft transaction to be processed. Cannot create a new transaction"))
 	}
 	return nil
 }
@@ -148,7 +148,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) ValidateCreate(ctx cont
 		return nil, err
 	}
 	if ba == nil {
-		return nil, usecase.WrapError(fmt.Errorf("bank account sender is invalid"))
+		return nil, usecase.ValidationError(fmt.Errorf("bank account sender is invalid"))
 	}
 	err = uc.doesHaveDraftTxc(ctx, i.TransactionCreateInput)
 	if err != nil {
@@ -158,12 +158,12 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) ValidateCreate(ctx cont
 		if ok, err := ba.IsBalanceSufficient(i.Amount.Abs().InexactFloat64() + *uc.cfUC.GetFeeAmount()); err != nil {
 			return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.Validate: %s", err))
 		} else if !ok {
-			return nil, usecase.WrapError(fmt.Errorf("insufficient balance sender"))
+			return nil, usecase.ValidationError(fmt.Errorf("insufficient balance sender"))
 		}
 	} else if ok, err := ba.IsBalanceSufficient(i.Amount.Abs().InexactFloat64()); err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.Validate: %s", err))
 	} else if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("insufficient balance sender"))
+		return nil, usecase.ValidationError(fmt.Errorf("insufficient balance sender"))
 	}
 	if i.TransactionType == transaction.TransactionTypeInternal {
 		baOther, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{ID: i.ReceiverID})
@@ -171,16 +171,16 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) ValidateCreate(ctx cont
 			return nil, err
 		}
 		if baOther == nil {
-			return nil, usecase.WrapError(fmt.Errorf("bank account receiver is invalid"))
+			return nil, usecase.ValidationError(fmt.Errorf("bank account receiver is invalid"))
 		}
 		if !baOther.IsForPayment {
-			return nil, usecase.WrapError(fmt.Errorf("bank account receiver is not for payment"))
+			return nil, usecase.ValidationError(fmt.Errorf("bank account receiver is not for payment"))
 		}
 		if !i.IsFeePaidByMe {
 			if ok, err := baOther.IsBalanceSufficient(*uc.cfUC.GetFeeAmount()); err != nil {
 				return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.Validate: %s", err))
 			} else if !ok {
-				return nil, usecase.WrapError(fmt.Errorf("insufficient balance receiver"))
+				return nil, usecase.ValidationError(fmt.Errorf("insufficient balance receiver"))
 			}
 		}
 		other, err := uc.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: &baOther.CustomerID})
@@ -240,5 +240,53 @@ func (s *CustomerTransactionIsNextUseCase) IsNext(ctx context.Context, limit, of
 		{HasReceiverWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}}},
 		{HasSenderWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}}},
 	}
+	return s.iNUC.IsNext(ctx, limit, offset, o, w)
+}
+
+// employee
+func (s *EmployeeTransactionListUseCase) List(ctx context.Context, limit, offset *int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) ([]*model.Transaction, error) {
+	entites, err := s.repoList.List(ctx, limit, offset, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.EmployeeTransactionListUseCase.List: %s", err))
+	}
+	return entites, nil
+}
+func (s *EmployeeTransactionGetFirstUseCase) GetFirst(ctx context.Context, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (*model.Transaction, error) {
+	l, of := 1, 0
+	entities, err := s.tLTUC.List(ctx, &l, &of, o, w)
+	if err != nil {
+		return nil, err
+	}
+	if len(entities) > 0 {
+		return entities[0], nil
+	}
+	return nil, nil
+}
+
+func (s *EmployeeTransactionIsNextUseCase) IsNext(ctx context.Context, limit, offset int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (bool, error) {
+	return s.iNUC.IsNext(ctx, limit, offset, o, w)
+}
+
+// admin
+func (s *AdminTransactionListUseCase) List(ctx context.Context, limit, offset *int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) ([]*model.Transaction, error) {
+	entites, err := s.repoList.List(ctx, limit, offset, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.AdminTransactionListUseCase.List: %s", err))
+	}
+	return entites, nil
+}
+func (s *AdminTransactionGetFirstUseCase) GetFirst(ctx context.Context, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (*model.Transaction, error) {
+	l, of := 1, 0
+	entities, err := s.tLTUC.List(ctx, &l, &of, o, w)
+	if err != nil {
+		return nil, err
+	}
+	if len(entities) > 0 {
+		return entities[0], nil
+	}
+	return nil, nil
+}
+
+func (s *AdminTransactionIsNextUseCase) IsNext(ctx context.Context, limit, offset int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (bool, error) {
 	return s.iNUC.IsNext(ctx, limit, offset, o, w)
 }

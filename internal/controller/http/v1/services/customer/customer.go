@@ -25,7 +25,7 @@ const (
 
 // @host localhost:8080
 // @BasePath /api/customer/v1
-func RegisterCustomerServices(
+func RegisterServices(
 	handler iris.Party,
 	// adding more usecases here
 	cUc usecase.ICustomerMeUseCase,

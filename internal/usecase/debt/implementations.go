@@ -58,10 +58,10 @@ func (s *CustomerDebtValidateCreateInputUseCase) ValidateCreate(ctx context.Cont
 		return nil, err
 	}
 	if ownerBA == nil {
-		return nil, usecase.WrapError(fmt.Errorf("invalid owner"))
+		return nil, usecase.ValidationError(fmt.Errorf("invalid owner"))
 	}
 	if !ownerBA.IsForPayment {
-		return nil, usecase.WrapError(fmt.Errorf("owner not for payment"))
+		return nil, usecase.ValidationError(fmt.Errorf("owner not for payment"))
 	}
 	owner := user
 	receiverBA, err := s.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{ID: generic.GetPointer(i.ReceiverID)})
@@ -69,17 +69,17 @@ func (s *CustomerDebtValidateCreateInputUseCase) ValidateCreate(ctx context.Cont
 		return nil, err
 	}
 	if receiverBA == nil {
-		return nil, usecase.WrapError(fmt.Errorf("invalid receiver"))
+		return nil, usecase.ValidationError(fmt.Errorf("invalid receiver"))
 	}
 	if !receiverBA.IsForPayment {
-		return nil, usecase.WrapError(fmt.Errorf("receiver not for payment"))
+		return nil, usecase.ValidationError(fmt.Errorf("receiver not for payment"))
 	}
 	receiver, err := s.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: generic.GetPointer(receiverBA.CustomerID)})
 	if err != nil {
 		return nil, err
 	}
 	if receiver == nil {
-		return nil, usecase.WrapError(fmt.Errorf("invalid receiver"))
+		return nil, usecase.ValidationError(fmt.Errorf("invalid receiver"))
 	}
 	i.Status = generic.GetPointer(debt.StatusPending)
 	i.OwnerBankAccountNumber = ownerBA.AccountNumber
@@ -143,7 +143,7 @@ func (uc *CustomerDebtValidateCancelUseCase) ValidateCancel(ctx context.Context,
 	}
 	if owner.ID != user.ID {
 		if e.Status.String() != debt.StatusPending.String() {
-			return nil, usecase.WrapError(fmt.Errorf("cannot cancel %s debt", e.Status.String()))
+			return nil, usecase.ValidationError(fmt.Errorf("cannot cancel %s debt", e.Status.String()))
 		}
 	}
 	if i == nil {
@@ -176,7 +176,7 @@ func (uc *CustomerDebtValidateFulfillUseCase) ValidateFulfill(ctx context.Contex
 			return usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtValidateFulfillUseCase.ValidateFulfill: %s", err))
 		}
 		if owner == nil {
-			return usecase.WrapError(fmt.Errorf("invalid owner"))
+			return usecase.ValidationError(fmt.Errorf("invalid owner"))
 		}
 		user := usecase.GetUserAsCustomer(ctx)
 		if user.ID != owner.ID {
@@ -193,11 +193,11 @@ func (uc *CustomerDebtValidateFulfillUseCase) ValidateFulfill(ctx context.Contex
 			if ok {
 				return nil
 			}
-			return usecase.WrapError(fmt.Errorf("insufficient ballence"))
+			return usecase.ValidationError(fmt.Errorf("insufficient ballence"))
 		}
-		return usecase.WrapError(fmt.Errorf("cannot fulfill debt which you created"))
+		return usecase.ValidationError(fmt.Errorf("cannot fulfill debt which you created"))
 	}
-	return usecase.WrapError(fmt.Errorf("cannot fulfill %s debt", e.Status.String()))
+	return usecase.ValidationError(fmt.Errorf("cannot fulfill %s debt", e.Status.String()))
 }
 func (s *CustomerDebtFulfillUseCase) Fulfill(ctx context.Context, e *model.Debt) (*model.DebtFulfillResp, error) {
 	otp := usecase.GenerateOTP(6)
@@ -239,19 +239,19 @@ func (s *CustomerDebtFulfillUseCase) Fulfill(ctx context.Context, e *model.Debt)
 func (s *CustomerDebtValidateFulfillWithTokenUseCase) ValidateFulfillWithToken(ctx context.Context, e *model.Debt, i *model.DebtFulfillWithTokenInput) (*model.DebtFulfillWithTokenInput, error) {
 	pl, err := usecase.ParseToken(ctx, i.Token, *s.cfUC.GetSecret())
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("token expired"))
+		return nil, usecase.ValidationError(fmt.Errorf("token expired"))
 	}
 	tkAny, ok := pl["token"]
 	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("invalid token"))
+		return nil, usecase.ValidationError(fmt.Errorf("invalid token"))
 	}
 	tk, ok := tkAny.(string)
 	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("invalid token"))
+		return nil, usecase.ValidationError(fmt.Errorf("invalid token"))
 	}
 	err = usecase.ValidateHashInfo(usecase.MakeOTPValue(ctx, i.Otp, e.ID.String()), tk)
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("invalid otp"))
+		return nil, usecase.ValidationError(fmt.Errorf("invalid otp"))
 	}
 	return i, nil
 }

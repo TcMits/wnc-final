@@ -29,7 +29,7 @@ func NewCustomerBankAccountValidateUpdateInputUseCase(
 	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 ) usecase.ICustomerBankAccountValidateUpdateInputUseCase {
 	return &CustomerBankAccountValidateUpdateInputUseCase{
-		bALUC: NewCustomerBankAccountListUseCase(repoList),
+		gFMUC: NewCustomerBankAccountGetFirstMineUseCase(repoList),
 	}
 }
 

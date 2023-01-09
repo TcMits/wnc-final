@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/TcMits/wnc-final/cmd/createuser/createuser"
+	"github.com/TcMits/wnc-final/cmd/gendata/gendata"
 	"github.com/TcMits/wnc-final/cmd/migrate/migrate"
 	"github.com/TcMits/wnc-final/config"
 	v1 "github.com/TcMits/wnc-final/internal/controller/http/v1"
@@ -36,6 +37,7 @@ func Run(cfg *config.Config) {
 	if !cfg.App.Debug {
 		migrate.Migrate()
 		createuser.CreateUser()
+		gendata.GenData()
 	}
 
 	// Repository

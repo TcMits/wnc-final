@@ -52,7 +52,7 @@ func NewCustomerContactGetFirstMineUseCase(
 func NewCustomerContactValidateUpdateInputUseCase(
 	repoList repository.ListModelRepository[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput],
 ) usecase.ICustomerContactValidateUpdateInputUseCase {
-	return &CustomerContactValidateUpdateInputUseCase{cGFUC: NewCustomerContactListMineUseCase(repoList)}
+	return &CustomerContactValidateUpdateInputUseCase{gFMUc: NewCustomerContactGetFirstMineUseCase(repoList)}
 }
 func NewCustomerContactValidateCreateInputUseCase(
 	repoList repository.ListModelRepository[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput],
@@ -62,7 +62,7 @@ func NewCustomerContactValidateCreateInputUseCase(
 	fee *float64,
 ) usecase.ICustomerContactValidateCreateInputUseCase {
 	return &CustomerContactValidateCreateInputUseCase{
-		cGFUC: NewCustomerContactListMineUseCase(repoList),
+		gFMUc: NewCustomerContactGetFirstMineUseCase(repoList),
 		cfUC:  config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 	}
 }

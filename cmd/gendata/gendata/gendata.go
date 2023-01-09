@@ -30,11 +30,11 @@ func GenData() {
 }
 func genData(client *ent.Client) {
 	ctx := context.Background()
-	user, err := client.Customer.Query().Where(customer.Email("dinhphat611@gmail.com")).First(ctx)
-	if err != nil {
+	_, err := client.Customer.Query().Where(customer.Email("dinhphat611@gmail.com")).First(ctx)
+	if err != nil && !ent.IsNotFound(err) {
 		log.Fatalf("failed generate data: %v", err)
 	}
-	if user == nil {
+	if ent.IsNotFound(err) {
 		user, err := ent.CreateFakeCustomer(ctx, client, nil,
 			ent.Opt{
 				Key:   "Email",

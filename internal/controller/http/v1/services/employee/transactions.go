@@ -41,8 +41,9 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 // @Param       update_time query bool false "True if sort ascent by update_time otherwise ignored"
 // @Param       -update_time query bool false "True if sort descent by update_time otherwise ignored"
 // @Param       only_debt query bool false "True if only debt transaction otherwise ignored"
-// @Param       sender_id query string false "ID of bank account"
-// @Param       receiver_id query string false "ID of bank account"
+// @Param       only_receive query bool false "True if only receive transaction otherwise ignored"
+// @Param       only_send query bool false "True if only send transaction otherwise ignored"
+// @Param       customer_id query string false "ID of customer, required if only_{query} is true"
 // @Success     200 {object} EntitiesResponseTemplate[transactionResp]
 // @Failure     500 {object} errorResponse
 // @Router      /transactions [get]
@@ -81,10 +82,14 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 	w := new(model.TransactionWhereInput)
 	if filterReq.OnlyDebt {
 		w.HasDebt = generic.GetPointer(true)
-	} else if filterReq.ReceiverID != nil {
-		w.ReceiverID = filterReq.ReceiverID
-	} else if filterReq.SenderID != nil {
-		w.SenderID = filterReq.SenderID
+		w.Or = append(w.Or,
+			&model.TransactionWhereInput{HasReceiverWith: []*model.BankAccountWhereInput{{CustomerID: filterReq.CustomerID}}},
+			&model.TransactionWhereInput{HasSenderWith: []*model.BankAccountWhereInput{{CustomerID: filterReq.CustomerID}}},
+		)
+	} else if filterReq.OnlyReceive {
+		w.HasReceiverWith = []*model.BankAccountWhereInput{{CustomerID: filterReq.CustomerID}}
+	} else if filterReq.OnlySend {
+		w.HasSenderWith = []*model.BankAccountWhereInput{{CustomerID: filterReq.CustomerID}}
 	}
 	entities, err := r.uc.List(ctx, &req.Limit, &req.Offset, or, w)
 	if err != nil {

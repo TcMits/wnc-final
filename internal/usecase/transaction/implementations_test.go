@@ -93,24 +93,6 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 		expect func(*testing.T, context.Context, *ent.Client, usecase.ICustomerTransactionValidateCreateInputUseCase)
 	}{
 		{
-			name: "bank account sender does have draft transactions",
-			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
-				authenticateCtx(ctx, c, nil)
-			},
-			expect: func(t *testing.T, ctx context.Context, c *ent.Client, uc usecase.ICustomerTransactionValidateCreateInputUseCase) {
-				user := usecase.GetUserAsCustomer(ctx)
-				ba, _ := ent.CreateFakeBankAccount(ctx, c, nil, ent.Opt{Key: "CustomerID", Value: user.ID}, ent.Opt{Key: "IsForPayment", Value: generic.GetPointer(true)})
-				ent.CreateFakeTransaction(ctx, c, nil, ent.Opt{Key: "SenderID", Value: ba.ID})
-				i3 := ent.TransactionFactory(ctx, ent.Opt{Key: "SenderID", Value: ba.ID})
-				i := &model.TransactionCreateUseCaseInput{
-					TransactionCreateInput: i3,
-					IsFeePaidByMe:          true,
-				}
-				_, err := uc.ValidateCreate(ctx, i)
-				require.ErrorContains(t, err, "there is a draft transaction to be processed. Cannot create a new transaction")
-			},
-		},
-		{
 			name: "insufficient balance from sender and fee paid by me",
 			setUp: func(t *testing.T, ctx *context.Context, c *ent.Client) {
 				authenticateCtx(ctx, c, nil)

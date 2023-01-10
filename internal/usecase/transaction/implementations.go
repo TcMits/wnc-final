@@ -123,21 +123,6 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 	}, nil
 }
 
-func (uc *CustomerTransactionValidateCreateInputUseCase) doesHaveDraftTxc(ctx context.Context, i *model.TransactionCreateInput) error {
-	user := usecase.GetUserAsCustomer(ctx)
-	entities, err := uc.tLUC.List(ctx, generic.GetPointer(1), generic.GetPointer(0), nil, &model.TransactionWhereInput{
-		HasSenderWith: []*model.BankAccountWhereInput{{CustomerID: &user.ID}},
-		Status:        generic.GetPointer(transaction.StatusDraft),
-	})
-	if err != nil {
-		return usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionValidateCreateInputUseCase.doesHaveDraftTxc: %s", err))
-	}
-	if len(entities) > 0 {
-		return usecase.ValidationError(fmt.Errorf("there is a draft transaction to be processed. Cannot create a new transaction"))
-	}
-	return nil
-}
-
 func (uc *CustomerTransactionValidateCreateInputUseCase) ValidateCreate(ctx context.Context, i *model.TransactionCreateUseCaseInput) (*model.TransactionCreateUseCaseInput, error) {
 	user := usecase.GetUserAsCustomer(ctx)
 	ba, err := uc.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
@@ -149,10 +134,6 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) ValidateCreate(ctx cont
 	}
 	if ba == nil {
 		return nil, usecase.ValidationError(fmt.Errorf("bank account sender is invalid"))
-	}
-	err = uc.doesHaveDraftTxc(ctx, i.TransactionCreateInput)
-	if err != nil {
-		return nil, err
 	}
 	if i.IsFeePaidByMe {
 		if ok, err := ba.IsBalanceSufficient(i.Amount.Abs().InexactFloat64() + *uc.cfUC.GetFeeAmount()); err != nil {

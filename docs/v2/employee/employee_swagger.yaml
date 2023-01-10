@@ -514,13 +514,17 @@ paths:
         in: query
         name: only_debt
         type: boolean
-      - description: ID of bank account
+      - description: True if only receive transaction otherwise ignored
         in: query
-        name: sender_id
-        type: string
-      - description: ID of bank account
+        name: only_receive
+        type: boolean
+      - description: True if only send transaction otherwise ignored
         in: query
-        name: receiver_id
+        name: only_send
+        type: boolean
+      - description: ID of customer, required if only_{query} is true
+        in: query
+        name: customer_id
         type: string
       produces:
       - application/json

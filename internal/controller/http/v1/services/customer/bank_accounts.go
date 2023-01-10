@@ -74,7 +74,7 @@ func (r *bankAccountRoute) listing(ctx iris.Context) {
 // @Accept      json
 // @Produce     json
 // @Param       account_number query string false "Bank account number"
-// @Success     200 {object} guestBankAccountResp
+// @Success     200 {object} EntitiesResponseTemplate[guestBankAccountResp]
 // @Failure     500 {object} errorResponse
 // @Router      /me/bank-accounts/guest [get]
 func (r *bankAccountRoute) guestListing(ctx iris.Context) {
@@ -95,7 +95,20 @@ func (r *bankAccountRoute) guestListing(ctx iris.Context) {
 		HandleError(ctx, err, r.logger)
 		return
 	}
-	ctx.JSON(getResponses(entities, getGuestBankAccountResp))
+	isNext, err := r.uc.IsNext(ctx, req.Limit, req.Offset, nil, &model.BankAccountWhereInput{
+		AccountNumber: filterReq.AccountNumber,
+	})
+	if err != nil {
+		HandleError(ctx, err, r.logger)
+		return
+	}
+	paging := getPagingResponse(ctx, pagingInput[*model.BankAccount]{
+		limit:    req.Limit,
+		offset:   req.Offset,
+		entities: entities,
+		isNext:   isNext,
+	}, getGuestBankAccountResp)
+	ctx.JSON(paging)
 }
 
 // @Summary     Update a bank account

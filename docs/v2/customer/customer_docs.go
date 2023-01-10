@@ -846,7 +846,7 @@ const docTemplatecustomer = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/customer.guestBankAccountResp"
+                            "$ref": "#/definitions/customer.EntitiesResponseTemplate-customer_guestBankAccountResp"
                         }
                     },
                     "500": {
@@ -1213,15 +1213,15 @@ const docTemplatecustomer = `{
                         "in": "query"
                     },
                     {
-                        "type": "string",
-                        "description": "ID of bank account",
-                        "name": "sender_id",
+                        "type": "boolean",
+                        "description": "True if only receive transaction otherwise ignored",
+                        "name": "only_receive",
                         "in": "query"
                     },
                     {
-                        "type": "string",
-                        "description": "ID of bank account",
-                        "name": "receiver_id",
+                        "type": "boolean",
+                        "description": "True if only send transaction otherwise ignored",
+                        "name": "only_send",
                         "in": "query"
                     }
                 ],
@@ -1456,6 +1456,26 @@ const docTemplatecustomer = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/customer.debtResp"
+                    }
+                }
+            }
+        },
+        "customer.EntitiesResponseTemplate-customer_guestBankAccountResp": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "next": {
+                    "type": "string"
+                },
+                "previous": {
+                    "type": "string"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/customer.guestBankAccountResp"
                     }
                 }
             }

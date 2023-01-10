@@ -1,6 +1,7 @@
 package customer
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -311,6 +312,7 @@ func getPagingResponse[ModelType any](ctx iris.Context, i pagingInput[ModelType]
 		url.RawQuery = q.Encode()
 		pageResp.Previous = url.String()
 	}
+	fmt.Println(pageResp.Results)
 	pageResp.Count = uint(len(pageResp.Results))
 	return pageResp
 }

@@ -76,9 +76,9 @@ type (
 		Otp   string `json:"otp," validate:"required"`
 	}
 	transactionFilterReq struct {
-		SenderID   *uuid.UUID `url:"sender_id"`
-		ReceiverID *uuid.UUID `url:"receiver_id"`
-		OnlyDebt   bool       `url:"only_debt"`
+		OnlyDebt    bool `url:"only_debt"`
+		OnlyReceive bool `url:"only_receive"`
+		OnlySend    bool `url:"only_send"`
 	}
 	bankAccountFilterReq struct {
 		AccountNumber *string `url:"account_number"`

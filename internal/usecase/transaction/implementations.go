@@ -171,6 +171,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) ValidateCreate(ctx cont
 		i.ReceiverBankAccountNumber = baOther.AccountNumber
 		i.ReceiverBankName = *uc.cfUC.GetProductOwnerName()
 		i.ReceiverName = other.GetName()
+		i.TransactionType = transaction.TransactionTypeInternal
 	}
 	i.Status = generic.GetPointer(transaction.StatusDraft)
 	i.SenderID = ba.ID

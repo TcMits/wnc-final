@@ -128,4 +128,24 @@ func genData(client *ent.Client, cfg *config.Config) {
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
+	// admins
+	_, err = ent.CreateFakeAdmin(ctx, client, nil,
+		ent.Opt{
+			Key:   "Username",
+			Value: "iamadmin",
+		},
+	)
+	if err != nil {
+		log.Fatalf("failed generate data: %v", err)
+	}
+	// employees
+	_, err = ent.CreateFakeEmployee(ctx, client, nil,
+		ent.Opt{
+			Key:   "Username",
+			Value: "iamemployee",
+		},
+	)
+	if err != nil {
+		log.Fatalf("failed generate data: %v", err)
+	}
 }

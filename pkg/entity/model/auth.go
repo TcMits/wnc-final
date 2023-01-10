@@ -33,4 +33,8 @@ type (
 		Username *string
 		Password *string
 	}
+	AdminLoginInput struct {
+		Username *string
+		Password *string
+	}
 )

@@ -1,4 +1,4 @@
-package employee
+package admin
 
 import (
 	"strconv"
@@ -34,15 +34,6 @@ type (
 		Code    string `json:"code"`
 		Detail  string `json:"detail"`
 	}
-	customerResponse struct {
-		ID          uuid.UUID `json:"id"`
-		Username    string    `json:"username"`
-		FirstName   string    `json:"first_name"`
-		LastName    string    `json:"last_name"`
-		PhoneNumber string    `json:"phone_number"`
-		Email       string    `json:"email"`
-		IsActive    bool      `json:"is_active"`
-	}
 	meResponse struct {
 		ID        uuid.UUID `json:"id"`
 		Username  string    `json:"username"`
@@ -53,16 +44,6 @@ type (
 	tokenPairResponse struct {
 		AccessToken  *string `json:"access_token"`
 		RefreshToken *string `json:"refresh_token"`
-	}
-	bankAccountResp struct {
-		ID            uuid.UUID `json:"id"`
-		CreateTime    time.Time `json:"create_time"`
-		UpdateTime    time.Time `json:"update_time"`
-		CustomerID    uuid.UUID `json:"customer_id"`
-		CashIn        float64   `json:"cash_in"`
-		CashOut       float64   `json:"cash_out"`
-		AccountNumber string    `json:"account_number"`
-		IsForPayment  bool      `json:"is_for_payment"`
 	}
 	transactionResp struct {
 		ID                        uuid.UUID                   `json:"id"`
@@ -88,19 +69,8 @@ type (
 func getDefaultResponse(entity any) any {
 	var result any
 	switch entity.(type) {
-	case *model.Customer:
-		rs, _ := entity.(*model.Customer)
-		result = &customerResponse{
-			ID:          rs.ID,
-			Username:    rs.Username,
-			FirstName:   rs.FirstName,
-			LastName:    rs.LastName,
-			PhoneNumber: rs.PhoneNumber,
-			Email:       rs.Email,
-			IsActive:    rs.IsActive,
-		}
-	case *model.Employee:
-		rs, _ := entity.(*model.Employee)
+	case *model.Admin:
+		rs, _ := entity.(*model.Admin)
 		result = &meResponse{
 			ID:        rs.ID,
 			Username:  rs.Username,
@@ -108,17 +78,11 @@ func getDefaultResponse(entity any) any {
 			LastName:  rs.LastName,
 			IsActive:  rs.IsActive,
 		}
-	case *model.BankAccount:
-		rs, _ := entity.(*model.BankAccount)
-		result = &bankAccountResp{
-			ID:            rs.ID,
-			CreateTime:    rs.CreateTime,
-			UpdateTime:    rs.UpdateTime,
-			CustomerID:    rs.CustomerID,
-			CashIn:        rs.CashIn,
-			CashOut:       rs.CashOut,
-			AccountNumber: rs.AccountNumber,
-			IsForPayment:  rs.IsForPayment,
+	case *jwt.TokenPair:
+		rs, _ := entity.(*jwt.TokenPair)
+		result = &tokenPairResponse{
+			AccessToken:  rs.AccessToken,
+			RefreshToken: rs.RefreshToken,
 		}
 	case *model.Transaction:
 		rs, _ := entity.(*model.Transaction)
@@ -138,12 +102,6 @@ func getDefaultResponse(entity any) any {
 			Amount:                    rs.Amount,
 			TransactionType:           rs.TransactionType,
 			Description:               rs.Description,
-		}
-	case *jwt.TokenPair:
-		rs, _ := entity.(*jwt.TokenPair)
-		result = &tokenPairResponse{
-			AccessToken:  rs.AccessToken,
-			RefreshToken: rs.RefreshToken,
 		}
 	default:
 		result = entity

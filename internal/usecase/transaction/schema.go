@@ -79,3 +79,22 @@ type (
 		usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 )
+
+type (
+	AdminTransactionIsNextUseCase struct {
+		iNUC usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+	AdminTransactionListUseCase struct {
+		repoList repository.ListModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+	AdminTransactionGetFirstUseCase struct {
+		tLTUC usecase.IAdminTransactionListUseCase
+	}
+	AdminTransactionUseCase struct {
+		usecase.IAdminConfigUseCase
+		usecase.IAdminGetUserUseCase
+		usecase.IAdminTransactionListUseCase
+		usecase.IAdminTransactionGetFirstUseCase
+		usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
+	}
+)

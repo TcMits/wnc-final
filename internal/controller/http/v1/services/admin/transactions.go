@@ -1,4 +1,4 @@
-package employee
+package admin
 
 import (
 	"fmt"
@@ -9,16 +9,15 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
-	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/kataras/iris/v12"
 )
 
 type transactionRoute struct {
-	uc     usecase.IEmployeeTransactionUseCase
+	uc     usecase.IAdminTransactionUseCase
 	logger logger.Interface
 }
 
-func RegisterTransactionController(handler iris.Party, l logger.Interface, uc usecase.IEmployeeTransactionUseCase) {
+func RegisterTransactionController(handler iris.Party, l logger.Interface, uc usecase.IAdminTransactionUseCase) {
 	h := handler.Party("/")
 	route := &transactionRoute{
 		uc:     uc,
@@ -40,9 +39,9 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 // @Produce     json
 // @Param       update_time query bool false "True if sort ascent by update_time otherwise ignored"
 // @Param       -update_time query bool false "True if sort descent by update_time otherwise ignored"
-// @Param       only_debt query bool false "True if only debt transaction otherwise ignored"
-// @Param       sender_id query string false "ID of bank account"
-// @Param       receiver_id query string false "ID of bank account"
+// @Param       date_start query integer false "Date start"
+// @Param       date_end query integer false "Date end"
+// @Param       bank_name query string false "Bank name"
 // @Success     200 {object} EntitiesResponseTemplate[transactionResp]
 // @Failure     500 {object} errorResponse
 // @Router      /transactions [get]
@@ -73,18 +72,17 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 			*or = append(*or, o)
 		}
 	}
-	filterReq := new(transactionFilterReq)
+	filterReq := newTransactionFilterReq()
 	if err := ctx.ReadQuery(filterReq); err != nil {
+		fmt.Println(err)
 		handleBindingError(ctx, err, r.logger, filterReq, nil)
 		return
 	}
 	w := new(model.TransactionWhereInput)
-	if filterReq.OnlyDebt {
-		w.HasDebt = generic.GetPointer(true)
-	} else if filterReq.ReceiverID != nil {
-		w.ReceiverID = filterReq.ReceiverID
-	} else if filterReq.SenderID != nil {
-		w.SenderID = filterReq.SenderID
+	w.CreateTimeGTE = &filterReq.DateStart.t
+	w.CreateTimeLTE = &filterReq.DateEnd.t
+	if filterReq.BankName != nil {
+		w.Or = append(w.Or, &model.TransactionWhereInput{SenderBankName: filterReq.BankName}, &model.TransactionWhereInput{ReceiverBankName: filterReq.BankName})
 	}
 	entities, err := r.uc.List(ctx, &req.Limit, &req.Offset, or, w)
 	if err != nil {

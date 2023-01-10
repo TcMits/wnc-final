@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/admin"
 	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer"
 	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer/middleware"
 	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/employee"
@@ -52,6 +53,10 @@ func RegisterV1HTTPServices(
 	employeeUc3 usecase.IEmployeeCustomerUseCase,
 	employeeUc4 usecase.IEmployeeBankAcountUseCase,
 	employeeUc5 usecase.IEmployeeTransactionUseCase,
+	// adding more admin usecases here
+	adminUc1 usecase.IAdminMeUseCase,
+	adminUc2 usecase.IAdminAuthUseCase,
+	adminUc3 usecase.IAdminTransactionUseCase,
 	// broker
 	b *sse.Broker,
 	// logger
@@ -62,7 +67,8 @@ func RegisterV1HTTPServices(
 	handler.UseRouter(cors.New().Handler())
 	RegisterHealthCheckController(handler)
 
-	customer.RegisterCustomerServices(handler, customerUc1, customerUc2, customerUc3, customerUc4, customerUc5, customerUc6, customerUc7, customerUc8, b, l)
-	employee.RegisterEmployeeServices(handler, employeeUc3, employeeUc1, employeeUc2, employeeUc4, employeeUc5, l)
+	customer.RegisterServices(handler, customerUc1, customerUc2, customerUc3, customerUc4, customerUc5, customerUc6, customerUc7, customerUc8, b, l)
+	employee.RegisterServices(handler, employeeUc3, employeeUc1, employeeUc2, employeeUc4, employeeUc5, l)
+	admin.RegisterServices(handler, adminUc2, adminUc1, adminUc3, l)
 
 }

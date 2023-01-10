@@ -30,5 +30,9 @@ func (c *Client) Flush(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	_, err = c.Admin.Delete().Exec(ctx)
+	if err != nil {
+		return err
+	}
 	return nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
+	"github.com/TcMits/wnc-final/internal/usecase/admin"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/employee"
@@ -592,6 +593,197 @@ func NewEmployeeAuthUseCase(
 		},
 		IEmployeeGetUserUseCase: NewEmployeeGetUserUseCase(repoList),
 		IEmployeeConfigUseCase:  config.NewEmployeeConfigUseCase(secretKey, prodOwnerName),
+	}
+	return uc
+}
+
+// Admin
+type (
+	AdminGetUserUseCase struct {
+		gFUC usecase.IAdminGetFirstUseCase
+	}
+	AdminLoginUseCase struct {
+		gUUC       usecase.IAdminGetUserUseCase
+		secretKey  *string
+		refreshTTL time.Duration
+		accessTTL  time.Duration
+	}
+	AdminValidateLoginInputUseCase struct {
+		gUUC usecase.IAdminGetUserUseCase
+	}
+	AdminRenewAccessTokenUseCase struct {
+		gUUC      usecase.IAdminGetUserUseCase
+		secretKey *string
+		accessTTL time.Duration
+		eUUC      usecase.IAdminUpdateUseCase
+	}
+	AdminLogoutUseCase struct {
+		eUUC usecase.IAdminUpdateUseCase
+	}
+	AdminAuthUseCase struct {
+		usecase.IAdminGetUserUseCase
+		usecase.IAdminConfigUseCase
+		*AdminLoginUseCase
+		*AdminValidateLoginInputUseCase
+		*AdminRenewAccessTokenUseCase
+		*AdminLogoutUseCase
+	}
+)
+
+func invalidateAdminToken(
+	ctx context.Context,
+	handler usecase.IAdminUpdateUseCase,
+	user *model.Admin,
+) (*model.Admin, error) {
+	user, err := invalidateToken(ctx, handler.Update, user, &model.AdminUpdateInput{
+		ClearJwtTokenKey: true,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func NewAdminGetUserUseCase(
+	repoList repository.ListModelRepository[*model.Admin, *model.AdminOrderInput, *model.AdminWhereInput],
+) usecase.IAdminGetUserUseCase {
+	uc := &AdminGetUserUseCase{
+		gFUC: admin.NewAdminGetFirstUseCase(repoList),
+	}
+	return uc
+}
+
+func (s *AdminGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
+	usernameAny, ok := input["username"]
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("username is required"))
+	}
+	username, ok := usernameAny.(string)
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))
+	}
+	u, err := s.gFUC.GetFirst(ctx, nil, &model.AdminWhereInput{
+		Username: &username,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+
+func (uc *AdminLoginUseCase) Login(ctx context.Context, input *model.AdminLoginInput) (any, error) {
+	entityAny, err := uc.gUUC.GetUser(ctx, map[string]any{"username": *input.Username})
+	if err != nil {
+		return nil, err
+	}
+	entity := entityAny.(*model.Admin)
+	payload := map[string]any{
+		"username": entity.Username,
+		"password": entity.Password,
+		"jwt_key":  entity.JwtTokenKey,
+	}
+	tokenPair, err := jwt.NewTokenPair(
+		*uc.secretKey,
+		payload,
+		payload,
+		uc.accessTTL,
+		uc.refreshTTL,
+	)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.auth.AdminLoginUseCase.Login: %w", err))
+	}
+	return tokenPair, nil
+}
+func (uc *AdminValidateLoginInputUseCase) ValidateLoginInput(
+	ctx context.Context,
+	input *model.AdminLoginInput,
+) (*model.AdminLoginInput, error) {
+	entityAny, err := uc.gUUC.GetUser(ctx, map[string]any{"username": *input.Username})
+	if err != nil {
+		return nil, err
+	}
+	entity := entityAny.(*model.Admin)
+	if entity == nil {
+		return nil, usecase.ValidationError(fmt.Errorf("invalid username"))
+	}
+	if !entity.IsActive {
+		return nil, usecase.ValidationError(fmt.Errorf("user is not active"))
+	}
+	err = password.ValidatePassword(entity.Password, *input.Password)
+	if err != nil {
+		return nil, usecase.ValidationError(fmt.Errorf("password is invalid"))
+	}
+	return input, nil
+}
+
+func (uc *AdminRenewAccessTokenUseCase) RenewToken(
+	ctx context.Context,
+	refreshToken *string,
+) (any, error) {
+	payload, err := jwt.ParseJWT(*refreshToken, *uc.secretKey)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("invalid token"))
+	}
+	userAny, err := uc.gUUC.GetUser(ctx, map[string]any{"username": payload["username"]})
+	if err != nil {
+		return nil, err
+	}
+	user := userAny.(*model.Admin)
+	_, err = invalidateAdminToken(ctx, uc.eUUC, user)
+	if err != nil {
+		return nil, err
+	}
+	token, err := jwt.NewAccessToken(payload, *uc.secretKey, uc.accessTTL)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.auth.AdminRenewAccessTokenUseCase.RenewToken: %w", err))
+	}
+	return &jwt.TokenPair{
+		RefreshToken: refreshToken,
+		AccessToken:  &token,
+	}, nil
+}
+
+func (uc *AdminLogoutUseCase) Logout(
+	ctx context.Context,
+) error {
+	user := usecase.GetUserAsAdmin(ctx)
+	_, err := invalidateAdminToken(ctx, uc.eUUC, user)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func NewAdminAuthUseCase(
+	repoList repository.ListModelRepository[*model.Admin, *model.AdminOrderInput, *model.AdminWhereInput],
+	repoUpdate repository.UpdateModelRepository[*model.Admin, *model.AdminUpdateInput],
+	secretKey,
+	prodOwnerName *string,
+	refreshTTL,
+	accessTTL time.Duration,
+) usecase.IAdminAuthUseCase {
+	gUUC := NewAdminGetUserUseCase(repoList)
+	uc := &AdminAuthUseCase{
+		AdminLoginUseCase: &AdminLoginUseCase{
+			gUUC:       gUUC,
+			secretKey:  secretKey,
+			refreshTTL: refreshTTL,
+			accessTTL:  accessTTL,
+		},
+		AdminValidateLoginInputUseCase: &AdminValidateLoginInputUseCase{
+			gUUC: gUUC,
+		},
+		AdminRenewAccessTokenUseCase: &AdminRenewAccessTokenUseCase{
+			gUUC:      gUUC,
+			secretKey: secretKey,
+			accessTTL: accessTTL,
+			eUUC:      admin.NewAdminUpdateUseCase(repoUpdate),
+		},
+		AdminLogoutUseCase: &AdminLogoutUseCase{
+			eUUC: admin.NewAdminUpdateUseCase(repoUpdate),
+		},
+		IAdminGetUserUseCase: NewAdminGetUserUseCase(repoList),
+		IAdminConfigUseCase:  config.NewAdminConfigUseCase(secretKey, prodOwnerName),
 	}
 	return uc
 }

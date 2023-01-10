@@ -66,6 +66,20 @@ var employeeFactory = factory.NewFactory(
 }).Attr("IsActive", func(a factory.Args) (interface{}, error) {
 	return generic.GetPointer(true), nil
 })
+var adminFactory = factory.NewFactory(
+	&AdminCreateInput{},
+).Attr("Password", func(a factory.Args) (interface{}, error) {
+	pwd, err := password.GetHashPassword("123456789")
+	return generic.GetPointer(pwd), err
+}).SeqString("Username", func(s string) (interface{}, error) {
+	return fmt.Sprintf("username%s", s), nil
+}).Attr("FirstName", func(a factory.Args) (interface{}, error) {
+	return generic.GetPointer(randomdata.FirstName(randomdata.RandomGender)), nil
+}).Attr("LastName", func(a factory.Args) (interface{}, error) {
+	return generic.GetPointer(randomdata.LastName()), nil
+}).Attr("IsActive", func(a factory.Args) (interface{}, error) {
+	return generic.GetPointer(true), nil
+})
 
 var bankAccountFactory = factory.NewFactory(
 	&BankAccountCreateInput{
@@ -302,6 +316,13 @@ func EmployeeFactory(ctx context.Context, opts ...Opt) *EmployeeCreateInput {
 	}
 	return employeeFactory.MustCreateWithContextAndOption(ctx, optMap).(*EmployeeCreateInput)
 }
+func AdminFactory(ctx context.Context, opts ...Opt) *AdminCreateInput {
+	optMap := make(map[string]any)
+	for _, opt := range opts {
+		optMap[opt.Key] = opt.Value
+	}
+	return adminFactory.MustCreateWithContextAndOption(ctx, optMap).(*AdminCreateInput)
+}
 func CustomerFactory(ctx context.Context, opts ...Opt) *CustomerCreateInput {
 	optMap := make(map[string]any)
 	for _, opt := range opts {
@@ -401,4 +422,14 @@ func CreateFakeEmployee(ctx context.Context, c *Client, i *EmployeeCreateInput, 
 		i = EmployeeFactory(ctx, opts...)
 	}
 	return c.Employee.Create().SetInput(i).Save(ctx)
+}
+func CreateFakeAdmin(ctx context.Context, c *Client, i *AdminCreateInput, opts ...Opt) (*Admin, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if i == nil {
+		EmbedClient(&ctx, c)
+		i = AdminFactory(ctx, opts...)
+	}
+	return c.Admin.Create().SetInput(i).Save(ctx)
 }

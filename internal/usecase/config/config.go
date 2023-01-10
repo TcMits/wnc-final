@@ -22,14 +22,10 @@ type (
 		feeAmount *float64
 		feeDesc   *string
 	}
-)
-
-type (
-	EmployeeConfigUseCase struct {
+	PartnerConfigUseCase struct {
 		usecase.IGetConfigUseCase
-	}
-	AdminConfigUseCase struct {
-		usecase.IGetConfigUseCase
+		feeAmount *float64
+		feeDesc   *string
 	}
 )
 
@@ -47,16 +43,24 @@ func NewEmployeeConfigUseCase(
 	secretKey *string,
 	prodOwnerName *string,
 ) usecase.IEmployeeConfigUseCase {
-	return &EmployeeConfigUseCase{
-		IGetConfigUseCase: NewGetConfigUseCase(secretKey, prodOwnerName),
-	}
+	return NewGetConfigUseCase(secretKey, prodOwnerName)
 }
 func NewAdminConfigUseCase(
 	secretKey *string,
 	prodOwnerName *string,
 ) usecase.IAdminConfigUseCase {
-	return &AdminConfigUseCase{
+	return NewGetConfigUseCase(secretKey, prodOwnerName)
+}
+func NewPartnerConfigUseCase(
+	secretKey *string,
+	prodOwnerName *string,
+	fee *float64,
+	feeDesc *string,
+) usecase.IPartnerConfigUseCase {
+	return &PartnerConfigUseCase{
 		IGetConfigUseCase: NewGetConfigUseCase(secretKey, prodOwnerName),
+		feeAmount:         fee,
+		feeDesc:           feeDesc,
 	}
 }
 
@@ -87,4 +91,11 @@ func (uc *CustomerConfigUseCase) GetFeeAmount() *float64 {
 }
 func (uc *CustomerConfigUseCase) GetFeeDesc() *string {
 	return uc.feeDesc
+}
+
+func (s *PartnerConfigUseCase) GetFeeAmount() *float64 {
+	return s.feeAmount
+}
+func (s *PartnerConfigUseCase) GetFeeDesc() *string {
+	return s.feeDesc
 }

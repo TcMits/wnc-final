@@ -11,6 +11,7 @@ import (
 	"github.com/TcMits/wnc-final/ent/customer"
 	"github.com/TcMits/wnc-final/ent/debt"
 	"github.com/TcMits/wnc-final/ent/employee"
+	"github.com/TcMits/wnc-final/ent/partner"
 	"github.com/TcMits/wnc-final/ent/schema"
 	"github.com/TcMits/wnc-final/ent/transaction"
 	"github.com/google/uuid"
@@ -336,6 +337,35 @@ func init() {
 	employeeDescID := employeeFields[0].Descriptor()
 	// employee.DefaultID holds the default value on creation for the id field.
 	employee.DefaultID = employeeDescID.Default.(func() uuid.UUID)
+	partnerMixin := schema.Partner{}.Mixin()
+	partnerMixinFields0 := partnerMixin[0].Fields()
+	_ = partnerMixinFields0
+	partnerFields := schema.Partner{}.Fields()
+	_ = partnerFields
+	// partnerDescCreateTime is the schema descriptor for create_time field.
+	partnerDescCreateTime := partnerMixinFields0[0].Descriptor()
+	// partner.DefaultCreateTime holds the default value on creation for the create_time field.
+	partner.DefaultCreateTime = partnerDescCreateTime.Default.(func() time.Time)
+	// partnerDescUpdateTime is the schema descriptor for update_time field.
+	partnerDescUpdateTime := partnerMixinFields0[1].Descriptor()
+	// partner.DefaultUpdateTime holds the default value on creation for the update_time field.
+	partner.DefaultUpdateTime = partnerDescUpdateTime.Default.(func() time.Time)
+	// partner.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	partner.UpdateDefaultUpdateTime = partnerDescUpdateTime.UpdateDefault.(func() time.Time)
+	// partnerDescName is the schema descriptor for name field.
+	partnerDescName := partnerFields[5].Descriptor()
+	// partner.DefaultName holds the default value on creation for the name field.
+	partner.DefaultName = partnerDescName.Default.(string)
+	// partner.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	partner.NameValidator = partnerDescName.Validators[0].(func(string) error)
+	// partnerDescIsActive is the schema descriptor for is_active field.
+	partnerDescIsActive := partnerFields[6].Descriptor()
+	// partner.DefaultIsActive holds the default value on creation for the is_active field.
+	partner.DefaultIsActive = partnerDescIsActive.Default.(bool)
+	// partnerDescID is the schema descriptor for id field.
+	partnerDescID := partnerFields[0].Descriptor()
+	// partner.DefaultID holds the default value on creation for the id field.
+	partner.DefaultID = partnerDescID.Default.(func() uuid.UUID)
 	transactionMixin := schema.Transaction{}.Mixin()
 	transactionMixinFields0 := transactionMixin[0].Fields()
 	_ = transactionMixinFields0

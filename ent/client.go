@@ -17,6 +17,7 @@ import (
 	"github.com/TcMits/wnc-final/ent/customer"
 	"github.com/TcMits/wnc-final/ent/debt"
 	"github.com/TcMits/wnc-final/ent/employee"
+	"github.com/TcMits/wnc-final/ent/partner"
 	"github.com/TcMits/wnc-final/ent/transaction"
 
 	"entgo.io/ent/dialect"
@@ -41,6 +42,8 @@ type Client struct {
 	Debt *DebtClient
 	// Employee is the client for interacting with the Employee builders.
 	Employee *EmployeeClient
+	// Partner is the client for interacting with the Partner builders.
+	Partner *PartnerClient
 	// Transaction is the client for interacting with the Transaction builders.
 	Transaction *TransactionClient
 }
@@ -62,6 +65,7 @@ func (c *Client) init() {
 	c.Customer = NewCustomerClient(c.config)
 	c.Debt = NewDebtClient(c.config)
 	c.Employee = NewEmployeeClient(c.config)
+	c.Partner = NewPartnerClient(c.config)
 	c.Transaction = NewTransactionClient(c.config)
 }
 
@@ -102,6 +106,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Customer:    NewCustomerClient(cfg),
 		Debt:        NewDebtClient(cfg),
 		Employee:    NewEmployeeClient(cfg),
+		Partner:     NewPartnerClient(cfg),
 		Transaction: NewTransactionClient(cfg),
 	}, nil
 }
@@ -128,6 +133,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Customer:    NewCustomerClient(cfg),
 		Debt:        NewDebtClient(cfg),
 		Employee:    NewEmployeeClient(cfg),
+		Partner:     NewPartnerClient(cfg),
 		Transaction: NewTransactionClient(cfg),
 	}, nil
 }
@@ -163,6 +169,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.Customer.Use(hooks...)
 	c.Debt.Use(hooks...)
 	c.Employee.Use(hooks...)
+	c.Partner.Use(hooks...)
 	c.Transaction.Use(hooks...)
 }
 
@@ -880,6 +887,96 @@ func (c *EmployeeClient) GetX(ctx context.Context, id uuid.UUID) *Employee {
 // Hooks returns the client hooks.
 func (c *EmployeeClient) Hooks() []Hook {
 	return c.hooks.Employee
+}
+
+// PartnerClient is a client for the Partner schema.
+type PartnerClient struct {
+	config
+}
+
+// NewPartnerClient returns a client for the Partner from the given config.
+func NewPartnerClient(c config) *PartnerClient {
+	return &PartnerClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `partner.Hooks(f(g(h())))`.
+func (c *PartnerClient) Use(hooks ...Hook) {
+	c.hooks.Partner = append(c.hooks.Partner, hooks...)
+}
+
+// Create returns a builder for creating a Partner entity.
+func (c *PartnerClient) Create() *PartnerCreate {
+	mutation := newPartnerMutation(c.config, OpCreate)
+	return &PartnerCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Partner entities.
+func (c *PartnerClient) CreateBulk(builders ...*PartnerCreate) *PartnerCreateBulk {
+	return &PartnerCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Partner.
+func (c *PartnerClient) Update() *PartnerUpdate {
+	mutation := newPartnerMutation(c.config, OpUpdate)
+	return &PartnerUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PartnerClient) UpdateOne(pa *Partner) *PartnerUpdateOne {
+	mutation := newPartnerMutation(c.config, OpUpdateOne, withPartner(pa))
+	return &PartnerUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PartnerClient) UpdateOneID(id uuid.UUID) *PartnerUpdateOne {
+	mutation := newPartnerMutation(c.config, OpUpdateOne, withPartnerID(id))
+	return &PartnerUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Partner.
+func (c *PartnerClient) Delete() *PartnerDelete {
+	mutation := newPartnerMutation(c.config, OpDelete)
+	return &PartnerDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PartnerClient) DeleteOne(pa *Partner) *PartnerDeleteOne {
+	return c.DeleteOneID(pa.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PartnerClient) DeleteOneID(id uuid.UUID) *PartnerDeleteOne {
+	builder := c.Delete().Where(partner.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PartnerDeleteOne{builder}
+}
+
+// Query returns a query builder for Partner.
+func (c *PartnerClient) Query() *PartnerQuery {
+	return &PartnerQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Partner entity by its id.
+func (c *PartnerClient) Get(ctx context.Context, id uuid.UUID) (*Partner, error) {
+	return c.Query().Where(partner.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PartnerClient) GetX(ctx context.Context, id uuid.UUID) *Partner {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *PartnerClient) Hooks() []Hook {
+	return c.hooks.Partner
 }
 
 // TransactionClient is a client for the Transaction schema.

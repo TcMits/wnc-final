@@ -132,3 +132,37 @@ func NewEmployeeBankAccountUseCase(
 		IIsNextUseCase:                                 outliers.NewIsNextUseCase(repoIsNext),
 	}
 }
+
+// partner
+func NewPartnerBankAccountGetFirstUseCase(
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.IPartnerBankAccountGetFirstUseCase {
+	return &PartnerBankAccountGetFirstUseCase{
+		bALUC: NewPartnerBankAccountListUseCase(repoList),
+	}
+}
+
+func NewPartnerBankAccountListUseCase(
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+) usecase.IPartnerBankAccountListUseCase {
+	return &PartnerBankAccountListUseCase{
+		repoList: repoList,
+	}
+}
+func NewPartnerBankAccountUseCase(
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	repoIsNext repository.IIsNextModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	rlp repository.ListModelRepository[*model.Partner, *model.PartnerOrderInput, *model.PartnerWhereInput],
+	sk *string,
+	prodOwnerName *string,
+	fee *float64,
+	feeDesc *string,
+) usecase.IPartnerBankAccountUseCase {
+	return &PartnerBankAccountUseCase{
+		IPartnerConfigUseCase:              config.NewPartnerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		IPartnerGetUserUseCase:             auth.NewPartnerGetUserUseCase(rlp),
+		IPartnerBankAccountGetFirstUseCase: NewPartnerBankAccountGetFirstUseCase(repoList),
+		IPartnerBankAccountListUseCase:     NewPartnerBankAccountListUseCase(repoList),
+		IIsNextUseCase:                     outliers.NewIsNextUseCase(repoIsNext),
+	}
+}

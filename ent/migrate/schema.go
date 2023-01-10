@@ -249,6 +249,31 @@ var (
 			},
 		},
 	}
+	// PartnersColumns holds the columns for the "partners" table.
+	PartnersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "update_time", Type: field.TypeTime},
+		{Name: "api_key", Type: field.TypeString, Unique: true},
+		{Name: "secret_key", Type: field.TypeString, Unique: true},
+		{Name: "public_key", Type: field.TypeString, Unique: true},
+		{Name: "private_key", Type: field.TypeString, Unique: true},
+		{Name: "name", Type: field.TypeString, Nullable: true, Size: 128, Default: ""},
+		{Name: "is_active", Type: field.TypeBool, Nullable: true, Default: true},
+	}
+	// PartnersTable holds the schema information for the "partners" table.
+	PartnersTable = &schema.Table{
+		Name:       "partners",
+		Columns:    PartnersColumns,
+		PrimaryKey: []*schema.Column{PartnersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "partner_create_time",
+				Unique:  false,
+				Columns: []*schema.Column{PartnersColumns[1]},
+			},
+		},
+	}
 	// TransactionsColumns holds the columns for the "transactions" table.
 	TransactionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -329,6 +354,7 @@ var (
 		CustomersTable,
 		DebtsTable,
 		EmployeesTable,
+		PartnersTable,
 		TransactionsTable,
 	}
 )

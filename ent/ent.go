@@ -16,6 +16,7 @@ import (
 	"github.com/TcMits/wnc-final/ent/customer"
 	"github.com/TcMits/wnc-final/ent/debt"
 	"github.com/TcMits/wnc-final/ent/employee"
+	"github.com/TcMits/wnc-final/ent/partner"
 	"github.com/TcMits/wnc-final/ent/transaction"
 )
 
@@ -43,6 +44,7 @@ func columnChecker(table string) func(string) error {
 		customer.Table:    customer.ValidColumn,
 		debt.Table:        debt.ValidColumn,
 		employee.Table:    employee.ValidColumn,
+		partner.Table:     partner.ValidColumn,
 		transaction.Table: transaction.ValidColumn,
 	}
 	check, ok := checks[table]

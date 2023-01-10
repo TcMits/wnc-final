@@ -87,6 +87,16 @@ func (i *EmployeeOrderInput) Order(q *EmployeeQuery) *EmployeeQuery {
 	return q.Order(orderFunctions...)
 }
 
+type PartnerOrderInput []OrderField
+
+func (i *PartnerOrderInput) Order(q *PartnerQuery) *PartnerQuery {
+	orderFunctions := make([]OrderFunc, 0, len(*i))
+	for _, field := range *i {
+		orderFunctions = append(orderFunctions, field.GetOrderFunc())
+	}
+	return q.Order(orderFunctions...)
+}
+
 type TransactionOrderInput []OrderField
 
 func (i *TransactionOrderInput) Order(q *TransactionQuery) *TransactionQuery {

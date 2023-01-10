@@ -404,3 +404,38 @@ type (
 		IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
 )
+
+type (
+	IPartnerConfigUseCase interface {
+		IGetConfigUseCase
+		GetFeeAmount() *float64
+		GetFeeDesc() *string
+	}
+	IPartnerGetUserUseCase interface {
+		IGetUserUseCase
+	}
+	IPartnerListUseCase interface {
+		iListUseCase[*model.Partner, *model.PartnerOrderInput, *model.PartnerWhereInput]
+	}
+	IPartnerGetFirstUseCase interface {
+		GetFirst(context.Context, *model.PartnerOrderInput, *model.PartnerWhereInput) (*model.Partner, error)
+	}
+	IPartnerAuthUseCase interface {
+		Login(context.Context, *model.PartnerLoginInput) (any, error)
+		ValidateLoginInput(context.Context, *model.PartnerLoginInput) (*model.PartnerLoginInput, error)
+	}
+	IPartnerBankAccountListUseCase interface {
+		iListUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
+	IPartnerBankAccountGetFirstUseCase interface {
+		GetFirst(context.Context, *model.BankAccountOrderInput, *model.BankAccountWhereInput) (*model.BankAccount, error)
+	}
+	IPartnerBankAccountUseCase interface {
+		IPartnerGetUserUseCase
+		IPartnerConfigUseCase
+		IPartnerBankAccountListUseCase
+	}
+	IPartnerTransactionValidateCreateUseCase interface {
+		iValidateCreateInput[*model.PartnerTransactionCreateInput]
+	}
+)

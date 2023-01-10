@@ -119,3 +119,23 @@ func (s *EmployeeBankAccountUpdateUseCase) Update(ctx context.Context, m *model.
 	}
 	return m, nil
 }
+
+// partner
+func (uc *PartnerBankAccountListUseCase) List(ctx context.Context, limit, offset *int, o *model.BankAccountOrderInput, w *model.BankAccountWhereInput) ([]*model.BankAccount, error) {
+	entites, err := uc.repoList.List(ctx, limit, offset, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.PartnerBankAccountListUseCase.List: %s", err))
+	}
+	return entites, nil
+}
+func (uc *PartnerBankAccountGetFirstUseCase) GetFirst(ctx context.Context, o *model.BankAccountOrderInput, w *model.BankAccountWhereInput) (*model.BankAccount, error) {
+	l, of := 1, 0
+	entities, err := uc.bALUC.List(ctx, &l, &of, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.GetFirst: %s", err))
+	}
+	if len(entities) > 0 {
+		return entities[0], nil
+	}
+	return nil, nil
+}

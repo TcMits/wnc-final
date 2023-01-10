@@ -12,6 +12,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/employee"
+	"github.com/TcMits/wnc-final/internal/usecase/partner"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
@@ -784,6 +785,116 @@ func NewAdminAuthUseCase(
 		},
 		IAdminGetUserUseCase: NewAdminGetUserUseCase(repoList),
 		IAdminConfigUseCase:  config.NewAdminConfigUseCase(secretKey, prodOwnerName),
+	}
+	return uc
+}
+
+// partner
+type (
+	PartnerGetUserUseCase struct {
+		gFUC usecase.IPartnerGetFirstUseCase
+	}
+	PartnerLoginUseCase struct {
+		gUUC       usecase.IPartnerGetUserUseCase
+		secretKey  *string
+		refreshTTL time.Duration
+		accessTTL  time.Duration
+	}
+	PartnerValidateLoginInputUseCase struct {
+		gUUC usecase.IPartnerGetUserUseCase
+	}
+	PartnerAuthUseCase struct {
+		*PartnerLoginUseCase
+		*PartnerValidateLoginInputUseCase
+	}
+)
+
+func (s *PartnerGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
+	usernameAny, ok := input["username"]
+	if !ok {
+		return nil, usecase.ValidationError(fmt.Errorf("username is required"))
+	}
+	username, ok := usernameAny.(string)
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))
+	}
+	u, err := s.gFUC.GetFirst(ctx, nil, &model.PartnerWhereInput{
+		APIKey: &username,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+func (s *PartnerLoginUseCase) Login(ctx context.Context, input *model.PartnerLoginInput) (any, error) {
+	entityAny, err := s.gUUC.GetUser(ctx, map[string]any{"username": *input.ApiKey})
+	if err != nil {
+		return nil, err
+	}
+	entity := entityAny.(*model.Partner)
+	if err != nil {
+		return nil, usecase.WrapError(err)
+	}
+	payload := map[string]any{
+		"username":  entity.APIKey,
+		"is_active": entity.IsActive,
+	}
+	tokenPair, err := jwt.NewTokenPair(
+		*s.secretKey,
+		payload,
+		payload,
+		s.accessTTL,
+		s.refreshTTL,
+	)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.auth.auth.PartnerLoginUseCase.Login: %w", err))
+	}
+	return tokenPair, nil
+}
+
+func (s *PartnerValidateLoginInputUseCase) ValidateLoginInput(
+	ctx context.Context,
+	input *model.PartnerLoginInput,
+) (*model.PartnerLoginInput, error) {
+	entityAny, err := s.gUUC.GetUser(ctx, map[string]any{"username": *input.ApiKey})
+	if err != nil {
+		return nil, err
+	}
+	entity := entityAny.(*model.Partner)
+	if entity == nil {
+		return nil, usecase.ValidationError((fmt.Errorf("invalid api key")))
+	}
+	if !entity.IsActive {
+		return nil, usecase.ValidationError(fmt.Errorf("user is not active"))
+	}
+	return input, nil
+}
+
+func NewPartnerGetUserUseCase(
+	repoList repository.ListModelRepository[*model.Partner, *model.PartnerOrderInput, *model.PartnerWhereInput],
+) usecase.IPartnerGetUserUseCase {
+	uc := &PartnerGetUserUseCase{
+		gFUC: partner.NewPartnerGetFirstUseCase(repoList),
+	}
+	return uc
+}
+func NewPartnerAuthUseCase(
+	repoList repository.ListModelRepository[*model.Partner, *model.PartnerOrderInput, *model.PartnerWhereInput],
+	secretKey *string,
+	refreshTTL,
+	accessTTL time.Duration,
+) usecase.IPartnerAuthUseCase {
+	gUUC := NewPartnerGetUserUseCase(repoList)
+	uc := &PartnerAuthUseCase{
+		PartnerLoginUseCase: &PartnerLoginUseCase{
+			gUUC:       gUUC,
+			secretKey:  secretKey,
+			refreshTTL: refreshTTL,
+			accessTTL:  accessTTL,
+		},
+		PartnerValidateLoginInputUseCase: &PartnerValidateLoginInputUseCase{
+			gUUC: gUUC,
+		},
 	}
 	return uc
 }

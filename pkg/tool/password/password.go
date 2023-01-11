@@ -15,6 +15,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type RSAKeyPair struct {
+	PublicKey  string
+	PrivateKey string
+}
+
 // ValidatePassword validates a plain password against the model's password.
 func ValidatePassword(passwordHash, password string) error {
 	bytePassword := []byte(password)
@@ -64,6 +69,18 @@ func ParsePublicKey(publicK string) (*rsa.PublicKey, error) {
 	}
 	return pub, nil
 }
+func ParsePrivateKey(privateK string) (*rsa.PrivateKey, error) {
+	block, _ := pem.Decode([]byte(privateK))
+	if block == nil {
+		return nil, errors.New("failed to parse")
+	}
+
+	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+	return priv, nil
+}
 
 func VerifySignature(ctx context.Context, sig, msg, publicK string) error {
 	hashed := sha256.Sum256([]byte(msg))
@@ -74,10 +91,24 @@ func VerifySignature(ctx context.Context, sig, msg, publicK string) error {
 	err = rsa.VerifyPKCS1v15(pub, crypto.SHA256, hashed[:], []byte(sig))
 	return err
 }
+func GenerateSignature(ctx context.Context, msg, privateK string) (string, error) {
+	msgByte := []byte(msg)
+	msgHash := sha256.New()
+	_, err := msgHash.Write(msgByte)
+	if err != nil {
+		return "", err
+	}
+	msgHashSum := msgHash.Sum(nil)
 
-type RSAKeyPair struct {
-	PublicKey  string
-	PrivateKey string
+	priv, err := ParsePrivateKey(privateK)
+	if err != nil {
+		return "", err
+	}
+	signature, err := rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA256, msgHashSum)
+	if err != nil {
+		return "", err
+	}
+	return string(signature), nil
 }
 
 func GenerateRSAKeyPair() (*RSAKeyPair, error) {

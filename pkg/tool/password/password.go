@@ -1,6 +1,10 @@
 package password
 
 import (
+	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 
 	"golang.org/x/crypto/bcrypt"
@@ -27,4 +31,18 @@ func GetHashPassword(password string) (string, error) {
 		return "", err
 	}
 	return string(hashedPassword), nil
+}
+
+func GenerateHashData(ctx context.Context, secretKey, data string) string {
+	h := hmac.New(sha256.New, []byte(secretKey))
+	h.Write([]byte(data))
+	sha := hex.EncodeToString(h.Sum(nil))
+	return sha
+}
+func ValidateHashData(ctx context.Context, data, secretKey, token string) error {
+	tk := GenerateHashData(ctx, data, secretKey)
+	if tk != token {
+		return errors.New("invalid token")
+	}
+	return nil
 }

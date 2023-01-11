@@ -20,6 +20,7 @@ func RegisterOptionController(handler iris.Party, l logger.Interface, uc usecase
 	h.Get("/options", func(ctx iris.Context) {
 		resp := new(optionsResp)
 		resp.DebtStatus = uc.GetDebtStatus(ctx)
+		resp.TransactionStatus = uc.GetTransactionStatus(ctx)
 		resp.Events = uc.GetEvents(ctx)
 		resp.ProdOwnerName = *uc.GetProductOwnerName()
 		ctx.JSON(resp)

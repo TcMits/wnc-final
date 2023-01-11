@@ -20,6 +20,7 @@ type (
 	IOptionsUseCase interface {
 		IGetConfigUseCase
 		GetDebtStatus(context.Context) []string
+		GetTransactionStatus(context.Context) []string
 		GetEvents(context.Context) []string
 	}
 	iListUseCase[ModelType, ModelOrderInput, ModelWhereInput any] interface {

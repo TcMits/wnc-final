@@ -4,13 +4,13 @@ import (
 	"context"
 	"crypto"
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
-	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -58,15 +58,11 @@ func ParsePublicKey(publicK string) (*rsa.PublicKey, error) {
 		return nil, errors.New("failed to parse")
 	}
 
-	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+	pub, err := x509.ParsePKCS1PublicKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
-	pKBuitIn, ok := pub.(*rsa.PublicKey)
-	if !ok {
-		return nil, fmt.Errorf("expect rsa.PublicKey but got %t", pub)
-	}
-	return pKBuitIn, nil
+	return pub, nil
 }
 
 func VerifySignature(ctx context.Context, sig, msg, publicK string) error {
@@ -77,4 +73,33 @@ func VerifySignature(ctx context.Context, sig, msg, publicK string) error {
 	}
 	err = rsa.VerifyPKCS1v15(pub, crypto.SHA256, hashed[:], []byte(sig))
 	return err
+}
+
+type RSAKeyPair struct {
+	PublicKey  string
+	PrivateKey string
+}
+
+func GenerateRSAKeyPair() (*RSAKeyPair, error) {
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, err
+	}
+	pub := key.Public()
+	keyPEM := pem.EncodeToMemory(
+		&pem.Block{
+			Type:  "RSA PRIVATE KEY",
+			Bytes: x509.MarshalPKCS1PrivateKey(key),
+		},
+	)
+	pubPEM := pem.EncodeToMemory(
+		&pem.Block{
+			Type:  "RSA PUBLIC KEY",
+			Bytes: x509.MarshalPKCS1PublicKey(pub.(*rsa.PublicKey)),
+		},
+	)
+	return &RSAKeyPair{
+		PublicKey:  string(pubPEM),
+		PrivateKey: string(keyPEM),
+	}, nil
 }

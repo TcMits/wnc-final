@@ -2,9 +2,6 @@ package ent
 
 import (
 	"context"
-	"crypto/rand"
-	"crypto/rsa"
-	"encoding/base64"
 	"fmt"
 
 	"github.com/Pallinder/go-randomdata"
@@ -39,12 +36,10 @@ func EmbedClient(ctx *context.Context, v *Client) {
 
 var partnerFactory = factory.NewFactory(
 	func() *PartnerCreateInput {
-		privateKey, _ := rsa.GenerateKey(rand.Reader, 2048)
-		public := base64.StdEncoding.EncodeToString(privateKey.N.Bytes())
-		private := base64.StdEncoding.EncodeToString(privateKey.D.Bytes())
+		pair, _ := password.GenerateRSAKeyPair()
 		return &PartnerCreateInput{
-			PublicKey:  public,
-			PrivateKey: private,
+			PublicKey:  pair.PublicKey,
+			PrivateKey: pair.PrivateKey,
 		}
 	}(),
 ).Attr("APIKey", func(a factory.Args) (interface{}, error) {

@@ -3,6 +3,7 @@ package password
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -83,4 +84,13 @@ func TestGetHashPassword(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestParsePublicKey(t *testing.T) {
+	t.Parallel()
+	pair, _ := GenerateRSAKeyPair()
+	public := pair.PublicKey
+	pub, err := ParsePublicKey(public)
+	require.Nil(t, err)
+	require.NotNil(t, pub)
 }

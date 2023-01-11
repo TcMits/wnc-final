@@ -30,6 +30,7 @@ type hooks struct {
 	Customer    []ent.Hook
 	Debt        []ent.Hook
 	Employee    []ent.Hook
+	Partner     []ent.Hook
 	Transaction []ent.Hook
 }
 

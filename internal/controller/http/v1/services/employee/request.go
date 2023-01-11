@@ -35,9 +35,10 @@ type (
 		CashIn *float64 `json:"cash_in" validate:"required"`
 	}
 	transactionFilterReq struct {
-		SenderID   *uuid.UUID `url:"sender_id"`
-		ReceiverID *uuid.UUID `url:"receiver_id"`
-		OnlyDebt   bool       `url:"only_debt"`
+		CustomerID  *uuid.UUID `url:"customer_id" validate:"required_with=OnlyDebt OnlyReceive OnlySend"`
+		OnlyDebt    bool       `url:"only_debt"`
+		OnlyReceive bool       `url:"only_receive"`
+		OnlySend    bool       `url:"only_send"`
 	}
 	transactionOrderReq struct {
 		UpdateTimeAsc  bool `url:"update_time"`

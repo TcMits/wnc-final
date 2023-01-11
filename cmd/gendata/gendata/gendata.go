@@ -124,6 +124,10 @@ func genData(client *ent.Client, cfg *config.Config) {
 			Key:   "CustomerID",
 			Value: u1.ID,
 		},
+		ent.Opt{
+			Key:   "AccountNumber",
+			Value: generic.GetPointer("11112222333344445"),
+		},
 	)
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)

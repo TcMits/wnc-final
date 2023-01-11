@@ -24,6 +24,8 @@ type Tx struct {
 	Debt *DebtClient
 	// Employee is the client for interacting with the Employee builders.
 	Employee *EmployeeClient
+	// Partner is the client for interacting with the Partner builders.
+	Partner *PartnerClient
 	// Transaction is the client for interacting with the Transaction builders.
 	Transaction *TransactionClient
 
@@ -163,6 +165,7 @@ func (tx *Tx) init() {
 	tx.Customer = NewCustomerClient(tx.config)
 	tx.Debt = NewDebtClient(tx.config)
 	tx.Employee = NewEmployeeClient(tx.config)
+	tx.Partner = NewPartnerClient(tx.config)
 	tx.Transaction = NewTransactionClient(tx.config)
 }
 

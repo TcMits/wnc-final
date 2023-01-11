@@ -517,15 +517,21 @@ const docTemplateemployee = `{
                         "in": "query"
                     },
                     {
-                        "type": "string",
-                        "description": "ID of bank account",
-                        "name": "sender_id",
+                        "type": "boolean",
+                        "description": "True if only receive transaction otherwise ignored",
+                        "name": "only_receive",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "True if only send transaction otherwise ignored",
+                        "name": "only_send",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "ID of bank account",
-                        "name": "receiver_id",
+                        "description": "ID of customer, required if only_{query} is true",
+                        "name": "customer_id",
                         "in": "query"
                     }
                 ],

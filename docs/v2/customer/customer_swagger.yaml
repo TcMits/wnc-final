@@ -38,6 +38,19 @@ definitions:
           $ref: '#/definitions/customer.debtResp'
         type: array
     type: object
+  customer.EntitiesResponseTemplate-customer_guestBankAccountResp:
+    properties:
+      count:
+        type: integer
+      next:
+        type: string
+      previous:
+        type: string
+      results:
+        items:
+          $ref: '#/definitions/customer.guestBankAccountResp'
+        type: array
+    type: object
   customer.EntitiesResponseTemplate-customer_transactionResp:
     properties:
       count:
@@ -1050,7 +1063,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/customer.guestBankAccountResp'
+            $ref: '#/definitions/customer.EntitiesResponseTemplate-customer_guestBankAccountResp'
         "500":
           description: Internal Server Error
           schema:
@@ -1215,14 +1228,14 @@ paths:
         in: query
         name: only_debt
         type: boolean
-      - description: ID of bank account
+      - description: True if only receive transaction otherwise ignored
         in: query
-        name: sender_id
-        type: string
-      - description: ID of bank account
+        name: only_receive
+        type: boolean
+      - description: True if only send transaction otherwise ignored
         in: query
-        name: receiver_id
-        type: string
+        name: only_send
+        type: boolean
       produces:
       - application/json
       responses:

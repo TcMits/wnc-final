@@ -5,6 +5,7 @@ import (
 )
 
 type (
+	ActorType                     string
 	Transaction                   = ent.Transaction
 	TransactionOrderInput         = ent.TransactionOrderInput
 	TransactionWhereInput         = ent.TransactionWhereInput
@@ -22,4 +23,18 @@ type (
 		*Transaction
 		Token string
 	}
+	PartnerTransactionCreateInput struct {
+		*TransactionCreateInput
+		Token     string
+		FeePaidBy ActorType
+	}
 )
+
+const (
+	Sender   ActorType = "sender"
+	Receiver ActorType = "receiver"
+)
+
+func (s ActorType) String() string {
+	return string(s)
+}

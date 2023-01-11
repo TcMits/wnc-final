@@ -63,3 +63,19 @@ type (
 		usecase.IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
 )
+
+type (
+	PartnerBankAccountListUseCase struct {
+		repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
+	PartnerBankAccountGetFirstUseCase struct {
+		bALUC usecase.IPartnerBankAccountListUseCase
+	}
+	PartnerBankAccountUseCase struct {
+		usecase.IPartnerConfigUseCase
+		usecase.IPartnerGetUserUseCase
+		usecase.IPartnerBankAccountGetFirstUseCase
+		usecase.IPartnerBankAccountListUseCase
+		usecase.IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
+	}
+)

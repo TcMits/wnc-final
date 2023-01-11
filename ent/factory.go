@@ -2,6 +2,9 @@ package ent
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"encoding/base64"
 	"fmt"
 
 	"github.com/Pallinder/go-randomdata"
@@ -33,6 +36,24 @@ func EmbedClient(ctx *context.Context, v *Client) {
 		*ctx = context.WithValue(*ctx, "client", v)
 	}
 }
+
+var partnerFactory = factory.NewFactory(
+	func() *PartnerCreateInput {
+		privateKey, _ := rsa.GenerateKey(rand.Reader, 2048)
+		public := base64.StdEncoding.EncodeToString(privateKey.N.Bytes())
+		private := base64.StdEncoding.EncodeToString(privateKey.D.Bytes())
+		return &PartnerCreateInput{
+			PublicKey:  public,
+			PrivateKey: private,
+		}
+	}(),
+).Attr("APIKey", func(a factory.Args) (interface{}, error) {
+	return randomdata.Alphanumeric(30), nil
+}).Attr("SecretKey", func(a factory.Args) (interface{}, error) {
+	return randomdata.Alphanumeric(30), nil
+}).Attr("Name", func(a factory.Args) (interface{}, error) {
+	return generic.GetPointer(randomdata.FullName(randomdata.RandomGender)), nil
+})
 
 var customerFactory = factory.NewFactory(
 	&CustomerCreateInput{},
@@ -302,6 +323,13 @@ var contactFactory = factory.NewFactory(
 	return owner.ID, nil
 })
 
+func PartnerFactory(ctx context.Context, opts ...Opt) *PartnerCreateInput {
+	optMap := make(map[string]any)
+	for _, opt := range opts {
+		optMap[opt.Key] = opt.Value
+	}
+	return partnerFactory.MustCreateWithContextAndOption(ctx, optMap).(*PartnerCreateInput)
+}
 func TransactionFactory(ctx context.Context, opts ...Opt) *TransactionCreateInput {
 	optMap := make(map[string]any)
 	for _, opt := range opts {
@@ -432,4 +460,15 @@ func CreateFakeAdmin(ctx context.Context, c *Client, i *AdminCreateInput, opts .
 		i = AdminFactory(ctx, opts...)
 	}
 	return c.Admin.Create().SetInput(i).Save(ctx)
+}
+
+func CreateFakePartner(ctx context.Context, c *Client, i *PartnerCreateInput, opts ...Opt) (*Partner, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if i == nil {
+		EmbedClient(&ctx, c)
+		i = PartnerFactory(ctx, opts...)
+	}
+	return c.Partner.Create().SetInput(i).Save(ctx)
 }

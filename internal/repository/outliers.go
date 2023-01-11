@@ -9,7 +9,7 @@ type IsNextModelRepository[ModelType, OrderInputType, WhereInputType any] struct
 }
 
 func (s *IsNextModelRepository[ModelType, OrderInputType, WhereInputType]) IsNext(ctx context.Context, limit, offset int, or OrderInputType, w WhereInputType) (bool, error) {
-	limit = limit + 1
+	offset = offset + limit
 	entities, err := s.repo.List(ctx, &limit, &offset, or, w)
 	if err != nil {
 		return false, err

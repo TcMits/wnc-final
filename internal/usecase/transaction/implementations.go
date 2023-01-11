@@ -311,11 +311,22 @@ func (s *PartnerTransactionValidateCreateInputUseCase) ValidateCreate(ctx contex
 	user := usecase.GetUserAsPartner(ctx)
 	err = password.ValidateHashData(ctx, *data, user.SecretKey, i.Token)
 	if err != nil {
-		return nil, usecase.WrapError(fmt.Errorf("invalid data: data not integrity"))
+		return nil, usecase.WrapError(fmt.Errorf("data is modified"))
+	}
+	err = password.VerifySignature(ctx, i.Signature, i.Token, user.PublicKey)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("verify signature failed"))
 	}
 	i.ReceiverID = generic.GetPointer(ba.ID)
 	i.ReceiverName = receiver.GetName()
 	i.ReceiverBankName = *s.uc2.GetProductOwnerName()
 	i.SenderBankName = user.Name
 	return i, nil
+}
+func (s *PartnerTransactionCreateUseCase) Create(ctx context.Context, i *model.PartnerTransactionCreateInput) (*model.Transaction, error) {
+	e, err := s.repo.Create(ctx, i.TransactionCreateInput)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.PartnerTransactionCreateUseCase.Create: %s", err))
+	}
+	return e, nil
 }

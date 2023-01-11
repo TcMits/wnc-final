@@ -106,4 +106,13 @@ type (
 		uc3    usecase.ICustomerGetFirstUseCase
 		layout string
 	}
+	PartnerTransactionCreateUseCase struct {
+		repo repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput]
+	}
+	PartnerTransactionUseCase struct {
+		usecase.IPartnerGetUserUseCase
+		usecase.IPartnerConfigUseCase
+		usecase.IPartnerTransactionValidateCreateUseCase
+		usecase.IPartnerTransactionCreateUseCase
+	}
 )

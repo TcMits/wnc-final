@@ -184,7 +184,6 @@ func NewEmployeeTransactionUseCase(
 		IIsNextUseCase:                      NewEmployeeTransactionIsNextUseCase(repoIsNext),
 	}
 }
-
 func NewAdminTransactionIsNextUseCase(
 	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
 ) usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput] {
@@ -220,5 +219,47 @@ func NewAdminTransactionUseCase(
 		IAdminGetUserUseCase:             auth.NewAdminGetUserUseCase(rle),
 		IAdminTransactionGetFirstUseCase: NewAdminTransactionGetFirstUseCase(repoList),
 		IIsNextUseCase:                   NewAdminTransactionIsNextUseCase(repoIsNext),
+	}
+}
+
+func NewPartnerTransactionCreateUseCase(
+	repo repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
+) usecase.IPartnerTransactionCreateUseCase {
+	return &PartnerTransactionCreateUseCase{repo: repo}
+}
+
+func NewPartnerTransactionValidateCreateUseCase(
+	r1 repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	r2 repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+	sk,
+	prodOwnerName,
+	feeDesc,
+	layout *string,
+	fee *float64,
+) usecase.IPartnerTransactionValidateCreateUseCase {
+	return &PartnerTransactionValidateCreateInputUseCase{
+		uc1:    bankaccount.NewPartnerBankAccountGetFirstUseCase(r1),
+		uc2:    config.NewPartnerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		uc3:    customer.NewCustomerGetFirstUseCase(r2),
+		layout: *layout,
+	}
+}
+
+func NewPartnerTransactionUseCase(
+	r1 repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	r2 repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+	r3 repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
+	r4 repository.ListModelRepository[*model.Partner, *model.PartnerOrderInput, *model.PartnerWhereInput],
+	sk,
+	prodOwnerName,
+	feeDesc,
+	layout *string,
+	fee *float64,
+) usecase.IPartnerTransactionUseCase {
+	return &PartnerTransactionUseCase{
+		IPartnerTransactionValidateCreateUseCase: NewPartnerTransactionValidateCreateUseCase(r1, r2, sk, prodOwnerName, feeDesc, layout, fee),
+		IPartnerTransactionCreateUseCase:         NewPartnerTransactionCreateUseCase(r3),
+		IPartnerGetUserUseCase:                   auth.NewPartnerGetUserUseCase(r4),
+		IPartnerConfigUseCase:                    config.NewPartnerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 	}
 }

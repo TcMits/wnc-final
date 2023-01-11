@@ -206,6 +206,24 @@ func Run(cfg *config.Config) {
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)
+	// partner
+	pUc1 := auth.NewPartnerAuthUseCase(
+		repository.GetPartnerListRepository(client),
+		&cfg.App.SecretKey,
+		cfg.AuthUseCase.AccessTTL,
+		cfg.AuthUseCase.RefreshTTL,
+	)
+	pUc2 := transaction.NewPartnerTransactionUseCase(
+		repository.GetBankAccountListRepository(client),
+		repository.GetCustomerListRepository(client),
+		repository.GetPartnerTransactionCreateRepository(client),
+		repository.GetPartnerListRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		&cfg.TransactionUseCase.FeeDesc,
+		&cfg.TransactionUseCase.Layout,
+		&cfg.TransactionUseCase.FeeAmount,
+	)
 
 	v1.RegisterV1HTTPServices(
 		handler,
@@ -225,6 +243,8 @@ func Run(cfg *config.Config) {
 		aUc1,
 		aUc2,
 		aUc3,
+		pUc1,
+		pUc2,
 		b,
 		l,
 	)

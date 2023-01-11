@@ -2,10 +2,15 @@ package password
 
 import (
 	"context"
+	"crypto"
 	"crypto/hmac"
+	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/hex"
+	"encoding/pem"
 	"errors"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -45,4 +50,31 @@ func ValidateHashData(ctx context.Context, data, secretKey, token string) error 
 		return errors.New("invalid token")
 	}
 	return nil
+}
+
+func ParsePublicKey(publicK string) (*rsa.PublicKey, error) {
+	block, _ := pem.Decode([]byte(publicK))
+	if block == nil {
+		return nil, errors.New("failed to parse")
+	}
+
+	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+	pKBuitIn, ok := pub.(*rsa.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("expect rsa.PublicKey but got %t", pub)
+	}
+	return pKBuitIn, nil
+}
+
+func VerifySignature(ctx context.Context, sig, msg, publicK string) error {
+	hashed := sha256.Sum256([]byte(msg))
+	pub, err := ParsePublicKey(publicK)
+	if err != nil {
+		return err
+	}
+	err = rsa.VerifyPKCS1v15(pub, crypto.SHA256, hashed[:], []byte(sig))
+	return err
 }

@@ -1,0 +1,285 @@
+definitions:
+  partner.EntitiesResponseTemplate-partner_bankAccountResp:
+    properties:
+      count:
+        type: integer
+      next:
+        type: string
+      previous:
+        type: string
+      results:
+        items:
+          $ref: '#/definitions/partner.bankAccountResp'
+        type: array
+    type: object
+  partner.bankAccountResp:
+    properties:
+      account_number:
+        type: string
+      create_time:
+        type: string
+      customer_id:
+        type: string
+      id:
+        type: string
+      is_for_payment:
+        type: boolean
+      update_time:
+        type: string
+    type: object
+  partner.errorResponse:
+    properties:
+      code:
+        type: string
+      detail:
+        type: string
+      message:
+        type: string
+    type: object
+  partner.loginRequest:
+    properties:
+      api_key:
+        type: string
+    required:
+    - api_key
+    type: object
+  partner.optionsResp:
+    properties:
+      actor_types:
+        items:
+          type: string
+        type: array
+    type: object
+  partner.tokenPairResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  partner.transactionCreateReq:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+      fee_paid_by:
+        type: string
+      sender_bank_account_number:
+        type: string
+      sender_name:
+        type: string
+      signature:
+        type: string
+      token:
+        type: string
+    required:
+    - amount
+    - description
+    - fee_paid_by
+    - sender_bank_account_number
+    - sender_name
+    - signature
+    - token
+    type: object
+  partner.transactionResp:
+    properties:
+      amount:
+        type: number
+      create_time:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      receiver_bank_account_number:
+        type: string
+      receiver_bank_name:
+        type: string
+      receiver_id:
+        type: string
+      receiver_name:
+        type: string
+      sender_bank_account_number:
+        type: string
+      sender_bank_name:
+        type: string
+      sender_id:
+        type: string
+      sender_name:
+        type: string
+      source_transaction_id:
+        type: string
+      status:
+        $ref: '#/definitions/transaction.Status'
+      transaction_type:
+        $ref: '#/definitions/transaction.TransactionType'
+      update_time:
+        type: string
+    type: object
+  transaction.Status:
+    enum:
+    - draft
+    - draft
+    - verified
+    - success
+    type: string
+    x-enum-varnames:
+    - DefaultStatus
+    - StatusDraft
+    - StatusVerified
+    - StatusSuccess
+  transaction.TransactionType:
+    enum:
+    - internal
+    - external
+    type: string
+    x-enum-varnames:
+    - TransactionTypeInternal
+    - TransactionTypeExternal
+info:
+  contact: {}
+paths:
+  /auth:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate
+      operationId: authenticate
+      parameters:
+      - description: Authenticate
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/partner.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/partner.tokenPairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/partner.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/partner.errorResponse'
+      summary: Authenticate
+      tags:
+      - Authentication
+  /bank-accounts:
+    get:
+      consumes:
+      - application/json
+      description: Show bank accounts
+      operationId: bankaccount-listing
+      parameters:
+      - description: Account number of bank account
+        in: query
+        name: account_number
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/partner.EntitiesResponseTemplate-partner_bankAccountResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/partner.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show bank accounts
+      tags:
+      - Bank account
+  /options:
+    get:
+      consumes:
+      - application/json
+      description: Show all options
+      operationId: option
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/partner.optionsResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/partner.errorResponse'
+      summary: Show options
+      tags:
+      - Option
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: Create a transaction
+      operationId: transaction-create
+      parameters:
+      - description: Create a transaction
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/partner.transactionCreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/partner.transactionResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/partner.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/partner.errorResponse'
+      security:
+      - Bearer: []
+      summary: Create a transaction
+      tags:
+      - Transaction
+  /transactions/validate:
+    post:
+      consumes:
+      - application/json
+      description: Validate before create transaction
+      operationId: transaction-validate
+      parameters:
+      - description: Validate before create transaction
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/partner.transactionCreateReq'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/partner.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/partner.errorResponse'
+      security:
+      - Bearer: []
+      summary: Validate before create transaction
+      tags:
+      - Transaction
+swagger: "2.0"

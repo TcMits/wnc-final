@@ -101,7 +101,7 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 		return nil, err
 	}
 	user := usecase.GetUserAsCustomer(ctx)
-	msg, err := template.RenderToStr(*uc.txcConfirmMailTemp, map[string]string{
+	msg, err := template.RenderFileToStr(*uc.txcConfirmMailTemp, map[string]string{
 		"otp":     otp,
 		"name":    user.GetName(),
 		"expires": fmt.Sprintf("%.0f", uc.otpTimeout.Minutes()),
@@ -273,8 +273,6 @@ func (s *AdminTransactionIsNextUseCase) IsNext(ctx context.Context, limit, offse
 	return s.iNUC.IsNext(ctx, limit, offset, o, w)
 }
 
-// layout  "sender-bank-account-number.sender-name.amount.description.is-fee-paid-by-me.actor-type"
-
 func (s *PartnerTransactionValidateCreateInputUseCase) ValidateCreate(ctx context.Context, i *model.PartnerTransactionCreateInput) (*model.PartnerTransactionCreateInput, error) {
 	ba, err := s.uc1.GetFirst(ctx, nil, &model.BankAccountWhereInput{
 		IsForPayment:  generic.GetPointer(true),
@@ -298,6 +296,16 @@ func (s *PartnerTransactionValidateCreateInputUseCase) ValidateCreate(ctx contex
 	receiver, err := s.uc3.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: generic.GetPointer(ba.CustomerID)})
 	if err != nil {
 		return nil, err
+	}
+	// tk, err := template.RenderToStr(s.layout, map[string]string{
+	// 	"bank-account-number": i.SenderBankAccountNumber,
+	// 	"name":                i.SenderName,
+	// 	"amount":              i.Amount.String(),
+	// 	"description":         *i.Description,
+	// 	"actor-type":          i.FeePaidBy.String(),
+	// }, ctx)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.PartnerTransactionValidateCreateInputUseCase.ValidateCreate: %s", err))
 	}
 	i.ReceiverID = generic.GetPointer(ba.ID)
 	i.ReceiverName = receiver.GetName()

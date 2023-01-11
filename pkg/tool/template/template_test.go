@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRenderToStr(t *testing.T) {
+func TestRenderFileToStr(t *testing.T) {
 	file := "template_test.html"
-	res, err := template.RenderToStr(file, map[string]string{
+	res, err := template.RenderFileToStr(file, map[string]string{
 		"text": "foo",
 	}, context.Background())
 	require.Nil(t, err)

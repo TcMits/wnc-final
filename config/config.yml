@@ -6,7 +6,7 @@ app:
 mail:
   confirm_email_template: './templates/transaction_confirm.html'
   confirm_email_subject: 'Confirm transaction'
-  otp_timeout: '60s'
+  otp_timeout: '300s'
 
 http:
   port: '8080'
@@ -16,3 +16,6 @@ logger:
 
 db:
   pool_max: 90
+
+transaction_usecase:
+  layout: '{{.bank-account-number}}.{{.name}}.{{.amount}}.{{.description}}.{{.actor-type}}'

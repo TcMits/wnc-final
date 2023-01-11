@@ -37,4 +37,7 @@ type (
 		Username *string
 		Password *string
 	}
+	PartnerLoginInput struct {
+		ApiKey *string
+	}
 )

@@ -9,6 +9,7 @@ import (
 	"github.com/TcMits/wnc-final/ent/customer"
 	"github.com/TcMits/wnc-final/ent/debt"
 	"github.com/TcMits/wnc-final/ent/employee"
+	"github.com/TcMits/wnc-final/ent/partner"
 	"github.com/TcMits/wnc-final/ent/predicate"
 	"github.com/TcMits/wnc-final/ent/transaction"
 
@@ -20,7 +21,7 @@ import (
 
 // schemaGraph holds a representation of ent/schema at runtime.
 var schemaGraph = func() *sqlgraph.Schema {
-	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 7)}
+	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 8)}
 	graph.Nodes[0] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   admin.Table,
@@ -153,6 +154,27 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 	}
 	graph.Nodes[6] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   partner.Table,
+			Columns: partner.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUUID,
+				Column: partner.FieldID,
+			},
+		},
+		Type: "Partner",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			partner.FieldCreateTime: {Type: field.TypeTime, Column: partner.FieldCreateTime},
+			partner.FieldUpdateTime: {Type: field.TypeTime, Column: partner.FieldUpdateTime},
+			partner.FieldAPIKey:     {Type: field.TypeString, Column: partner.FieldAPIKey},
+			partner.FieldSecretKey:  {Type: field.TypeString, Column: partner.FieldSecretKey},
+			partner.FieldPublicKey:  {Type: field.TypeString, Column: partner.FieldPublicKey},
+			partner.FieldPrivateKey: {Type: field.TypeString, Column: partner.FieldPrivateKey},
+			partner.FieldName:       {Type: field.TypeString, Column: partner.FieldName},
+			partner.FieldIsActive:   {Type: field.TypeBool, Column: partner.FieldIsActive},
+		},
+	}
+	graph.Nodes[7] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   transaction.Table,
 			Columns: transaction.Columns,
@@ -1041,6 +1063,86 @@ func (f *EmployeeFilter) WhereIsActive(p entql.BoolP) {
 }
 
 // addPredicate implements the predicateAdder interface.
+func (pq *PartnerQuery) addPredicate(pred func(s *sql.Selector)) {
+	pq.predicates = append(pq.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the PartnerQuery builder.
+func (pq *PartnerQuery) Filter() *PartnerFilter {
+	return &PartnerFilter{config: pq.config, predicateAdder: pq}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *PartnerMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the PartnerMutation builder.
+func (m *PartnerMutation) Filter() *PartnerFilter {
+	return &PartnerFilter{config: m.config, predicateAdder: m}
+}
+
+// PartnerFilter provides a generic filtering capability at runtime for PartnerQuery.
+type PartnerFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *PartnerFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[6].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql [16]byte predicate on the id field.
+func (f *PartnerFilter) WhereID(p entql.ValueP) {
+	f.Where(p.Field(partner.FieldID))
+}
+
+// WhereCreateTime applies the entql time.Time predicate on the create_time field.
+func (f *PartnerFilter) WhereCreateTime(p entql.TimeP) {
+	f.Where(p.Field(partner.FieldCreateTime))
+}
+
+// WhereUpdateTime applies the entql time.Time predicate on the update_time field.
+func (f *PartnerFilter) WhereUpdateTime(p entql.TimeP) {
+	f.Where(p.Field(partner.FieldUpdateTime))
+}
+
+// WhereAPIKey applies the entql string predicate on the api_key field.
+func (f *PartnerFilter) WhereAPIKey(p entql.StringP) {
+	f.Where(p.Field(partner.FieldAPIKey))
+}
+
+// WhereSecretKey applies the entql string predicate on the secret_key field.
+func (f *PartnerFilter) WhereSecretKey(p entql.StringP) {
+	f.Where(p.Field(partner.FieldSecretKey))
+}
+
+// WherePublicKey applies the entql string predicate on the public_key field.
+func (f *PartnerFilter) WherePublicKey(p entql.StringP) {
+	f.Where(p.Field(partner.FieldPublicKey))
+}
+
+// WherePrivateKey applies the entql string predicate on the private_key field.
+func (f *PartnerFilter) WherePrivateKey(p entql.StringP) {
+	f.Where(p.Field(partner.FieldPrivateKey))
+}
+
+// WhereName applies the entql string predicate on the name field.
+func (f *PartnerFilter) WhereName(p entql.StringP) {
+	f.Where(p.Field(partner.FieldName))
+}
+
+// WhereIsActive applies the entql bool predicate on the is_active field.
+func (f *PartnerFilter) WhereIsActive(p entql.BoolP) {
+	f.Where(p.Field(partner.FieldIsActive))
+}
+
+// addPredicate implements the predicateAdder interface.
 func (tq *TransactionQuery) addPredicate(pred func(s *sql.Selector)) {
 	tq.predicates = append(tq.predicates, pred)
 }
@@ -1069,7 +1171,7 @@ type TransactionFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *TransactionFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[6].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[7].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})

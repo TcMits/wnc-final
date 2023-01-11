@@ -192,7 +192,7 @@ func (r *transactionRoute) detail(ctx iris.Context) {
 // @Success     200 {object} transactionResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /transactions/{id} [put]
+// @Router      /transactions/confirm-success/{id} [put]
 func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {

@@ -26,5 +26,8 @@ type Debt = FilterFunc
 // Employee is the predicate function for employee builders.
 type Employee = FilterFunc
 
+// Partner is the predicate function for partner builders.
+type Partner = FilterFunc
+
 // Transaction is the predicate function for transaction builders.
 type Transaction = FilterFunc

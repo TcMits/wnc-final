@@ -101,7 +101,7 @@ func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model
 		return nil, err
 	}
 	user := usecase.GetUserAsCustomer(ctx)
-	msg, err := template.RenderToStr(*uc.txcConfirmMailTemp, map[string]string{
+	msg, err := template.RenderFileToStr(*uc.txcConfirmMailTemp, map[string]string{
 		"otp":     otp,
 		"name":    user.GetName(),
 		"expires": fmt.Sprintf("%.0f", uc.otpTimeout.Minutes()),
@@ -271,4 +271,46 @@ func (s *AdminTransactionGetFirstUseCase) GetFirst(ctx context.Context, o *model
 
 func (s *AdminTransactionIsNextUseCase) IsNext(ctx context.Context, limit, offset int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) (bool, error) {
 	return s.iNUC.IsNext(ctx, limit, offset, o, w)
+}
+
+func (s *PartnerTransactionValidateCreateInputUseCase) ValidateCreate(ctx context.Context, i *model.PartnerTransactionCreateInput) (*model.PartnerTransactionCreateInput, error) {
+	ba, err := s.uc1.GetFirst(ctx, nil, &model.BankAccountWhereInput{
+		IsForPayment:  generic.GetPointer(true),
+		AccountNumber: &i.ReceiverBankAccountNumber,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if ba == nil {
+		return nil, usecase.ValidationError(fmt.Errorf("account number is invalid"))
+	}
+	if i.FeePaidBy == model.Receiver {
+		am, _ := i.Amount.Abs().Float64()
+		if am < *s.uc2.GetFeeAmount() {
+			return nil, usecase.ValidationError(fmt.Errorf("insufficient balance sender"))
+		}
+		i.Amount = decimal.NewFromFloat(am - *s.uc2.GetFeeAmount())
+	}
+	i.TransactionType = transaction.TransactionTypeExternal
+	i.Status = generic.GetPointer(transaction.StatusDraft)
+	receiver, err := s.uc3.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: generic.GetPointer(ba.CustomerID)})
+	if err != nil {
+		return nil, err
+	}
+	// tk, err := template.RenderToStr(s.layout, map[string]string{
+	// 	"bank-account-number": i.SenderBankAccountNumber,
+	// 	"name":                i.SenderName,
+	// 	"amount":              i.Amount.String(),
+	// 	"description":         *i.Description,
+	// 	"actor-type":          i.FeePaidBy.String(),
+	// }, ctx)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.PartnerTransactionValidateCreateInputUseCase.ValidateCreate: %s", err))
+	}
+	i.ReceiverID = generic.GetPointer(ba.ID)
+	i.ReceiverName = receiver.GetName()
+	i.ReceiverBankName = *s.uc2.GetProductOwnerName()
+	user := usecase.GetUserAsPartner(ctx)
+	i.SenderBankName = user.Name
+	return i, nil
 }

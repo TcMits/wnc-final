@@ -1316,6 +1316,7 @@ paths:
       summary: Get a transaction
       tags:
       - Transaction
+  /transactions/confirm-success/{id}:
     put:
       consumes:
       - application/json

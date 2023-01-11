@@ -12,13 +12,13 @@ import (
 type (
 	// Config -.
 	Config struct {
-		App  `yaml:"app"`
-		HTTP `yaml:"http"`
-		Log  `yaml:"logger"`
-		DB   `yaml:"db"`
-		Mail `yaml:"mail"`
-		AuthUseCase
-		TransactionUseCase
+		App                `yaml:"app"`
+		HTTP               `yaml:"http"`
+		Log                `yaml:"logger"`
+		DB                 `yaml:"db"`
+		Mail               `yaml:"mail"`
+		AuthUseCase        `yaml:"auth_usecase"`
+		TransactionUseCase `yaml:"transaction_usecase"`
 	}
 
 	// App -.
@@ -65,6 +65,7 @@ type (
 	TransactionUseCase struct {
 		FeeAmount float64 `env-required:"true" env:"FEE_AMOUNT"`
 		FeeDesc   string  `env-required:"true" env:"FEE_DESC"`
+		Layout    string  `yaml:"layout"`
 	}
 )
 

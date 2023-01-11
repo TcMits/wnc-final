@@ -70,6 +70,13 @@ func GetUserAsAdmin(ctx context.Context) *model.Admin {
 	}
 	return user
 }
+func GetUserAsPartner(ctx context.Context) *model.Partner {
+	user, ok := ctx.Value(string(UserCtxKey)).(*model.Partner)
+	if !ok {
+		return nil
+	}
+	return user
+}
 func EmbedUser(ctx context.Context, u *model.Customer) context.Context {
 	newCtx := context.WithValue(ctx, UserCtxKey, UserCtxVal)
 	newCtx = context.WithValue(newCtx, UserCtxVal, u)

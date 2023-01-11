@@ -19,6 +19,9 @@ func (s *OptionUseCase) GetDebtStatus(ctx context.Context) []string {
 func (s *OptionUseCase) GetEvents(ctx context.Context) []string {
 	return sse.Events
 }
+func (s *OptionUseCase) GetTransactionStatus(ctx context.Context) []string {
+	return model.TransactionStatus
+}
 
 func NewOptionUseCase(
 	sk,

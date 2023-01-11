@@ -123,9 +123,10 @@ type (
 		Token *string `json:"token"`
 	}
 	optionsResp struct {
-		DebtStatus    []string `json:"debt_status"`
-		Events        []string `json:"events"`
-		ProdOwnerName string   `json:"prod_owner_name"`
+		DebtStatus        []string `json:"debt_status"`
+		TransactionStatus []string `json:"transaction_status"`
+		Events            []string `json:"events"`
+		ProdOwnerName     string   `json:"prod_owner_name"`
 	}
 	eventResp struct {
 		*sse.EventPayload

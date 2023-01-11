@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/TcMits/wnc-final/ent"
+	"github.com/TcMits/wnc-final/ent/transaction"
 )
 
 type (
@@ -29,6 +30,8 @@ type (
 		FeePaidBy ActorType
 	}
 )
+
+var TransactionStatus = []string{transaction.StatusDraft.String(), transaction.StatusVerified.String(), transaction.StatusSuccess.String()}
 
 const (
 	Sender   ActorType = "sender"

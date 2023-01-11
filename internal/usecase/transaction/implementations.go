@@ -9,6 +9,7 @@ import (
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/mail"
+	"github.com/TcMits/wnc-final/pkg/tool/password"
 	"github.com/TcMits/wnc-final/pkg/tool/template"
 	"github.com/shopspring/decimal"
 )
@@ -297,20 +298,24 @@ func (s *PartnerTransactionValidateCreateInputUseCase) ValidateCreate(ctx contex
 	if err != nil {
 		return nil, err
 	}
-	// tk, err := template.RenderToStr(s.layout, map[string]string{
-	// 	"bank-account-number": i.SenderBankAccountNumber,
-	// 	"name":                i.SenderName,
-	// 	"amount":              i.Amount.String(),
-	// 	"description":         *i.Description,
-	// 	"actor-type":          i.FeePaidBy.String(),
-	// }, ctx)
+	data, err := template.RenderToStr(s.layout, map[string]string{
+		"bank-account-number": i.SenderBankAccountNumber,
+		"name":                i.SenderName,
+		"amount":              i.Amount.String(),
+		"description":         *i.Description,
+		"actor-type":          i.FeePaidBy.String(),
+	}, ctx)
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.PartnerTransactionValidateCreateInputUseCase.ValidateCreate: %s", err))
+	}
+	user := usecase.GetUserAsPartner(ctx)
+	err = password.ValidateHashData(ctx, *data, user.SecretKey, i.Token)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("invalid data: data not integrity"))
 	}
 	i.ReceiverID = generic.GetPointer(ba.ID)
 	i.ReceiverName = receiver.GetName()
 	i.ReceiverBankName = *s.uc2.GetProductOwnerName()
-	user := usecase.GetUserAsPartner(ctx)
 	i.SenderBankName = user.Name
 	return i, nil
 }

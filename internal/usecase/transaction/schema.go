@@ -101,8 +101,9 @@ type (
 
 type (
 	PartnerTransactionValidateCreateInputUseCase struct {
-		uc1 usecase.IPartnerBankAccountGetFirstUseCase
-		uc2 usecase.IPartnerConfigUseCase
-		uc3 usecase.ICustomerGetFirstUseCase
+		uc1    usecase.IPartnerBankAccountGetFirstUseCase
+		uc2    usecase.IPartnerConfigUseCase
+		uc3    usecase.ICustomerGetFirstUseCase
+		layout string
 	}
 )

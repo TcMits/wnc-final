@@ -284,7 +284,7 @@ func (uc *CustomerLogoutUseCase) Logout(
 
 func (s *CustomerForgetPasswordUseCase) ForgetPassword(ctx context.Context, i *model.CustomerForgetPasswordInput) (*model.CustomerForgetPasswordResp, error) {
 	otp := usecase.GenerateOTP(6)
-	msg, err := template.RenderToStr(*s.forgetPwdMailTemp, map[string]string{
+	msg, err := template.RenderFileToStr(*s.forgetPwdMailTemp, map[string]string{
 		"otp":     otp,
 		"name":    i.User.GetName(),
 		"expires": fmt.Sprintf("%.0f", s.otpTimeout.Minutes()),

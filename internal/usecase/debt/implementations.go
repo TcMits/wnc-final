@@ -215,7 +215,7 @@ func (s *CustomerDebtFulfillUseCase) Fulfill(ctx context.Context, e *model.Debt)
 		return nil, err
 	}
 	user := usecase.GetUserAsCustomer(ctx)
-	msg, err := template.RenderToStr(*s.debtFulfillMailTemp, map[string]string{
+	msg, err := template.RenderFileToStr(*s.debtFulfillMailTemp, map[string]string{
 		"otp":     otp,
 		"name":    user.GetName(),
 		"expires": fmt.Sprintf("%.0f", s.otpTimeout.Minutes()),

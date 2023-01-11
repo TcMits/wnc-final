@@ -63,6 +63,7 @@ func NewCustomerTransactionCreateUseCase(
 		cfUC:                  config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 		txcConfirmSubjectMail: confirmSubjectMail,
 		txcConfirmMailTemp:    confirmEmailTemplate,
+		otpTimeout:            otpTimeout,
 	}
 }
 
@@ -133,15 +134,16 @@ func NewCustomerTransactionUseCase(
 	otpTimeout time.Duration,
 ) usecase.ICustomerTransactionUseCase {
 	return &CustomerTransactionUseCase{
-		ICustomerTransactionCreateUseCase:              NewCustomerTransactionCreateUseCase(taskExctor, repoCreate, sk, prodOwnerName, feeDesc, confirmEmailSubject, confirmEmailTemplate, fee, otpTimeout),
-		ICustomerTransactionValidateCreateInputUseCase: NewCustomerTransactionValidateCreateInputUseCase(repoList, rlba, rlc, sk, prodOwnerName, feeDesc, fee),
-		ICustomerTransactionListUseCase:                NewCustomerTransactionListUseCase(repoList),
-		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
-		ICustomerGetUserUseCase:                        auth.NewCustomerGetUserUseCase(rlc),
-		ICustomerTransactionConfirmSuccessUseCase:      NewCustomerTransactionConfirmSuccessUseCase(repoConfirm, sk, prodOwnerName, fee, feeDesc),
-		ICustomerTransactionListMineUseCase:            NewCustomerTransactionListMineUseCase(repoList),
-		ICustomerTransactionGetFirstMineUseCase:        NewCustomerTransactionGetFirstMineUseCase(repoList),
-		IIsNextUseCase:                                 NewCustomerTransactionIsNextUseCase(repoIsNext),
+		ICustomerTransactionCreateUseCase:               NewCustomerTransactionCreateUseCase(taskExctor, repoCreate, sk, prodOwnerName, feeDesc, confirmEmailSubject, confirmEmailTemplate, fee, otpTimeout),
+		ICustomerTransactionValidateCreateInputUseCase:  NewCustomerTransactionValidateCreateInputUseCase(repoList, rlba, rlc, sk, prodOwnerName, feeDesc, fee),
+		ICustomerTransactionListUseCase:                 NewCustomerTransactionListUseCase(repoList),
+		ICustomerConfigUseCase:                          config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		ICustomerGetUserUseCase:                         auth.NewCustomerGetUserUseCase(rlc),
+		ICustomerTransactionConfirmSuccessUseCase:       NewCustomerTransactionConfirmSuccessUseCase(repoConfirm, sk, prodOwnerName, fee, feeDesc),
+		ICustomerTransactionListMineUseCase:             NewCustomerTransactionListMineUseCase(repoList),
+		ICustomerTransactionGetFirstMineUseCase:         NewCustomerTransactionGetFirstMineUseCase(repoList),
+		ICustomerTransactionValidateConfirmInputUseCase: NewCustomerTransactionValidateConfirmInputUseCase(sk, prodOwnerName, fee, feeDesc),
+		IIsNextUseCase:                                  NewCustomerTransactionIsNextUseCase(repoIsNext),
 	}
 }
 

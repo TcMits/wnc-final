@@ -57,12 +57,8 @@ type (
 		Description               string                      `json:"description"`
 	}
 	bankAccountResp struct {
-		ID            uuid.UUID `json:"id"`
-		CreateTime    time.Time `json:"create_time"`
-		UpdateTime    time.Time `json:"update_time"`
-		CustomerID    uuid.UUID `json:"customer_id"`
-		AccountNumber string    `json:"account_number"`
-		IsForPayment  bool      `json:"is_for_payment"`
+		AccountNumber string `json:"account_number"`
+		Name          string `json:"name"`
 	}
 	optionsResp struct {
 		ActorTypes []string `json:"actor_types"`
@@ -101,12 +97,7 @@ func getDefaultResponse(entity any) any {
 	case *model.BankAccount:
 		rs, _ := entity.(*model.BankAccount)
 		result = &bankAccountResp{
-			ID:            rs.ID,
-			CreateTime:    rs.CreateTime,
-			UpdateTime:    rs.UpdateTime,
-			CustomerID:    rs.CustomerID,
 			AccountNumber: rs.AccountNumber,
-			IsForPayment:  rs.IsForPayment,
 		}
 	default:
 		result = entity

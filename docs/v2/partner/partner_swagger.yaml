@@ -1,30 +1,9 @@
 definitions:
-  partner.EntitiesResponseTemplate-partner_bankAccountResp:
-    properties:
-      count:
-        type: integer
-      next:
-        type: string
-      previous:
-        type: string
-      results:
-        items:
-          $ref: '#/definitions/partner.bankAccountResp'
-        type: array
-    type: object
   partner.bankAccountResp:
     properties:
       account_number:
         type: string
-      create_time:
-        type: string
-      customer_id:
-        type: string
-      id:
-        type: string
-      is_for_payment:
-        type: boolean
-      update_time:
+      name:
         type: string
     type: object
   partner.errorResponse:
@@ -175,7 +154,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Show bank accounts
+      description: Get bank account
       operationId: bankaccount-listing
       parameters:
       - description: Account number of bank account
@@ -188,14 +167,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/partner.EntitiesResponseTemplate-partner_bankAccountResp'
+            $ref: '#/definitions/partner.bankAccountResp'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/partner.errorResponse'
       security:
       - Bearer: []
-      summary: Show bank accounts
+      summary: Get bank account
       tags:
       - Bank account
   /options:

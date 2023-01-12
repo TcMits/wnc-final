@@ -71,10 +71,14 @@ type (
 	PartnerBankAccountGetFirstUseCase struct {
 		bALUC usecase.IPartnerBankAccountListUseCase
 	}
+	PartnerBankAccountRespGetFirstUseCase struct {
+		uc1 usecase.IPartnerBankAccountListUseCase
+		uc2 usecase.ICustomerGetFirstUseCase
+	}
 	PartnerBankAccountUseCase struct {
 		usecase.IPartnerConfigUseCase
 		usecase.IPartnerGetUserUseCase
-		usecase.IPartnerBankAccountGetFirstUseCase
+		usecase.IPartnerBankAccountRespGetFirstUseCase
 		usecase.IPartnerBankAccountListUseCase
 		usecase.IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}

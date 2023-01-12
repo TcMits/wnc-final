@@ -1,6 +1,9 @@
 package model
 
-import "github.com/nicksnyder/go-i18n/v2/i18n"
+import (
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/shopspring/decimal"
+)
 
 var _ error = new(TranslatableError)
 
@@ -13,6 +16,26 @@ type TranslatableError struct {
 	translateFunc TranslateFunc
 	code          string
 }
+type (
+	BankAccountPartner struct {
+		AccountNumber string `json:"account_number"`
+		Name          string `json:"name"`
+	}
+	WhereInputPartner struct {
+		AccountNumber string
+	}
+	TransactionCreateInputPartner struct {
+		IsFeePaidByMe             bool
+		Amount                    decimal.Decimal
+		Description               string
+		Token                     string
+		Signature                 string
+		FeePaidBy                 string
+		SenderName                string
+		SenderBankAccountNumber   string
+		ReceiverBankAccountNumber string
+	}
+)
 
 func (e TranslatableError) Error() string {
 	errMsg := ""

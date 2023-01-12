@@ -48,10 +48,11 @@ func (r *transactionRoute) create(ctx iris.Context) {
 	}
 	in := &model.PartnerTransactionCreateInput{
 		TransactionCreateInput: &model.TransactionCreateInput{
-			Amount:                  createInReq.Amount,
-			Description:             &createInReq.Description,
-			SenderName:              createInReq.SenderName,
-			SenderBankAccountNumber: createInReq.SenderBankAccountNumber,
+			Amount:                    createInReq.Amount,
+			Description:               &createInReq.Description,
+			SenderName:                createInReq.SenderName,
+			SenderBankAccountNumber:   createInReq.SenderBankAccountNumber,
+			ReceiverBankAccountNumber: createInReq.ReceiverBankAccountNumber,
 		},
 		FeePaidBy: model.ParseActorType(createInReq.FeePaidBy),
 		Token:     createInReq.Token,

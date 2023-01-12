@@ -431,10 +431,14 @@ type (
 	IPartnerBankAccountGetFirstUseCase interface {
 		GetFirst(context.Context, *model.BankAccountOrderInput, *model.BankAccountWhereInput) (*model.BankAccount, error)
 	}
+	IPartnerBankAccountRespGetFirstUseCase interface {
+		GetFirst(context.Context, *model.BankAccountOrderInput, *model.BankAccountWhereInput) (*model.PartnerBankAccountResp, error)
+	}
 	IPartnerBankAccountUseCase interface {
 		IPartnerGetUserUseCase
 		IPartnerConfigUseCase
 		IPartnerBankAccountListUseCase
+		IPartnerBankAccountRespGetFirstUseCase
 		IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
 	IPartnerTransactionValidateCreateUseCase interface {

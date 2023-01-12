@@ -70,7 +70,7 @@ const docTemplatepartner = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Show bank accounts",
+                "description": "Get bank account",
                 "consumes": [
                     "application/json"
                 ],
@@ -80,7 +80,7 @@ const docTemplatepartner = `{
                 "tags": [
                     "Bank account"
                 ],
-                "summary": "Show bank accounts",
+                "summary": "Get bank account",
                 "operationId": "bankaccount-listing",
                 "parameters": [
                     {
@@ -94,7 +94,7 @@ const docTemplatepartner = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/partner.EntitiesResponseTemplate-partner_bankAccountResp"
+                            "$ref": "#/definitions/partner.bankAccountResp"
                         }
                     },
                     "500": {
@@ -239,45 +239,13 @@ const docTemplatepartner = `{
         }
     },
     "definitions": {
-        "partner.EntitiesResponseTemplate-partner_bankAccountResp": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "next": {
-                    "type": "string"
-                },
-                "previous": {
-                    "type": "string"
-                },
-                "results": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/partner.bankAccountResp"
-                    }
-                }
-            }
-        },
         "partner.bankAccountResp": {
             "type": "object",
             "properties": {
                 "account_number": {
                     "type": "string"
                 },
-                "create_time": {
-                    "type": "string"
-                },
-                "customer_id": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_for_payment": {
-                    "type": "boolean"
-                },
-                "update_time": {
+                "name": {
                     "type": "string"
                 }
             }

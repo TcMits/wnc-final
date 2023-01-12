@@ -6,6 +6,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
+	"github.com/TcMits/wnc-final/internal/webapi"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/mail"
 )
@@ -43,6 +44,7 @@ type (
 		bAGFUC usecase.ICustomerBankAccountGetFirstUseCase
 		cGFUC  usecase.ICustomerGetFirstUseCase
 		tLUC   usecase.ICustomerTransactionListUseCase
+		w1     webapi.ITPBankAPI
 	}
 	CustomerTransactionIsNextUseCase struct {
 		iNUC usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
@@ -104,6 +106,7 @@ type (
 		uc1    usecase.IPartnerBankAccountGetFirstUseCase
 		uc2    usecase.IPartnerConfigUseCase
 		uc3    usecase.ICustomerGetFirstUseCase
+		w1     webapi.ITPBankAPI
 		layout string
 	}
 	PartnerTransactionCreateUseCase struct {

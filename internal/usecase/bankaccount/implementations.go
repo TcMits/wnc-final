@@ -139,3 +139,27 @@ func (uc *PartnerBankAccountGetFirstUseCase) GetFirst(ctx context.Context, o *mo
 	}
 	return nil, nil
 }
+
+func (uc *PartnerBankAccountRespGetFirstUseCase) GetFirst(ctx context.Context, o *model.BankAccountOrderInput, w *model.BankAccountWhereInput) (*model.PartnerBankAccountResp, error) {
+	l, of := 1, 0
+	entities, err := uc.uc1.List(ctx, &l, &of, o, w)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.GetFirst: %s", err))
+	}
+	if len(entities) > 0 {
+		e := entities[0]
+		c, err := uc.uc2.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: generic.GetPointer(e.CustomerID)})
+		if err != nil {
+			return nil, err
+		}
+		r := &model.PartnerBankAccountResp{
+			AccountNumber: e.AccountNumber,
+		}
+		r.Name = "Not valid"
+		if c != nil {
+			r.Name = c.GetName()
+		}
+		return r, nil
+	}
+	return nil, nil
+}

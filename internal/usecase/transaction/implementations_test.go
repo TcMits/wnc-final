@@ -200,6 +200,16 @@ func TestValidateCreateInputUseCase(t *testing.T) {
 				generic.GetPointer("foo"),
 				generic.GetPointer("foo"),
 				generic.GetPointer("foo"),
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
 				generic.GetPointer(float64(1000)),
 			)
 			tt.expect(t, ctx, c, uc)
@@ -378,7 +388,19 @@ func TestConfirmSuccessUseCase(t *testing.T) {
 			require.NoError(t, c.Schema.Create(ctx))
 			tt.setUp(t, &ctx, c)
 			uc := transaction.NewCustomerTransactionConfirmSuccessUseCase(
-				repository.GetTransactionConfirmSuccessRepository(c),
+				repository.GetTransactionConfirmSuccessRepository(
+					c,
+					"foo",
+					"foo",
+					"foo",
+					"foo",
+					"foo",
+					"foo",
+					"foo",
+					"foo",
+					"foo",
+					"foo",
+				),
 				generic.GetPointer("foo"),
 				generic.GetPointer("foo"),
 				generic.GetPointer(float64(1000)),

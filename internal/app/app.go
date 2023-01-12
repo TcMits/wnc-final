@@ -88,7 +88,7 @@ func Run(cfg *config.Config) {
 	)
 	cTxcUc := transaction.NewCustomerTransactionUseCase(
 		task.GetEmailTaskExecutor(cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, l),
-		repository.GetTransactionConfirmSuccessRepository(client),
+		repository.GetTransactionConfirmSuccessRepository(client, cfg.TransactionUseCase.Layout, cfg.BaseURL, cfg.AuthAPI, cfg.BankAccountAPI, cfg.ValidateAPI, cfg.CreateTransactionAPI, cfg.TPBank.Name, cfg.TPBank.ApiKey, cfg.TPBank.SecretKey, cfg.TPBank.PrivateKey),
 		repository.GetTransactionCreateRepository(client),
 		repository.GetTransactionListRepository(client),
 		repository.GetTransactionUpdateRepository(client),
@@ -101,6 +101,16 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeDesc,
 		&cfg.Mail.ConfirmEmailSubject,
 		&cfg.Mail.ConfirmEmailTemplate,
+		cfg.TransactionUseCase.Layout,
+		cfg.BaseURL,
+		cfg.AuthAPI,
+		cfg.BankAccountAPI,
+		cfg.ValidateAPI,
+		cfg.CreateTransactionAPI,
+		cfg.TPBank.Name,
+		cfg.TPBank.ApiKey,
+		cfg.TPBank.SecretKey,
+		cfg.TPBank.PrivateKey,
 		&cfg.TransactionUseCase.FeeAmount,
 		cfg.Mail.OTPTimeout,
 	)

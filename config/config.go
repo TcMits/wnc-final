@@ -31,11 +31,16 @@ type (
 	}
 
 	TPBank struct {
-		Name       string `yaml:"name"`
-		ApiKey     string `yaml:"api_key"`
-		SecretKey  string `yaml:"secret_key"`
-		PrivateKey string `yaml:"private_key"`
-		PublicKey  string `yaml:"public_key"`
+		Name                 string `yaml:"name"`
+		ApiKey               string `yaml:"api_key"`
+		SecretKey            string `yaml:"secret_key"`
+		PrivateKey           string `yaml:"private_key"`
+		PublicKey            string `yaml:"public_key"`
+		BaseURL              string `yaml:"base_url"`
+		AuthAPI              string `yaml:"auth_api"`
+		BankAccountAPI       string `yaml:"bank_account_api"`
+		ValidateAPI          string `yaml:"validate_transaction_api"`
+		CreateTransactionAPI string `yaml:"create_transaction_api"`
 	}
 
 	// HTTP -.

@@ -285,8 +285,8 @@ func NewTPBankSDK(
 	baseUrl,
 	authAPI,
 	bankAccountAPI,
-	validateAPI,
-	accessToken string,
+	createTransactionAPI,
+	validateAPI string,
 ) *TPBankSDK {
 	return &TPBankSDK{
 		ApiKey:                 apiKey,
@@ -294,10 +294,10 @@ func NewTPBankSDK(
 		AuthAPI:                authAPI,
 		BankAccountsAPI:        bankAccountAPI,
 		ValidateTransactionAPI: validateAPI,
-		AccessToken:            accessToken,
 		Layout:                 layout,
 		SecretKey:              secretKey,
 		RSAPrivateK:            rsaPrivateK,
+		CreateTransactionAPI:   createTransactionAPI,
 	}
 }
 
@@ -310,8 +310,8 @@ func NewTPBankAPI(
 	baseUrl,
 	authAPI,
 	bankAccountAPI,
-	validateAPI,
-	accessToken string,
+	createTransactionAPI,
+	validateAPI string,
 ) webapi.ITPBankAPI {
 	sdk := NewTPBankSDK(
 		apiKey,
@@ -321,8 +321,8 @@ func NewTPBankAPI(
 		baseUrl,
 		authAPI,
 		bankAccountAPI,
+		createTransactionAPI,
 		validateAPI,
-		accessToken,
 	)
 	return &TPBankAPI{
 		ITPBankGetBankAccount:         sdk,

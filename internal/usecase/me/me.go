@@ -9,6 +9,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
+	"github.com/TcMits/wnc-final/internal/usecase/user"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/password"
 )
@@ -122,7 +123,7 @@ func NewEmployeeMeUseCase(
 ) usecase.IEmployeeMeUseCase {
 	uc := &EmployeeMeUseCase{
 		IEmployeeConfigUseCase:         config.NewEmployeeConfigUseCase(sk, prodOwnerName),
-		IEmployeeGetUserUseCase:        auth.NewEmployeeGetUserUseCase(repoList),
+		IEmployeeGetUserUseCase:        user.NewEmployeeGetUserUseCase(repoList),
 		IEmployeeGetUserFromCtxUseCase: NewEmployeeGetUserFromCtxUserCase(),
 	}
 	return uc

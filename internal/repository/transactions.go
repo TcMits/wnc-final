@@ -6,13 +6,24 @@ import (
 	"github.com/TcMits/wnc-final/ent"
 	entTxc "github.com/TcMits/wnc-final/ent/transaction"
 	"github.com/TcMits/wnc-final/internal/webapi"
+	"github.com/TcMits/wnc-final/internal/webapi/tpbank"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/transaction"
 )
 
 type TransactionConfirmSuccessRepository struct {
-	client *ent.Client
+	client               *ent.Client
+	layout               string
+	baseUrl              string
+	authAPI              string
+	bankAccountAPI       string
+	validateAPI          string
+	createTransactionAPI string
+	tpBankName           string
+	tpBankApiKey         string
+	tpBankSecretKey      string
+	tpBankPrivateK       string
 }
 type PartnerTransactionCreateRepository struct {
 	client *ent.Client
@@ -51,9 +62,29 @@ func GetTransactionUpdateRepository(
 
 func GetTransactionConfirmSuccessRepository(
 	client *ent.Client,
+	layout,
+	baseUrl,
+	authAPI,
+	bankAccountAPI,
+	validateAPI,
+	createTransactionAPI,
+	tpBankName,
+	tpBankApiKey,
+	tpBankSecretKey,
+	tpBankPrivateK string,
 ) ITransactionConfirmSuccessRepository {
 	return &TransactionConfirmSuccessRepository{
-		client: client,
+		client:               client,
+		layout:               layout,
+		baseUrl:              baseUrl,
+		authAPI:              authAPI,
+		bankAccountAPI:       bankAccountAPI,
+		validateAPI:          validateAPI,
+		createTransactionAPI: createTransactionAPI,
+		tpBankName:           tpBankName,
+		tpBankApiKey:         tpBankApiKey,
+		tpBankSecretKey:      tpBankSecretKey,
+		tpBankPrivateK:       tpBankPrivateK,
 	}
 }
 func GetTransactionIsNextRepository(
@@ -71,12 +102,34 @@ func GetPartnerTransactionCreateRepository(
 
 func newTransactionConfirmSuccessRepository(
 	client *ent.Client,
+	layout,
+	baseUrl,
+	authAPI,
+	bankAccountAPI,
+	validateAPI,
+	createTransactionAPI,
+	tpBankName,
+	tpBankApiKey,
+	tpBankSecretKey,
+	tpBankPrivateK string,
 ) *transactionConfirmSuccessRepository {
 	return &transactionConfirmSuccessRepository{
 		bAUR: GetBankAccountUpdateRepository(client),
 		bALR: GetBankAccountListRepository(client),
 		tUR:  GetTransactionUpdateRepository(client),
 		tCR:  GetTransactionCreateRepository(client),
+		w1: tpbank.NewTPBankAPI(
+			tpBankName,
+			tpBankApiKey,
+			tpBankPrivateK,
+			tpBankSecretKey,
+			layout,
+			baseUrl,
+			authAPI,
+			bankAccountAPI,
+			createTransactionAPI,
+			validateAPI,
+		),
 	}
 }
 func newPartnerTransactionConfirmSuccessRepository(
@@ -184,10 +237,26 @@ func (s *partnerTransactionCreateRepository) create(ctx context.Context, i *mode
 	return txc, nil
 }
 
-func (s *TransactionConfirmSuccessRepository) ConfirmSuccess(ctx context.Context, e *model.Transaction, f *model.TransactionCreateInput) (*model.Transaction, error) {
+func (s *TransactionConfirmSuccessRepository) ConfirmSuccess(
+	ctx context.Context,
+	e *model.Transaction,
+	f *model.TransactionCreateInput,
+) (*model.Transaction, error) {
 	if err := transaction.WithTx(ctx, s.client, func(tx *ent.Tx) error {
 		var errInner error
-		confirmer := newTransactionConfirmSuccessRepository(tx.Client())
+		confirmer := newTransactionConfirmSuccessRepository(
+			tx.Client(),
+			s.layout,
+			s.baseUrl,
+			s.authAPI,
+			s.bankAccountAPI,
+			s.validateAPI,
+			s.createTransactionAPI,
+			s.tpBankName,
+			s.tpBankApiKey,
+			s.tpBankSecretKey,
+			s.tpBankPrivateK,
+		)
 		e, errInner = confirmer.confirm(ctx, e, f)
 		return errInner
 	}); err != nil {

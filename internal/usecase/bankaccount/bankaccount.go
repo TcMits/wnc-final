@@ -7,6 +7,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/outliers"
+	"github.com/TcMits/wnc-final/internal/usecase/user"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
@@ -127,7 +128,7 @@ func NewEmployeeBankAccountUseCase(
 		IEmployeeBankAccountUpdateUseCase:              NewEmployeeBankAccountUpdateUseCase(repoUpdate),
 		IEmployeeBankAccountValidateUpdateInputUseCase: NewEmployeeBankAccountValidateUpdateInputUseCase(),
 		IEmployeeConfigUseCase:                         config.NewEmployeeConfigUseCase(sk, prodOwnerName),
-		IEmployeeGetUserUseCase:                        auth.NewEmployeeGetUserUseCase(rle),
+		IEmployeeGetUserUseCase:                        user.NewEmployeeGetUserUseCase(rle),
 		IEmployeeBankAccountGetFirstUseCase:            NewEmployeeBankAccountGetFirstUseCase(repoList),
 		IEmployeeBankAccountListUseCase:                NewEmployeeBankAccountListUseCase(repoList),
 		IIsNextUseCase:                                 outliers.NewIsNextUseCase(repoIsNext),

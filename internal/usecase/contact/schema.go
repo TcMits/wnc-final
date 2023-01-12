@@ -3,6 +3,7 @@ package contact
 import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
+	"github.com/TcMits/wnc-final/internal/webapi"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
@@ -31,6 +32,8 @@ type (
 	CustomerContactValidateCreateInputUseCase struct {
 		gFMUc usecase.ICustomerContactGetFirstMineUseCase
 		cfUC  usecase.ICustomerConfigUseCase
+		uc4   usecase.ICustomerGetFirstUseCase
+		w1    webapi.ITPBankAPI
 	}
 	CustomerContactIsNextUseCase struct {
 		iNUC usecase.IIsNextUseCase[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput]

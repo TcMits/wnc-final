@@ -9,6 +9,16 @@ import (
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 )
 
+func (s *CustomerTPBankBankAccountGetUseCase) Get(ctx context.Context, w *model.BankAccountWhereInput) (*model.BankAccountPartner, error) {
+	e, err := s.w1.Get(ctx, &model.WhereInputPartner{
+		AccountNumber: *w.AccountNumber,
+	})
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.CustomerTPBankBankAccountGetUseCase.Get: %s", err))
+	}
+	return e, nil
+}
+
 func (uc *CustomerBankAccountUpdateUseCase) Update(ctx context.Context, m *model.BankAccount, i *model.BankAccountUpdateInput) (*model.BankAccount, error) {
 	m, err := uc.repoUpdate.Update(ctx, m, i)
 	if err != nil {

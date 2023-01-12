@@ -84,6 +84,16 @@ func Run(cfg *config.Config) {
 		repository.GetCustomerListRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
+		cfg.TransactionUseCase.Layout,
+		cfg.BaseURL,
+		cfg.AuthAPI,
+		cfg.BankAccountAPI,
+		cfg.ValidateAPI,
+		cfg.CreateTransactionAPI,
+		cfg.TPBank.Name,
+		cfg.TPBank.ApiKey,
+		cfg.TPBank.SecretKey,
+		cfg.TPBank.PrivateKey,
 		&cfg.TransactionUseCase.FeeAmount,
 		&cfg.TransactionUseCase.FeeDesc,
 	)
@@ -150,11 +160,22 @@ func Run(cfg *config.Config) {
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 		&cfg.TransactionUseCase.FeeDesc,
+		cfg.TransactionUseCase.Layout,
+		cfg.BaseURL,
+		cfg.AuthAPI,
+		cfg.BankAccountAPI,
+		cfg.ValidateAPI,
+		cfg.CreateTransactionAPI,
+		cfg.TPBank.Name,
+		cfg.TPBank.ApiKey,
+		cfg.TPBank.SecretKey,
+		cfg.TPBank.PrivateKey,
 		&cfg.TransactionUseCase.FeeAmount,
 	)
 	cCOUc := option.NewOptionUseCase(
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
+		cfg.TPBank.Name,
 	)
 
 	// Employee UseCase

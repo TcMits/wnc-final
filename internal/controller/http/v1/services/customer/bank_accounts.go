@@ -22,6 +22,7 @@ func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc us
 	h.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
 	h.Get("/bank-accounts/guest/{id:uuid}", route.guestDetail)
 	h.Get("/bank-accounts/guest", route.guestListing)
+	h.Get("/bank-accounts/tp-bank", route.getTPBankAcc)
 	h.Put("/bank-accounts/{id:uuid}", route.update)
 	h.Get("/bank-accounts/{id:uuid}", route.detail)
 	h.Get("/bank-accounts", route.listing)
@@ -185,6 +186,38 @@ func (s *bankAccountRoute) detail(ctx iris.Context) {
 	}
 	if entity != nil {
 		ctx.JSON(getResponse(entity))
+	} else {
+		ctx.StatusCode(iris.StatusNoContent)
+	}
+}
+
+// @Summary     Get a tp bank bank account
+// @Description Get a tp bank bank account
+// @ID          tpbankbankaccount-get
+// @Tags  	    Bank account
+// @Security 	Bearer
+// @Accept      json
+// @Produce     json
+// @Param       account_number query string false "Bank account number"
+// @Success     200 {object} bankAccountResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /me/bank-accounts/tp-bank [get]
+func (s *bankAccountRoute) getTPBankAcc(ctx iris.Context) {
+	filterReq := new(bankAccountFilterReq)
+	if err := ctx.ReadQuery(filterReq); err != nil {
+		handleBindingError(ctx, err, s.logger, filterReq, nil)
+		return
+	}
+	e, err := s.uc.Get(ctx, &model.BankAccountWhereInput{
+		AccountNumber: filterReq.AccountNumber,
+	})
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	if e != nil {
+		ctx.JSON(getResponse(e))
 	} else {
 		ctx.StatusCode(iris.StatusNoContent)
 	}

@@ -19,6 +19,7 @@ type (
 		Mail               `yaml:"mail"`
 		AuthUseCase        `yaml:"auth_usecase"`
 		TransactionUseCase `yaml:"transaction_usecase"`
+		TPBank             `yaml:"tp_bank"`
 	}
 
 	// App -.
@@ -27,6 +28,14 @@ type (
 		Version   string `env-required:"true" yaml:"version" env:"APP_VERSION"`
 		SecretKey string `env-required:"true" yaml:"secret_key" env:"APP_SECRET_KEY"`
 		Debug     bool   `env-required:"true" yaml:"debug" env:"APP_DEBUG"`
+	}
+
+	TPBank struct {
+		Name       string `yaml:"name"`
+		ApiKey     string `yaml:"api_key"`
+		SecretKey  string `yaml:"secret_key"`
+		PrivateKey string `yaml:"private_key"`
+		PublicKey  string `yaml:"public_key"`
 	}
 
 	// HTTP -.

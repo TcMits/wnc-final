@@ -8,4 +8,8 @@ type (
 	BankAccountWhereInput  = ent.BankAccountWhereInput
 	BankAccountCreateInput = ent.BankAccountCreateInput
 	BankAccountUpdateInput = ent.BankAccountUpdateInput
+	PartnerBankAccountResp struct {
+		AccountNumber string
+		Name          string
+	}
 )

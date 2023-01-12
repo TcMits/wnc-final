@@ -5,7 +5,9 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
+	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/outliers"
+	"github.com/TcMits/wnc-final/internal/usecase/user"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
@@ -126,7 +128,7 @@ func NewEmployeeBankAccountUseCase(
 		IEmployeeBankAccountUpdateUseCase:              NewEmployeeBankAccountUpdateUseCase(repoUpdate),
 		IEmployeeBankAccountValidateUpdateInputUseCase: NewEmployeeBankAccountValidateUpdateInputUseCase(),
 		IEmployeeConfigUseCase:                         config.NewEmployeeConfigUseCase(sk, prodOwnerName),
-		IEmployeeGetUserUseCase:                        auth.NewEmployeeGetUserUseCase(rle),
+		IEmployeeGetUserUseCase:                        user.NewEmployeeGetUserUseCase(rle),
 		IEmployeeBankAccountGetFirstUseCase:            NewEmployeeBankAccountGetFirstUseCase(repoList),
 		IEmployeeBankAccountListUseCase:                NewEmployeeBankAccountListUseCase(repoList),
 		IIsNextUseCase:                                 outliers.NewIsNextUseCase(repoIsNext),
@@ -141,6 +143,15 @@ func NewPartnerBankAccountGetFirstUseCase(
 		bALUC: NewPartnerBankAccountListUseCase(repoList),
 	}
 }
+func NewPartnerBankAccountRespGetFirstUseCase(
+	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	r1 repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+) usecase.IPartnerBankAccountRespGetFirstUseCase {
+	return &PartnerBankAccountRespGetFirstUseCase{
+		uc1: NewPartnerBankAccountListUseCase(repoList),
+		uc2: customer.NewCustomerGetFirstUseCase(r1),
+	}
+}
 
 func NewPartnerBankAccountListUseCase(
 	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
@@ -153,16 +164,17 @@ func NewPartnerBankAccountUseCase(
 	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	repoIsNext repository.IIsNextModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	rlp repository.ListModelRepository[*model.Partner, *model.PartnerOrderInput, *model.PartnerWhereInput],
+	r1 repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	sk *string,
 	prodOwnerName *string,
 	fee *float64,
 	feeDesc *string,
 ) usecase.IPartnerBankAccountUseCase {
 	return &PartnerBankAccountUseCase{
-		IPartnerConfigUseCase:              config.NewPartnerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
-		IPartnerGetUserUseCase:             auth.NewPartnerGetUserUseCase(rlp),
-		IPartnerBankAccountGetFirstUseCase: NewPartnerBankAccountGetFirstUseCase(repoList),
-		IPartnerBankAccountListUseCase:     NewPartnerBankAccountListUseCase(repoList),
-		IIsNextUseCase:                     outliers.NewIsNextUseCase(repoIsNext),
+		IPartnerConfigUseCase:                  config.NewPartnerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		IPartnerGetUserUseCase:                 auth.NewPartnerGetUserUseCase(rlp),
+		IPartnerBankAccountRespGetFirstUseCase: NewPartnerBankAccountRespGetFirstUseCase(repoList, r1),
+		IPartnerBankAccountListUseCase:         NewPartnerBankAccountListUseCase(repoList),
+		IIsNextUseCase:                         outliers.NewIsNextUseCase(repoIsNext),
 	}
 }

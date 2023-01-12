@@ -1,8 +1,10 @@
 package password
 
 import (
+	"context"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -83,4 +85,34 @@ func TestGetHashPassword(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestParsePublicKey(t *testing.T) {
+	t.Parallel()
+	pair, _ := GenerateRSAKeyPair()
+	public := pair.PublicKey
+	pub, err := ParsePublicKey(public)
+	require.Nil(t, err)
+	require.NotNil(t, pub)
+}
+
+func TestGenerateSignature(t *testing.T) {
+	t.Parallel()
+	pair, _ := GenerateRSAKeyPair()
+	private := pair.PrivateKey
+	msg := "data"
+	sig, err := GenerateSignature(context.Background(), msg, private)
+	require.Nil(t, err)
+	require.NotEmpty(t, sig)
+}
+
+func TestVerifySignature(t *testing.T) {
+	t.Parallel()
+	pair, _ := GenerateRSAKeyPair()
+	private := pair.PrivateKey
+	public := pair.PublicKey
+	msg := "data"
+	sig, _ := GenerateSignature(context.Background(), msg, private)
+	err := VerifySignature(context.Background(), sig, msg, public)
+	require.Nil(t, err)
 }

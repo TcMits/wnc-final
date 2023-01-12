@@ -13,6 +13,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/employee"
 	"github.com/TcMits/wnc-final/internal/usecase/partner"
+	"github.com/TcMits/wnc-final/internal/usecase/user"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
@@ -409,9 +410,6 @@ func (useCase *CustomerGetUserUseCase) GetUser(ctx context.Context, input map[st
 
 // employee
 type (
-	EmployeeGetUserUseCase struct {
-		gFUC usecase.IEmployeeGetFirstUseCase
-	}
 	EmployeeLoginUseCase struct {
 		gUUC       usecase.IEmployeeGetUserUseCase
 		secretKey  *string
@@ -452,33 +450,6 @@ func invalidateEmployeeToken(
 		return nil, err
 	}
 	return user, nil
-}
-
-func NewEmployeeGetUserUseCase(
-	repoList repository.ListModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput],
-) usecase.IEmployeeGetUserUseCase {
-	uc := &EmployeeGetUserUseCase{
-		gFUC: employee.NewEmployeeGetFirstUseCase(repoList),
-	}
-	return uc
-}
-
-func (s *EmployeeGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
-	usernameAny, ok := input["username"]
-	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("username is required"))
-	}
-	username, ok := usernameAny.(string)
-	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))
-	}
-	u, err := s.gFUC.GetFirst(ctx, nil, &model.EmployeeWhereInput{
-		Username: &username,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return u, nil
 }
 
 func (uc *EmployeeLoginUseCase) Login(ctx context.Context, input *model.EmployeeLoginInput) (any, error) {
@@ -572,7 +543,7 @@ func NewEmployeeAuthUseCase(
 	refreshTTL,
 	accessTTL time.Duration,
 ) usecase.IEmployeeAuthUseCase {
-	gUUC := NewEmployeeGetUserUseCase(repoList)
+	gUUC := user.NewEmployeeGetUserUseCase(repoList)
 	uc := &EmployeeAuthUseCase{
 		EmployeeLoginUseCase: &EmployeeLoginUseCase{
 			gUUC:       gUUC,
@@ -592,7 +563,7 @@ func NewEmployeeAuthUseCase(
 		EmployeeLogoutUseCase: &EmployeeLogoutUseCase{
 			eUUC: employee.NewEmployeeUpdateUseCase(repoUpdate),
 		},
-		IEmployeeGetUserUseCase: NewEmployeeGetUserUseCase(repoList),
+		IEmployeeGetUserUseCase: gUUC,
 		IEmployeeConfigUseCase:  config.NewEmployeeConfigUseCase(secretKey, prodOwnerName),
 	}
 	return uc

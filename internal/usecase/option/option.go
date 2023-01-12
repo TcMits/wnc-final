@@ -9,9 +9,13 @@ import (
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
-type OptionUseCase struct {
-	usecase.IGetConfigUseCase
-}
+type (
+	OptionUseCase struct {
+		usecase.IGetConfigUseCase
+	}
+	PartnerOptionUseCase struct {
+	}
+)
 
 func (s *OptionUseCase) GetDebtStatus(ctx context.Context) []string {
 	return model.DebtStatus

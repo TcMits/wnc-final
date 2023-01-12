@@ -1,16 +1,13 @@
 package configpartner
 
 import (
-	"encoding/base64"
 	"fmt"
 	"log"
-
-	"crypto/rand"
-	"crypto/rsa"
 
 	"github.com/Pallinder/go-randomdata"
 	"github.com/TcMits/wnc-final/config"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
+	"github.com/TcMits/wnc-final/pkg/tool/password"
 )
 
 type ConfigVendor struct {
@@ -34,14 +31,12 @@ func GenConfigVendor() {
 	s := new(ConfigVendor)
 	s.ApiKey = randomdata.Alphanumeric(30)
 	s.SecretKey = randomdata.Alphanumeric(30)
-	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	pair, err := password.GenerateRSAKeyPair()
 	if err != nil {
-		log.Fatalf("failed generate config vendor: %v", err)
+		log.Fatalf("config error: %s", err)
 	}
-	public := base64.StdEncoding.EncodeToString(privateKey.N.Bytes())
-	private := base64.StdEncoding.EncodeToString(privateKey.D.Bytes())
-	s.RSAPrivateK = private
-	s.RSAPublicK = public
+	s.RSAPrivateK = pair.PrivateKey
+	s.RSAPublicK = pair.PublicKey
 	l.Info("finish generate config vendor!")
 	fmt.Println(s)
 }

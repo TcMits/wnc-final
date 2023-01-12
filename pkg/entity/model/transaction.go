@@ -27,17 +27,8 @@ type (
 	PartnerTransactionCreateInput struct {
 		*TransactionCreateInput
 		Token     string
-		FeePaidBy ActorType
+		Signature string
 	}
 )
 
 var TransactionStatus = []string{transaction.StatusDraft.String(), transaction.StatusVerified.String(), transaction.StatusSuccess.String()}
-
-const (
-	Sender   ActorType = "sender"
-	Receiver ActorType = "receiver"
-)
-
-func (s ActorType) String() string {
-	return string(s)
-}

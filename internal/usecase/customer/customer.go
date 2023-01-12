@@ -8,6 +8,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/outliers"
+	"github.com/TcMits/wnc-final/internal/usecase/user"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 )
@@ -98,7 +99,9 @@ func NewEmployeeCustomerUseCase(
 		IEmployeeCustomerListUseCase:           NewCustomerListUseCase(repoList),
 		IIsNextUseCase:                         outliers.NewIsNextUseCase(repoIsNext),
 		IEmployeeCustomerGetFirstUseCase:       NewCustomerGetFirstUseCase(repoList),
+		IEmployeeGetUserUseCase:                user.NewEmployeeGetUserUseCase(rle),
 	}
+
 }
 
 func (uc *CustomerGetFirstUseCase) GetFirst(ctx context.Context, o *model.CustomerOrderInput, w *model.CustomerWhereInput) (*model.Customer, error) {

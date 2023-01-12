@@ -11,6 +11,8 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/outliers"
+	"github.com/TcMits/wnc-final/internal/usecase/user"
+	"github.com/TcMits/wnc-final/internal/webapi/tpbank"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/mail"
 )
@@ -74,6 +76,16 @@ func NewCustomerTransactionValidateCreateInputUseCase(
 	sk,
 	prodOwnerName,
 	feeDesc *string,
+	layout,
+	baseUrl,
+	authAPI,
+	bankAccountAPI,
+	validateAPI,
+	createTransactionAPI,
+	tpBankName,
+	tpBankApiKey,
+	tpBankSecretKey,
+	tpBankPrivateK string,
 	fee *float64,
 ) usecase.ICustomerTransactionValidateCreateInputUseCase {
 	return &CustomerTransactionValidateCreateInputUseCase{
@@ -81,6 +93,18 @@ func NewCustomerTransactionValidateCreateInputUseCase(
 		bAGFUC: bankaccount.NewCustomerBankAccountGetFirstUseCase(rlba),
 		cGFUC:  customer.NewCustomerGetFirstUseCase(rlc),
 		cfUC:   config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		w1: tpbank.NewTPBankAPI(
+			tpBankName,
+			tpBankApiKey,
+			tpBankPrivateK,
+			tpBankSecretKey,
+			layout,
+			baseUrl,
+			authAPI,
+			bankAccountAPI,
+			createTransactionAPI,
+			validateAPI,
+		),
 	}
 }
 
@@ -130,12 +154,34 @@ func NewCustomerTransactionUseCase(
 	feeDesc,
 	confirmEmailSubject,
 	confirmEmailTemplate *string,
+	layout,
+	baseUrl,
+	authAPI,
+	bankAccountAPI,
+	validateAPI,
+	createTransactionAPI,
+	tpBankName,
+	tpBankApiKey,
+	tpBankSecretKey,
+	tpBankPrivateK string,
 	fee *float64,
 	otpTimeout time.Duration,
 ) usecase.ICustomerTransactionUseCase {
 	return &CustomerTransactionUseCase{
-		ICustomerTransactionCreateUseCase:               NewCustomerTransactionCreateUseCase(taskExctor, repoCreate, sk, prodOwnerName, feeDesc, confirmEmailSubject, confirmEmailTemplate, fee, otpTimeout),
-		ICustomerTransactionValidateCreateInputUseCase:  NewCustomerTransactionValidateCreateInputUseCase(repoList, rlba, rlc, sk, prodOwnerName, feeDesc, fee),
+		ICustomerTransactionCreateUseCase: NewCustomerTransactionCreateUseCase(taskExctor, repoCreate, sk, prodOwnerName, feeDesc, confirmEmailSubject, confirmEmailTemplate, fee, otpTimeout),
+		ICustomerTransactionValidateCreateInputUseCase: NewCustomerTransactionValidateCreateInputUseCase(repoList, rlba, rlc, sk, prodOwnerName, feeDesc,
+			layout,
+			baseUrl,
+			authAPI,
+			bankAccountAPI,
+			validateAPI,
+			createTransactionAPI,
+			tpBankName,
+			tpBankApiKey,
+			tpBankSecretKey,
+			tpBankPrivateK,
+			fee,
+		),
 		ICustomerTransactionListUseCase:                 NewCustomerTransactionListUseCase(repoList),
 		ICustomerConfigUseCase:                          config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 		ICustomerGetUserUseCase:                         auth.NewCustomerGetUserUseCase(rlc),
@@ -179,12 +225,11 @@ func NewEmployeeTransactionUseCase(
 	return &EmployeeTransactionUseCase{
 		IEmployeeTransactionListUseCase:     NewEmployeeTransactionListUseCase(repoList),
 		IEmployeeConfigUseCase:              config.NewEmployeeConfigUseCase(sk, prodOwnerName),
-		IEmployeeGetUserUseCase:             auth.NewEmployeeGetUserUseCase(rle),
+		IEmployeeGetUserUseCase:             user.NewEmployeeGetUserUseCase(rle),
 		IEmployeeTransactionGetFirstUseCase: NewEmployeeTransactionGetFirstUseCase(repoList),
 		IIsNextUseCase:                      NewEmployeeTransactionIsNextUseCase(repoIsNext),
 	}
 }
-
 func NewAdminTransactionIsNextUseCase(
 	repoIsNext repository.IIsNextModelRepository[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput],
 ) usecase.IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput] {
@@ -220,5 +265,47 @@ func NewAdminTransactionUseCase(
 		IAdminGetUserUseCase:             auth.NewAdminGetUserUseCase(rle),
 		IAdminTransactionGetFirstUseCase: NewAdminTransactionGetFirstUseCase(repoList),
 		IIsNextUseCase:                   NewAdminTransactionIsNextUseCase(repoIsNext),
+	}
+}
+
+func NewPartnerTransactionCreateUseCase(
+	repo repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
+) usecase.IPartnerTransactionCreateUseCase {
+	return &PartnerTransactionCreateUseCase{repo: repo}
+}
+
+func NewPartnerTransactionValidateCreateUseCase(
+	r1 repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	r2 repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+	sk,
+	prodOwnerName,
+	feeDesc,
+	layout *string,
+	fee *float64,
+) usecase.IPartnerTransactionValidateCreateUseCase {
+	return &PartnerTransactionValidateCreateInputUseCase{
+		uc1:    bankaccount.NewPartnerBankAccountGetFirstUseCase(r1),
+		uc2:    config.NewPartnerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		uc3:    customer.NewCustomerGetFirstUseCase(r2),
+		layout: *layout,
+	}
+}
+
+func NewPartnerTransactionUseCase(
+	r1 repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	r2 repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+	r3 repository.CreateModelRepository[*model.Transaction, *model.TransactionCreateInput],
+	r4 repository.ListModelRepository[*model.Partner, *model.PartnerOrderInput, *model.PartnerWhereInput],
+	sk,
+	prodOwnerName,
+	feeDesc,
+	layout *string,
+	fee *float64,
+) usecase.IPartnerTransactionUseCase {
+	return &PartnerTransactionUseCase{
+		IPartnerTransactionValidateCreateUseCase: NewPartnerTransactionValidateCreateUseCase(r1, r2, sk, prodOwnerName, feeDesc, layout, fee),
+		IPartnerTransactionCreateUseCase:         NewPartnerTransactionCreateUseCase(r3),
+		IPartnerGetUserUseCase:                   auth.NewPartnerGetUserUseCase(r4),
+		IPartnerConfigUseCase:                    config.NewPartnerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 	}
 }

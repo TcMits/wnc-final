@@ -1,8 +1,6 @@
 package admin
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
@@ -25,8 +23,8 @@ type (
 
 type (
 	transactionFilterReq struct {
-		DateStart Time    `url:"date_start,int"`
-		DateEnd   Time    `url:"date_end,int"`
+		DateStart *Time   `url:"date_start,int"`
+		DateEnd   *Time   `url:"date_end,int"`
 		BankName  *string `url:"bank_name"`
 	}
 	transactionOrderReq struct {
@@ -48,13 +46,5 @@ type (
 func newListRequest() *listRequest {
 	return &listRequest{
 		Limit: 10,
-	}
-}
-func newTransactionFilterReq() *transactionFilterReq {
-	start := time.Now()
-	end := start.Add(time.Hour * 672)
-	return &transactionFilterReq{
-		DateStart: Time{t: start},
-		DateEnd:   Time{t: end},
 	}
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
+	"github.com/TcMits/wnc-final/internal/usecase/admin"
 	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
@@ -156,7 +157,7 @@ func NewAdminMeUseCase(
 ) usecase.IAdminMeUseCase {
 	uc := &AdminMeUseCase{
 		IAdminConfigUseCase:         config.NewAdminConfigUseCase(sk, prodOwnerName),
-		IAdminGetUserUseCase:        auth.NewAdminGetUserUseCase(repoList),
+		IAdminGetUserUseCase:        admin.NewAdminGetUserUseCase(repoList),
 		IAdminGetUserFromCtxUseCase: NewAdminGetUserFromCtxUserCase(),
 	}
 	return uc

@@ -12,6 +12,7 @@ import (
 type (
 	OptionUseCase struct {
 		usecase.IGetConfigUseCase
+		tpBankName string
 	}
 	PartnerOptionUseCase struct {
 	}
@@ -26,12 +27,17 @@ func (s *OptionUseCase) GetEvents(ctx context.Context) []string {
 func (s *OptionUseCase) GetTransactionStatus(ctx context.Context) []string {
 	return model.TransactionStatus
 }
+func (s *OptionUseCase) GetPartners(ctx context.Context) []string {
+	return []string{s.tpBankName}
+}
 
 func NewOptionUseCase(
 	sk,
 	prodOwnerName *string,
+	tpBankName string,
 ) usecase.IOptionsUseCase {
 	return &OptionUseCase{
 		IGetConfigUseCase: config.NewGetConfigUseCase(sk, prodOwnerName),
+		tpBankName:        tpBankName,
 	}
 }

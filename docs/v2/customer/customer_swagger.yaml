@@ -312,8 +312,16 @@ definitions:
         items:
           type: string
         type: array
+      partners:
+        items:
+          type: string
+        type: array
       prod_owner_name:
         type: string
+      transaction_status:
+        items:
+          type: string
+        type: array
     type: object
   customer.renewTokenRequest:
     properties:
@@ -328,6 +336,22 @@ definitions:
         type: string
       refresh_token:
         type: string
+    type: object
+  customer.tpBankTransactionCreateReq:
+    properties:
+      account_number:
+        type: string
+      amount:
+        type: number
+      description:
+        type: string
+      is_fee_paid_by_me:
+        type: boolean
+    required:
+    - account_number
+    - amount
+    - description
+    - is_fee_paid_by_me
     type: object
   customer.transactionConfirmReq:
     properties:
@@ -1105,6 +1129,37 @@ paths:
       summary: Get a guest bank account
       tags:
       - Bank account
+  /me/bank-accounts/tp-bank:
+    get:
+      consumes:
+      - application/json
+      description: Get a tp bank bank account
+      operationId: tpbankbankaccount-get
+      parameters:
+      - description: Bank account number
+        in: query
+        name: account_number
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.bankAccountResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a tp bank bank account
+      tags:
+      - Bank account
   /me/change-password:
     post:
       consumes:
@@ -1352,6 +1407,77 @@ paths:
       security:
       - Bearer: []
       summary: Confirm success
+      tags:
+      - Transaction
+  /transactions/tp-bank:
+    post:
+      consumes:
+      - application/json
+      description: Create a tp bank transaction
+      operationId: tpbanktransaction-create
+      parameters:
+      - description: Create a tp bank transaction
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.tpBankTransactionCreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/customer.transactionCreateResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Create a tp bank transaction
+      tags:
+      - Transaction
+  /transactions/tp-bank/confirm-success/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Confirm a tp bank transaction
+      operationId: tpbanktransaction-confirmsuccess
+      parameters:
+      - description: Confirm a transaction
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.transactionConfirmReq'
+      - description: ID of transaction
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.transactionResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Confirm a tp bank transaction
       tags:
       - Transaction
 swagger: "2.0"

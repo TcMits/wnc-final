@@ -570,9 +570,6 @@ func NewEmployeeAuthUseCase(
 
 // Admin
 type (
-	AdminGetUserUseCase struct {
-		gFUC usecase.IAdminGetFirstUseCase
-	}
 	AdminLoginUseCase struct {
 		gUUC       usecase.IAdminGetUserUseCase
 		secretKey  *string
@@ -613,33 +610,6 @@ func invalidateAdminToken(
 		return nil, err
 	}
 	return user, nil
-}
-
-func NewAdminGetUserUseCase(
-	repoList repository.ListModelRepository[*model.Admin, *model.AdminOrderInput, *model.AdminWhereInput],
-) usecase.IAdminGetUserUseCase {
-	uc := &AdminGetUserUseCase{
-		gFUC: admin.NewAdminGetFirstUseCase(repoList),
-	}
-	return uc
-}
-
-func (s *AdminGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
-	usernameAny, ok := input["username"]
-	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("username is required"))
-	}
-	username, ok := usernameAny.(string)
-	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))
-	}
-	u, err := s.gFUC.GetFirst(ctx, nil, &model.AdminWhereInput{
-		Username: &username,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return u, nil
 }
 
 func (uc *AdminLoginUseCase) Login(ctx context.Context, input *model.AdminLoginInput) (any, error) {
@@ -733,7 +703,7 @@ func NewAdminAuthUseCase(
 	refreshTTL,
 	accessTTL time.Duration,
 ) usecase.IAdminAuthUseCase {
-	gUUC := NewAdminGetUserUseCase(repoList)
+	gUUC := admin.NewAdminGetUserUseCase(repoList)
 	uc := &AdminAuthUseCase{
 		AdminLoginUseCase: &AdminLoginUseCase{
 			gUUC:       gUUC,
@@ -753,7 +723,7 @@ func NewAdminAuthUseCase(
 		AdminLogoutUseCase: &AdminLogoutUseCase{
 			eUUC: admin.NewAdminUpdateUseCase(repoUpdate),
 		},
-		IAdminGetUserUseCase: NewAdminGetUserUseCase(repoList),
+		IAdminGetUserUseCase: gUUC,
 		IAdminConfigUseCase:  config.NewAdminConfigUseCase(secretKey, prodOwnerName),
 	}
 	return uc

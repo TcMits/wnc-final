@@ -3,6 +3,7 @@ package bankaccount
 import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
+	"github.com/TcMits/wnc-final/internal/webapi"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
@@ -28,6 +29,9 @@ type (
 	CustomerBankAccountIsNextUseCase struct {
 		iNUC usecase.IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
+	CustomerTPBankBankAccountGetUseCase struct {
+		w1 webapi.ITPBankAPI
+	}
 	CustomerBankAccountUseCase struct {
 		usecase.ICustomerBankAccountUpdateUseCase
 		usecase.ICustomerBankAccountValidateUpdateInputUseCase
@@ -37,6 +41,7 @@ type (
 		usecase.ICustomerBankAccountGetFirstMineUseCase
 		usecase.ICustomerBankAccountListMineUseCase
 		usecase.ICustomerBankAccountGetFirstUseCase
+		usecase.ICustomerTPBankBankAccountGetUseCase
 		usecase.IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
 )

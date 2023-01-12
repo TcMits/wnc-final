@@ -6,6 +6,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
+	"github.com/TcMits/wnc-final/internal/usecase/admin"
 	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
@@ -262,7 +263,7 @@ func NewAdminTransactionUseCase(
 	return &AdminTransactionUseCase{
 		IAdminTransactionListUseCase:     NewAdminTransactionListUseCase(repoList),
 		IAdminConfigUseCase:              config.NewAdminConfigUseCase(sk, prodOwnerName),
-		IAdminGetUserUseCase:             auth.NewAdminGetUserUseCase(rle),
+		IAdminGetUserUseCase:             admin.NewAdminGetUserUseCase(rle),
 		IAdminTransactionGetFirstUseCase: NewAdminTransactionGetFirstUseCase(repoList),
 		IIsNextUseCase:                   NewAdminTransactionIsNextUseCase(repoIsNext),
 	}

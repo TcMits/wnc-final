@@ -25,6 +25,8 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 		logger: l,
 	}
 	h.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
+	h.Post("/transactions/tp-bank/confirm-success/{id:uuid}", route.tpBankConfirm)
+	h.Post("/transactions/tp-bank", route.tpBankCreate)
 	h.Put("/transactions/confirm-success/{id:uuid}", route.confirmSuccess)
 	h.Get("/transactions/{id:uuid}", route.detail)
 	h.Get("/transactions", route.listing)
@@ -150,6 +152,46 @@ func (r *transactionRoute) create(ctx iris.Context) {
 	ctx.JSON(getResponse(entity))
 }
 
+// @Summary     Create a tp bank transaction
+// @Description Create a tp bank transaction
+// @ID          tpbanktransaction-create
+// @Tags  	    Transaction
+// @Security 	Bearer
+// @Accept      json
+// @Produce     json
+// @Param       payload body tpBankTransactionCreateReq true "Create a tp bank transaction"
+// @Success     201 {object} transactionCreateResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /transactions/tp-bank [post]
+func (r *transactionRoute) tpBankCreate(ctx iris.Context) {
+	createInReq := new(tpBankTransactionCreateReq)
+	if err := ctx.ReadBody(createInReq); err != nil {
+		handleBindingError(ctx, err, r.logger, createInReq, nil)
+		return
+	}
+	in := &model.TransactionCreateUseCaseInput{
+		TransactionCreateInput: &model.TransactionCreateInput{
+			ReceiverBankAccountNumber: createInReq.AccountNumber,
+			Amount:                    createInReq.Amount,
+			Description:               &createInReq.Description,
+			TransactionType:           transaction.TransactionTypeInternal,
+		},
+		IsFeePaidByMe: createInReq.IsFeePaidByMe,
+	}
+	in, err := r.uc.ValidateCreate(ctx, in)
+	if err != nil {
+		HandleError(ctx, err, r.logger)
+		return
+	}
+	entity, err := r.uc.Create(ctx, in)
+	if err != nil {
+		HandleError(ctx, err, r.logger)
+		return
+	}
+	ctx.JSON(getResponse(entity))
+}
+
 // @Summary     Get a transaction
 // @Description Get a transaction
 // @ID          transaction-get
@@ -194,6 +236,55 @@ func (r *transactionRoute) detail(ctx iris.Context) {
 // @Failure     500 {object} errorResponse
 // @Router      /transactions/confirm-success/{id} [put]
 func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
+	req := new(detailRequest)
+	if err := ctx.ReadParams(req); err != nil {
+		handleBindingError(ctx, err, r.logger, req, nil)
+		return
+	}
+	entity, err := r.uc.GetFirstMine(ctx, nil, &model.TransactionWhereInput{ID: req.id})
+	if err != nil {
+		HandleError(ctx, err, r.logger)
+		return
+	}
+	if entity != nil {
+		confirmReq := new(transactionConfirmReq)
+		if err := ctx.ReadBody(confirmReq); err != nil {
+			handleBindingError(ctx, err, r.logger, confirmReq, nil)
+			return
+		}
+		err = r.uc.ValidateConfirmInput(ctx, entity, &model.TransactionConfirmUseCaseInput{
+			Token: confirmReq.Token,
+			Otp:   confirmReq.OTP,
+		})
+		if err != nil {
+			HandleError(ctx, err, r.logger)
+			return
+		}
+		entity, err = r.uc.ConfirmSuccess(ctx, entity, &confirmReq.Token)
+		if err != nil {
+			HandleError(ctx, err, r.logger)
+			return
+		}
+		ctx.JSON(getResponse(entity))
+	} else {
+		ctx.StatusCode(iris.StatusNoContent)
+	}
+}
+
+// @Summary     Confirm a tp bank transaction
+// @Description Confirm a tp bank transaction
+// @ID          tpbanktransaction-confirmsuccess
+// @Tags  	    Transaction
+// @Security 	Bearer
+// @Accept      json
+// @Produce     json
+// @Param       payload body transactionConfirmReq true "Confirm a transaction"
+// @Param       id path string true "ID of transaction"
+// @Success     200 {object} transactionResp
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /transactions/tp-bank/confirm-success/{id} [put]
+func (r *transactionRoute) tpBankConfirm(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ctx.ReadParams(req); err != nil {
 		handleBindingError(ctx, err, r.logger, req, nil)

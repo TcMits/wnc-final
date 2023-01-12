@@ -8,8 +8,37 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/employee"
 	"github.com/TcMits/wnc-final/internal/usecase/outliers"
+	"github.com/TcMits/wnc-final/internal/webapi/tpbank"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
+
+func NewCustomerTPBankBankAccountGetUseCase(
+	layout,
+	baseUrl,
+	authAPI,
+	bankAccountAPI,
+	validateAPI,
+	createTransactionAPI,
+	tpBankName,
+	tpBankApiKey,
+	tpBankSecretKey,
+	tpBankPrivateK string,
+) usecase.ICustomerTPBankBankAccountGetUseCase {
+	return &CustomerTPBankBankAccountGetUseCase{
+		w1: tpbank.NewTPBankAPI(
+			tpBankName,
+			tpBankApiKey,
+			tpBankPrivateK,
+			tpBankSecretKey,
+			layout,
+			baseUrl,
+			authAPI,
+			bankAccountAPI,
+			createTransactionAPI,
+			validateAPI,
+		),
+	}
+}
 
 func NewCustomerBankAccountGetFirstUseCase(
 	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
@@ -70,8 +99,18 @@ func NewCustomerBankAccountUseCase(
 	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	repoIsNext repository.IIsNextModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
-	sk *string,
+	sk,
 	prodOwnerName *string,
+	layout,
+	baseUrl,
+	authAPI,
+	bankAccountAPI,
+	validateAPI,
+	createTransactionAPI,
+	tpBankName,
+	tpBankApiKey,
+	tpBankSecretKey,
+	tpBankPrivateK string,
 	fee *float64,
 	feeDesc *string,
 ) usecase.ICustomerBankAccountUseCase {
@@ -84,7 +123,19 @@ func NewCustomerBankAccountUseCase(
 		ICustomerBankAccountGetFirstMineUseCase:        NewCustomerBankAccountGetFirstMineUseCase(repoList),
 		ICustomerBankAccountListMineUseCase:            NewCustomerBankAccountListMineUseCase(repoList),
 		ICustomerBankAccountGetFirstUseCase:            NewCustomerBankAccountGetFirstUseCase(repoList),
-		IIsNextUseCase:                                 NewCustomerBankAccountIsNextUseCase(repoIsNext),
+		ICustomerTPBankBankAccountGetUseCase: NewCustomerTPBankBankAccountGetUseCase(
+			layout,
+			baseUrl,
+			authAPI,
+			bankAccountAPI,
+			validateAPI,
+			createTransactionAPI,
+			tpBankName,
+			tpBankApiKey,
+			tpBankSecretKey,
+			tpBankPrivateK,
+		),
+		IIsNextUseCase: NewCustomerBankAccountIsNextUseCase(repoIsNext),
 	}
 }
 

@@ -172,5 +172,9 @@ func (s *CustomerValidateCreateUseCase) ValidateCreate(ctx context.Context, i *m
 }
 
 func (s *CustomerCreateUseCase) Create(ctx context.Context, i *model.CustomerCreateInput) (*model.Customer, error) {
-	return s.repoCreate.Create(ctx, i)
+	e, err := s.repoCreate.Create(ctx, i)
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.customer.customer.CustomerCreateUseCase.Create: %s", err))
+	}
+	return e, nil
 }

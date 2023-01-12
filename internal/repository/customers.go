@@ -94,6 +94,8 @@ func (s *customerCreateRepository) create(ctx context.Context, i *model.Customer
 		CustomerID:    e.ID,
 		IsForPayment:  generic.GetPointer(true),
 		AccountNumber: &accountNumberCandidate,
+		CashIn:        float64(1),
+		CashOut:       float64(1),
 	})
 	if err != nil {
 		return nil, err

@@ -131,7 +131,6 @@ var transactionFactory = factory.NewFactory(
 		return nil, err
 	}
 	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", generic.GetPointer(true)})
-	fmt.Println(e.ID)
 	if err != nil {
 		return nil, err
 	}

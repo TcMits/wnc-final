@@ -267,9 +267,20 @@ func TestValidateCreateUseCase(t *testing.T) {
 			tt.setUp(t, &ctx, c)
 			uc := contact.NewCustomerContactValidateCreateInputUseCase(
 				repository.GetContactListRepository(c),
+				repository.GetCustomerListRepository(c),
 				generic.GetPointer("foo"),
 				generic.GetPointer("foo"),
 				generic.GetPointer("foo"),
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
+				"foo",
 				generic.GetPointer(float64(1000)),
 			)
 			tt.expect(t, ctx, c, uc)

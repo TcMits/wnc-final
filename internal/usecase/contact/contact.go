@@ -5,7 +5,9 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
+	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/outliers"
+	"github.com/TcMits/wnc-final/internal/webapi/tpbank"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
@@ -56,14 +58,38 @@ func NewCustomerContactValidateUpdateInputUseCase(
 }
 func NewCustomerContactValidateCreateInputUseCase(
 	repoList repository.ListModelRepository[*model.Contact, *model.ContactOrderInput, *model.ContactWhereInput],
+	r1 repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	sk,
 	prodOwnerName,
 	feeDesc *string,
+	layout,
+	baseUrl,
+	authAPI,
+	bankAccountAPI,
+	validateAPI,
+	createTransactionAPI,
+	tpBankName,
+	tpBankApiKey,
+	tpBankSecretKey,
+	tpBankPrivateK string,
 	fee *float64,
 ) usecase.ICustomerContactValidateCreateInputUseCase {
 	return &CustomerContactValidateCreateInputUseCase{
 		gFMUc: NewCustomerContactGetFirstMineUseCase(repoList),
 		cfUC:  config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		uc4:   customer.NewCustomerGetFirstUseCase(r1),
+		w1: tpbank.NewTPBankAPI(
+			tpBankName,
+			tpBankApiKey,
+			tpBankPrivateK,
+			tpBankSecretKey,
+			layout,
+			baseUrl,
+			authAPI,
+			bankAccountAPI,
+			createTransactionAPI,
+			validateAPI,
+		),
 	}
 }
 func NewCustomerContactIsNextUseCase(
@@ -84,6 +110,16 @@ func NewCustomerContactUseCase(
 	sk,
 	prodOwnerName,
 	feeDesc *string,
+	layout,
+	baseUrl,
+	authAPI,
+	bankAccountAPI,
+	validateAPI,
+	createTransactionAPI,
+	tpBankName,
+	tpBankApiKey,
+	tpBankSecretKey,
+	tpBankPrivateK string,
 	fee *float64,
 ) usecase.ICustomerContactUseCase {
 	return &CustomerContactUseCase{
@@ -95,8 +131,20 @@ func NewCustomerContactUseCase(
 		ICustomerContactUpdateUseCase:              NewCustomerContactUpdateUseCase(repoUpdate),
 		ICustomerContactValidateUpdateInputUseCase: NewCustomerContactValidateUpdateInputUseCase(repoList),
 		ICustomerContactCreateUseCase:              NewCustomerContactCreateUseCase(repoCreate),
-		ICustomerContactValidateCreateInputUseCase: NewCustomerContactValidateCreateInputUseCase(repoList, sk, prodOwnerName, feeDesc, fee),
-		ICustomerContactDeleteUseCase:              NewCustomerContactDeleteUseCase(repoDelete),
-		IIsNextUseCase:                             NewCustomerContactIsNextUseCase(repoIsNext),
+		ICustomerContactValidateCreateInputUseCase: NewCustomerContactValidateCreateInputUseCase(repoList, rlc, sk, prodOwnerName, feeDesc,
+			layout,
+			baseUrl,
+			authAPI,
+			bankAccountAPI,
+			validateAPI,
+			createTransactionAPI,
+			tpBankName,
+			tpBankApiKey,
+			tpBankSecretKey,
+			tpBankPrivateK,
+			fee,
+		),
+		ICustomerContactDeleteUseCase: NewCustomerContactDeleteUseCase(repoDelete),
+		IIsNextUseCase:                NewCustomerContactIsNextUseCase(repoIsNext),
 	}
 }

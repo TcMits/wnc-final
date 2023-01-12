@@ -7,6 +7,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
+	"github.com/google/uuid"
 )
 
 func (s *CustomerContactListUseCase) List(ctx context.Context, limit, offset *int, o *model.ContactOrderInput, w *model.ContactWhereInput) ([]*model.Contact, error) {
@@ -75,9 +76,31 @@ func (s *CustomerContactValidateCreateInputUseCase) ValidateCreate(ctx context.C
 		return nil, usecase.ValidationError(fmt.Errorf("the account number of the bank already existed"))
 	}
 	user := usecase.GetUserAsCustomer(ctx)
+	target, err := s.uc4.GetFirst(ctx, nil, &model.CustomerWhereInput{
+		HasBankAccountsWith: []*model.BankAccountWhereInput{{AccountNumber: &i.AccountNumber}},
+		IDNotIn:             []uuid.UUID{user.ID},
+	})
+	if err != nil {
+		return nil, err
+	}
+	var alterName string
+	if target == nil {
+		r, err := s.w1.Get(ctx, &model.WhereInputPartner{
+			AccountNumber: i.AccountNumber,
+		})
+		if err != nil {
+			return nil, usecase.WrapError(fmt.Errorf("internal.usecase.contact.implementations.CustomerContactValidateCreateInputUseCase.ValidateCreate: %s", err))
+		}
+		if r == nil {
+			return nil, usecase.ValidationError(fmt.Errorf("invalid account number"))
+		}
+		alterName = r.Name
+	} else {
+		alterName = target.GetName()
+	}
 	i.OwnerID = user.ID
 	if i.SuggestName == "" {
-		i.SuggestName = user.GetName()
+		i.SuggestName = alterName
 	}
 	return i, nil
 }

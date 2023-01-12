@@ -1,7 +1,6 @@
 package customer
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -55,6 +54,10 @@ type (
 		CashOut       float64   `json:"cash_out"`
 		AccountNumber string    `json:"account_number"`
 		IsForPayment  bool      `json:"is_for_payment"`
+	}
+	tpBankbankAccountResp struct {
+		AccountNumber string `json:"account_number"`
+		Name          string `json:"name"`
 	}
 	guestBankAccountResp struct {
 		ID            uuid.UUID `json:"id"`
@@ -127,6 +130,7 @@ type (
 		TransactionStatus []string `json:"transaction_status"`
 		Events            []string `json:"events"`
 		ProdOwnerName     string   `json:"prod_owner_name"`
+		Partners          []string `json:"partners"`
 	}
 	eventResp struct {
 		*sse.EventPayload
@@ -159,6 +163,12 @@ func getDefaultResponse(entity any) any {
 			CashOut:       rs.CashOut,
 			AccountNumber: rs.AccountNumber,
 			IsForPayment:  rs.IsForPayment,
+		}
+	case *model.BankAccountPartner:
+		rs, _ := entity.(*model.BankAccountPartner)
+		result = &tpBankbankAccountResp{
+			AccountNumber: rs.AccountNumber,
+			Name:          rs.Name,
 		}
 	case *model.Transaction:
 		rs, _ := entity.(*model.Transaction)
@@ -313,7 +323,6 @@ func getPagingResponse[ModelType any](ctx iris.Context, i pagingInput[ModelType]
 		url.RawQuery = q.Encode()
 		pageResp.Previous = url.String()
 	}
-	fmt.Println(pageResp.Results)
 	pageResp.Count = uint(len(pageResp.Results))
 	return pageResp
 }

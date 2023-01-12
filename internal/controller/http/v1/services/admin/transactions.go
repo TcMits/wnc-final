@@ -72,15 +72,18 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 			*or = append(*or, o)
 		}
 	}
-	filterReq := newTransactionFilterReq()
+	filterReq := new(transactionFilterReq)
 	if err := ctx.ReadQuery(filterReq); err != nil {
-		fmt.Println(err)
 		handleBindingError(ctx, err, r.logger, filterReq, nil)
 		return
 	}
 	w := new(model.TransactionWhereInput)
-	w.CreateTimeGTE = &filterReq.DateStart.t
-	w.CreateTimeLTE = &filterReq.DateEnd.t
+	if filterReq.DateStart != nil {
+		w.CreateTimeGTE = &filterReq.DateStart.t
+	}
+	if filterReq.DateEnd != nil {
+		w.CreateTimeLTE = &filterReq.DateEnd.t
+	}
 	if filterReq.BankName != nil {
 		w.Or = append(w.Or, &model.TransactionWhereInput{SenderBankName: filterReq.BankName}, &model.TransactionWhereInput{ReceiverBankName: filterReq.BankName})
 	}

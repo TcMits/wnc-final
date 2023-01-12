@@ -47,7 +47,7 @@ func (s *customerRoute) create(ctx iris.Context) {
 	}
 	in := &model.CustomerCreateInput{
 		Username:    createInReq.Username,
-		Email:       createInReq.Username,
+		Email:       createInReq.Email,
 		PhoneNumber: createInReq.PhoneNumber,
 	}
 	in, err := s.uc.ValidateCreate(ctx, in)

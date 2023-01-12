@@ -22,6 +22,7 @@ type (
 		GetDebtStatus(context.Context) []string
 		GetTransactionStatus(context.Context) []string
 		GetEvents(context.Context) []string
+		GetPartners(context.Context) []string
 	}
 	iListUseCase[ModelType, ModelOrderInput, ModelWhereInput any] interface {
 		List(context.Context, *int, *int, ModelOrderInput, ModelWhereInput) ([]ModelType, error)
@@ -135,6 +136,9 @@ type (
 	ICustomerBankAccountListMineUseCase interface {
 		ListMine(context.Context, *int, *int, *model.BankAccountOrderInput, *model.BankAccountWhereInput) ([]*model.BankAccount, error)
 	}
+	ICustomerTPBankBankAccountGetUseCase interface {
+		Get(context.Context, *model.BankAccountWhereInput) (*model.BankAccountPartner, error)
+	}
 	ICustomerBankAccountUseCase interface {
 		ICustomerGetUserUseCase
 		ICustomerConfigUseCase
@@ -144,6 +148,7 @@ type (
 		ICustomerBankAccountGetFirstMineUseCase
 		ICustomerBankAccountListMineUseCase
 		ICustomerBankAccountGetFirstUseCase
+		ICustomerTPBankBankAccountGetUseCase
 		IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
 	ICustomerTransactionValidateConfirmInputUseCase interface {

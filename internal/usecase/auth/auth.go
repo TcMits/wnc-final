@@ -13,7 +13,6 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/employee"
 	"github.com/TcMits/wnc-final/internal/usecase/partner"
-	"github.com/TcMits/wnc-final/internal/usecase/user"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/jwt"
@@ -543,7 +542,7 @@ func NewEmployeeAuthUseCase(
 	refreshTTL,
 	accessTTL time.Duration,
 ) usecase.IEmployeeAuthUseCase {
-	gUUC := user.NewEmployeeGetUserUseCase(repoList)
+	gUUC := employee.NewEmployeeGetUserUseCase(repoList)
 	uc := &EmployeeAuthUseCase{
 		EmployeeLoginUseCase: &EmployeeLoginUseCase{
 			gUUC:       gUUC,

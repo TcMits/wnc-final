@@ -61,7 +61,7 @@ func genData(client *ent.Client, cfg *config.Config) {
 		log.Fatalf("failed generate data: %v", err)
 	}
 	// transactions
-	for i := 1; i < 3; i++ {
+	for i := 1; i < 20; i++ {
 		_, err = ent.CreateFakeTransaction(ctx, client, nil,
 			ent.Opt{
 				Key:   "SenderID",

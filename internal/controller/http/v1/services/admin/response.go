@@ -63,6 +63,13 @@ type (
 		TransactionType           transaction.TransactionType `json:"transaction_type"`
 		Description               string                      `json:"description"`
 	}
+	employeeResponse struct {
+		ID        uuid.UUID `json:"id"`
+		Username  string    `json:"username"`
+		FirstName string    `json:"first_name"`
+		LastName  string    `json:"last_name"`
+		IsActive  bool      `json:"is_active"`
+	}
 	// reference on docs
 )
 
@@ -102,6 +109,15 @@ func getDefaultResponse(entity any) any {
 			Amount:                    rs.Amount,
 			TransactionType:           rs.TransactionType,
 			Description:               rs.Description,
+		}
+	case *model.Employee:
+		rs, _ := entity.(*model.Employee)
+		result = &employeeResponse{
+			ID:        rs.ID,
+			Username:  rs.Username,
+			FirstName: rs.FirstName,
+			LastName:  rs.LastName,
+			IsActive:  rs.IsActive,
 		}
 	default:
 		result = entity

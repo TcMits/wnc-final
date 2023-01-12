@@ -10,8 +10,8 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
+	"github.com/TcMits/wnc-final/internal/usecase/employee"
 	"github.com/TcMits/wnc-final/internal/usecase/outliers"
-	"github.com/TcMits/wnc-final/internal/usecase/user"
 	"github.com/TcMits/wnc-final/internal/webapi/tpbank"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/mail"
@@ -225,7 +225,7 @@ func NewEmployeeTransactionUseCase(
 	return &EmployeeTransactionUseCase{
 		IEmployeeTransactionListUseCase:     NewEmployeeTransactionListUseCase(repoList),
 		IEmployeeConfigUseCase:              config.NewEmployeeConfigUseCase(sk, prodOwnerName),
-		IEmployeeGetUserUseCase:             user.NewEmployeeGetUserUseCase(rle),
+		IEmployeeGetUserUseCase:             employee.NewEmployeeGetUserUseCase(rle),
 		IEmployeeTransactionGetFirstUseCase: NewEmployeeTransactionGetFirstUseCase(repoList),
 		IIsNextUseCase:                      NewEmployeeTransactionIsNextUseCase(repoIsNext),
 	}

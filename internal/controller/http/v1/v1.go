@@ -58,6 +58,7 @@ func RegisterV1HTTPServices(
 	adminUc1 usecase.IAdminMeUseCase,
 	adminUc2 usecase.IAdminAuthUseCase,
 	adminUc3 usecase.IAdminTransactionUseCase,
+	adminUc4 usecase.IAdminEmployeeUseCase,
 	// adding more partner usecases here
 	partnerUc1 usecase.IPartnerAuthUseCase,
 	partnerUc2 usecase.IPartnerTransactionUseCase,
@@ -73,6 +74,6 @@ func RegisterV1HTTPServices(
 
 	customer.RegisterServices(handler, customerUc1, customerUc2, customerUc3, customerUc4, customerUc5, customerUc6, customerUc7, customerUc8, b, l)
 	employee.RegisterServices(handler, employeeUc3, employeeUc1, employeeUc2, employeeUc4, employeeUc5, l)
-	admin.RegisterServices(handler, adminUc2, adminUc1, adminUc3, l)
+	admin.RegisterServices(handler, adminUc2, adminUc1, adminUc3, adminUc4, l)
 	partner.RegisterServices(handler, partnerUc2, partnerUc1, l)
 }

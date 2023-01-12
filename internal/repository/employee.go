@@ -28,3 +28,9 @@ func GetEmployeeDeleteRepository(
 ) DeleteModelRepository[*model.Employee] {
 	return ent.NewEmployeeDeleteRepository(client, false)
 }
+
+func GetEmployeeIsNextRepository(
+	client *ent.Client,
+) IIsNextModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput] {
+	return getIsNextModelRepostiory(GetEmployeeListRepository(client))
+}

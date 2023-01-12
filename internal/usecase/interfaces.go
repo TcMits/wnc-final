@@ -404,6 +404,39 @@ type (
 		IAdminTransactionGetFirstUseCase
 		IIsNextUseCase[*model.Transaction, *model.TransactionOrderInput, *model.TransactionWhereInput]
 	}
+	IAdminEmployeeListUseCase interface {
+		iListUseCase[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput]
+	}
+	IAdminEmployeeUpdateUseCase interface {
+		iUpdateUseCase[*model.Employee, *model.EmployeeUpdateInput]
+	}
+	IAdminEmployeeDeleteUseCase interface {
+		iDeleteUseCase[*model.Employee]
+	}
+	IAdminEmployeeCreateUseCase interface {
+		iCreateUseCase[*model.Employee, *model.EmployeeCreateInput]
+	}
+	IAdminEmployeeGetFirstUseCase interface {
+		GetFirst(context.Context, *model.EmployeeOrderInput, *model.EmployeeWhereInput) (*model.Employee, error)
+	}
+	IAdminEmployeeValidateCreateUseCase interface {
+		iValidateCreateInput[*model.EmployeeCreateInput]
+	}
+	IAdminEmployeeValidateUpdateUseCase interface {
+		iValidateUpdateInput[*model.Employee, *model.EmployeeUpdateInput]
+	}
+	IAdminEmployeeUseCase interface {
+		IAdminConfigUseCase
+		IAdminGetUserUseCase
+		IAdminEmployeeListUseCase
+		IAdminEmployeeGetFirstUseCase
+		IAdminEmployeeCreateUseCase
+		IAdminEmployeeValidateCreateUseCase
+		IAdminEmployeeUpdateUseCase
+		IAdminEmployeeValidateUpdateUseCase
+		IAdminEmployeeDeleteUseCase
+		IIsNextUseCase[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput]
+	}
 )
 
 type (

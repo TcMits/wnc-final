@@ -23,6 +23,12 @@ type (
 	}
 )
 
+func GetDebtIsNextRepository(
+	client *ent.Client,
+) IIsNextModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput] {
+	return getIsNextModelRepostiory(GetDebtListRepository(client))
+}
+
 func GetDebtListRepository(
 	client *ent.Client,
 ) ListModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput] {
@@ -155,10 +161,4 @@ func (s *DebtFullfillRepository) Fulfill(ctx context.Context, e *model.Debt, i *
 		return nil, err
 	}
 	return e, nil
-}
-
-func GetDebtIsNextRepository(
-	client *ent.Client,
-) IIsNextModelRepository[*model.Debt, *model.DebtOrderInput, *model.DebtWhereInput] {
-	return getIsNextModelRepostiory(GetDebtListRepository(client))
 }

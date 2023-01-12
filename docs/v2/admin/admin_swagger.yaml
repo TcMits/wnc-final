@@ -1,4 +1,17 @@
 definitions:
+  admin.EntitiesResponseTemplate-admin_employeeResponse:
+    properties:
+      count:
+        type: integer
+      next:
+        type: string
+      previous:
+        type: string
+      results:
+        items:
+          $ref: '#/definitions/admin.employeeResponse'
+        type: array
+    type: object
   admin.EntitiesResponseTemplate-admin_transactionResp:
     properties:
       count:
@@ -11,6 +24,41 @@ definitions:
         items:
           $ref: '#/definitions/admin.transactionResp'
         type: array
+    type: object
+  admin.employeeCreateReq:
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      username:
+        type: string
+    required:
+    - first_name
+    - last_name
+    - username
+    type: object
+  admin.employeeResponse:
+    properties:
+      first_name:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      username:
+        type: string
+    type: object
+  admin.employeeUpdateReq:
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      username:
+        type: string
     type: object
   admin.errorResponse:
     properties:
@@ -116,6 +164,154 @@ definitions:
 info:
   contact: {}
 paths:
+  /employees:
+    get:
+      consumes:
+      - application/json
+      description: Show employee
+      operationId: employee-listing
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.EntitiesResponseTemplate-admin_employeeResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show employee
+      tags:
+      - Employee
+    post:
+      consumes:
+      - application/json
+      description: Create a employee
+      operationId: employee-create
+      parameters:
+      - description: Create a employee
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/admin.employeeCreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/admin.employeeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      security:
+      - Bearer: []
+      summary: Create a employee
+      tags:
+      - Employee
+  /employees/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a employee
+      operationId: employee-delete
+      parameters:
+      - description: ID of employee
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      security:
+      - Bearer: []
+      summary: Delete a employee
+      tags:
+      - Employee
+    get:
+      consumes:
+      - application/json
+      description: Get a employee
+      operationId: employee-get
+      parameters:
+      - description: ID of employee
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.employeeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a employee
+      tags:
+      - Employee
+    put:
+      consumes:
+      - application/json
+      description: Update a employee
+      operationId: employee-update
+      parameters:
+      - description: Update a employee
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/admin.employeeUpdateReq'
+      - description: ID of employee
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.employeeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      security:
+      - Bearer: []
+      summary: Update a employee
+      tags:
+      - Employee
   /login:
     delete:
       consumes:

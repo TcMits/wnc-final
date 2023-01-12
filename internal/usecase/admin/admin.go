@@ -19,6 +19,9 @@ type (
 	AdminGetFirstUseCase struct {
 		eLUC usecase.IAdminListUseCase
 	}
+	AdminGetUserUseCase struct {
+		gFUC usecase.IAdminGetFirstUseCase
+	}
 )
 
 func NewAdminGetFirstUseCase(
@@ -44,6 +47,32 @@ func NewAdminUpdateUseCase(
 	return &AdminUpdateUseCase{
 		repoUpdate: repoUpdate,
 	}
+}
+func NewAdminGetUserUseCase(
+	repoList repository.ListModelRepository[*model.Admin, *model.AdminOrderInput, *model.AdminWhereInput],
+) usecase.IAdminGetUserUseCase {
+	uc := &AdminGetUserUseCase{
+		gFUC: NewAdminGetFirstUseCase(repoList),
+	}
+	return uc
+}
+
+func (s *AdminGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
+	usernameAny, ok := input["username"]
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("username is required"))
+	}
+	username, ok := usernameAny.(string)
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))
+	}
+	u, err := s.gFUC.GetFirst(ctx, nil, &model.AdminWhereInput{
+		Username: &username,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
 }
 
 func (uc *AdminGetFirstUseCase) GetFirst(ctx context.Context, o *model.AdminOrderInput, w *model.AdminWhereInput) (*model.Admin, error) {

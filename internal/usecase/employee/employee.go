@@ -6,6 +6,7 @@ import (
 
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
+	"github.com/TcMits/wnc-final/internal/usecase/admin"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/outliers"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
@@ -223,12 +224,13 @@ func NewAdminEmployeeUseCase(
 	r3 repository.UpdateModelRepository[*model.Employee, *model.EmployeeUpdateInput],
 	r4 repository.DeleteModelRepository[*model.Employee],
 	r5 repository.IIsNextModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput],
+	r6 repository.ListModelRepository[*model.Admin, *model.AdminOrderInput, *model.AdminWhereInput],
 	secretKey,
 	prodOwnerName *string,
 ) usecase.IAdminEmployeeUseCase {
 	return &AdminEmployeeUseCase{
 		IAdminConfigUseCase:                 config.NewAdminConfigUseCase(secretKey, prodOwnerName),
-		IAdminGetUserUseCase:                NewEmployeeGetUserUseCase(r1),
+		IAdminGetUserUseCase:                admin.NewAdminGetUserUseCase(r6),
 		IAdminEmployeeListUseCase:           &AdminEmployeeListUseCase{r: r1},
 		IAdminEmployeeGetFirstUseCase:       &AdminEmployeeGetFirstUseCase{uc1: &AdminEmployeeListUseCase{r1}},
 		IAdminEmployeeCreateUseCase:         &AdminEmployeeCreateUseCase{r: r2},

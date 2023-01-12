@@ -38,5 +38,6 @@ func NewOptionUseCase(
 ) usecase.IOptionsUseCase {
 	return &OptionUseCase{
 		IGetConfigUseCase: config.NewGetConfigUseCase(sk, prodOwnerName),
+		tpBankName:        tpBankName,
 	}
 }

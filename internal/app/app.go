@@ -244,6 +244,7 @@ func Run(cfg *config.Config) {
 		repository.GetEmployeeUpdateRepository(client),
 		repository.GetEmployeeDeleteRepository(client),
 		repository.GetEmployeeIsNextRepository(client),
+		repository.GetAdminListRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)

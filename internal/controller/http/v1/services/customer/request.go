@@ -33,6 +33,12 @@ type (
 		Description   string          `json:"description" validate:"required"`
 		IsFeePaidByMe bool            `json:"is_fee_paid_by_me" validate:"required"`
 	}
+	tpBankTransactionCreateReq struct {
+		Amount        decimal.Decimal `json:"amount" validate:"required"`
+		Description   string          `json:"description" validate:"required"`
+		AccountNumber string          `json:"account_number" validate:"required"`
+		IsFeePaidByMe bool            `json:"is_fee_paid_by_me" validate:"required"`
+	}
 	transactionConfirmReq struct {
 		Token string `json:"token" validate:"required"`
 		OTP   string `json:"otp" validate:"required"`

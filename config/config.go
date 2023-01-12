@@ -93,7 +93,6 @@ func NewConfig() (*Config, error) {
 	cfg := &Config{}
 	err := cleanenv.ReadConfig("./config/config.yml", cfg)
 	if err != nil {
-		fmt.Println(err)
 		return nil, fmt.Errorf("config error: %w", err)
 	}
 

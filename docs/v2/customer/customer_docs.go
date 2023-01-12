@@ -908,6 +908,55 @@ const docTemplatecustomer = `{
                 }
             }
         },
+        "/me/bank-accounts/tp-bank": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a tp bank bank account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bank account"
+                ],
+                "summary": "Get a tp bank bank account",
+                "operationId": "tpbankbankaccount-get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bank account number",
+                        "name": "account_number",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.bankAccountResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/me/bank-accounts/{id}": {
             "get": {
                 "security": [
@@ -1310,6 +1359,117 @@ const docTemplatecustomer = `{
                 ],
                 "summary": "Confirm success",
                 "operationId": "transaction-confirmsuccess",
+                "parameters": [
+                    {
+                        "description": "Confirm a transaction",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.transactionConfirmReq"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of transaction",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.transactionResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/tp-bank": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a tp bank transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Create a tp bank transaction",
+                "operationId": "tpbanktransaction-create",
+                "parameters": [
+                    {
+                        "description": "Create a tp bank transaction",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.tpBankTransactionCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/customer.transactionCreateResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/tp-bank/confirm-success/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Confirm a tp bank transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Confirm a tp bank transaction",
+                "operationId": "tpbanktransaction-confirmsuccess",
                 "parameters": [
                     {
                         "description": "Confirm a transaction",
@@ -1877,8 +2037,20 @@ const docTemplatecustomer = `{
                         "type": "string"
                     }
                 },
+                "partners": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "prod_owner_name": {
                     "type": "string"
+                },
+                "transaction_status": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -1901,6 +2073,29 @@ const docTemplatecustomer = `{
                 },
                 "refresh_token": {
                     "type": "string"
+                }
+            }
+        },
+        "customer.tpBankTransactionCreateReq": {
+            "type": "object",
+            "required": [
+                "account_number",
+                "amount",
+                "description",
+                "is_fee_paid_by_me"
+            ],
+            "properties": {
+                "account_number": {
+                    "type": "string"
+                },
+                "amount": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "is_fee_paid_by_me": {
+                    "type": "boolean"
                 }
             }
         },

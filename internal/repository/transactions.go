@@ -5,6 +5,7 @@ import (
 
 	"github.com/TcMits/wnc-final/ent"
 	entTxc "github.com/TcMits/wnc-final/ent/transaction"
+	"github.com/TcMits/wnc-final/internal/webapi"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/transaction"
@@ -27,6 +28,7 @@ type transactionConfirmSuccessRepository struct {
 	bALR ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	tUR  UpdateModelRepository[*model.Transaction, *model.TransactionUpdateInput]
 	tCR  CreateModelRepository[*model.Transaction, *model.TransactionCreateInput]
+	w1   webapi.ITPBankAPI
 }
 
 func GetTransactionListRepository(
@@ -121,9 +123,26 @@ func (s *transactionConfirmSuccessRepository) confirm(ctx context.Context, e *mo
 	if err != nil {
 		return nil, err
 	}
-	_, err = s.addReceiverBankAccount(ctx, e)
-	if err != nil {
-		return nil, err
+	if e.TransactionType == entTxc.TransactionTypeInternal {
+		_, err = s.addReceiverBankAccount(ctx, e)
+		if err != nil {
+			return nil, err
+		}
+	} else if e.TransactionType == entTxc.TransactionTypeExternal {
+		i, err := s.w1.PreValidate(ctx, &model.TransactionCreateInputPartner{
+			Amount:                    e.Amount,
+			Description:               e.Description,
+			SenderName:                e.SenderName,
+			SenderBankAccountNumber:   e.SenderBankAccountNumber,
+			ReceiverBankAccountNumber: e.ReceiverBankAccountNumber,
+		})
+		if err != nil {
+			return nil, err
+		}
+		err = s.w1.Create(ctx, i)
+		if err != nil {
+			return nil, err
+		}
 	}
 	txc, err := s.tUR.Update(ctx, e, &model.TransactionUpdateInput{
 		Status: generic.GetPointer(entTxc.StatusSuccess),
@@ -131,9 +150,11 @@ func (s *transactionConfirmSuccessRepository) confirm(ctx context.Context, e *mo
 	if err != nil {
 		return nil, err
 	}
-	_, err = s.tCR.Create(ctx, feeTxcInput)
-	if err != nil {
-		return nil, err
+	if feeTxcInput != nil {
+		_, err = s.tCR.Create(ctx, feeTxcInput)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return txc, nil
 }

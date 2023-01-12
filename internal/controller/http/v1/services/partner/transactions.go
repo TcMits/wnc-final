@@ -54,7 +54,6 @@ func (r *transactionRoute) create(ctx iris.Context) {
 			SenderBankAccountNumber:   createInReq.SenderBankAccountNumber,
 			ReceiverBankAccountNumber: createInReq.ReceiverBankAccountNumber,
 		},
-		FeePaidBy: model.ParseActorType(createInReq.FeePaidBy),
 		Token:     createInReq.Token,
 		Signature: createInReq.Description,
 	}
@@ -96,7 +95,6 @@ func (r *transactionRoute) validate(ctx iris.Context) {
 			SenderName:              createInReq.SenderName,
 			SenderBankAccountNumber: createInReq.SenderBankAccountNumber,
 		},
-		FeePaidBy: model.ParseActorType(createInReq.FeePaidBy),
 		Token:     createInReq.Token,
 		Signature: createInReq.Description,
 	}

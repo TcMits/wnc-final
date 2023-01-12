@@ -27,7 +27,6 @@ type (
 		Description               string          `json:"description" validate:"required"`
 		Token                     string          `json:"token" validate:"required"`
 		Signature                 string          `json:"signature" validate:"required"`
-		FeePaidBy                 string          `json:"fee_paid_by" validate:"required"`
 		SenderName                string          `json:"sender_name" validate:"required"`
 		SenderBankAccountNumber   string          `json:"sender_bank_account_number" validate:"required"`
 		ReceiverBankAccountNumber string          `json:"receiver_bank_account_number" validate:"required"`

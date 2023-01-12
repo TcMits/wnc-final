@@ -77,8 +77,30 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.C
 			return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionConfirmSuccessUseCase.ConfirmSuccess: %s", err))
 		}
 		return e, nil
+	} else if e.TransactionType == transaction.TransactionTypeExternal {
+		var ni *model.TransactionCreateInput
+		pl, _ := usecase.ParseToken(ctx, *token, *uc.cfUC.GetSecret())
+		iFPBMAny := pl["is_fee_paid_by_me"]
+		isFeePaidByMe, _ := iFPBMAny.(bool)
+		if isFeePaidByMe {
+			ni = &model.TransactionCreateInput{
+				SourceTransactionID:     &e.ID,
+				Amount:                  decimal.NewFromFloat(*uc.cfUC.GetFeeAmount()),
+				Status:                  generic.GetPointer(transaction.StatusSuccess),
+				TransactionType:         transaction.TransactionTypeInternal,
+				Description:             uc.cfUC.GetFeeDesc(),
+				SenderID:                *e.SenderID,
+				SenderBankAccountNumber: e.SenderBankAccountNumber,
+				SenderBankName:          e.SenderBankName,
+			}
+		}
+		e, err := uc.tCRepo.ConfirmSuccess(ctx, e, ni)
+		if err != nil {
+			return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.CustomerTransactionConfirmSuccessUseCase.ConfirmSuccess: %s", err))
+		}
+		return e, nil
 	}
-	return nil, usecase.WrapError(fmt.Errorf("unhandled external transaction case"))
+	return nil, usecase.ValidationError(fmt.Errorf("unexpected transaction type: %s", e.TransactionType.String()))
 }
 
 func (uc *CustomerTransactionCreateUseCase) Create(ctx context.Context, i *model.TransactionCreateUseCaseInput) (*model.TransactionCreateResp, error) {
@@ -189,13 +211,19 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) ValidateCreate(ctx cont
 		if baOther == nil {
 			return nil, usecase.ValidationError(fmt.Errorf("bank account receiver is invalid"))
 		}
+		if !i.IsFeePaidByMe {
+			am, _ := i.Amount.Abs().Float64()
+			if am < *uc.cfUC.GetFeeAmount() {
+				return nil, usecase.ValidationError(fmt.Errorf("insufficient balance sender"))
+			}
+			i.Amount = decimal.NewFromFloat(am - *uc.cfUC.GetFeeAmount())
+		}
 		i.ReceiverBankAccountNumber = baOther.AccountNumber
 		i.ReceiverBankName = uc.w1.GetName()
 		i.ReceiverName = baOther.Name
-		i.TransactionType = transaction.TransactionTypeInternal
+		i.TransactionType = transaction.TransactionTypeExternal
 
 		iP, err := uc.w1.PreValidate(ctx, &model.TransactionCreateInputPartner{
-			IsFeePaidByMe:             i.IsFeePaidByMe,
 			Amount:                    i.Amount,
 			Description:               *i.Description,
 			SenderName:                i.SenderName,
@@ -316,13 +344,6 @@ func (s *PartnerTransactionValidateCreateInputUseCase) ValidateCreate(ctx contex
 	if ba == nil {
 		return nil, usecase.ValidationError(fmt.Errorf("account number is invalid"))
 	}
-	if i.FeePaidBy == model.Receiver {
-		am, _ := i.Amount.Abs().Float64()
-		if am < *s.uc2.GetFeeAmount() {
-			return nil, usecase.ValidationError(fmt.Errorf("insufficient balance sender"))
-		}
-		i.Amount = decimal.NewFromFloat(am - *s.uc2.GetFeeAmount())
-	}
 	i.TransactionType = transaction.TransactionTypeExternal
 	i.Status = generic.GetPointer(transaction.StatusDraft)
 	receiver, err := s.uc3.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: generic.GetPointer(ba.CustomerID)})
@@ -335,7 +356,6 @@ func (s *PartnerTransactionValidateCreateInputUseCase) ValidateCreate(ctx contex
 		"sender-name":                  i.SenderName,
 		"amount":                       i.Amount.String(),
 		"description":                  *i.Description,
-		"actor-type":                   i.FeePaidBy.String(),
 	}, ctx)
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.transaction.implementations.PartnerTransactionValidateCreateInputUseCase.ValidateCreate: %s", err))

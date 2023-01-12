@@ -26,9 +26,6 @@ func (s *OptionUseCase) GetEvents(ctx context.Context) []string {
 func (s *OptionUseCase) GetTransactionStatus(ctx context.Context) []string {
 	return model.TransactionStatus
 }
-func (s *PartnerOptionUseCase) GetActorType(ctx context.Context) []string {
-	return model.ActorTypes
-}
 
 func NewOptionUseCase(
 	sk,
@@ -37,8 +34,4 @@ func NewOptionUseCase(
 	return &OptionUseCase{
 		IGetConfigUseCase: config.NewGetConfigUseCase(sk, prodOwnerName),
 	}
-}
-
-func NewPartnerOptionUseCase() usecase.IPartnerOptionUseCase {
-	return &PartnerOptionUseCase{}
 }

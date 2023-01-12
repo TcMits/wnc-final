@@ -27,6 +27,7 @@ type (
 		AuthAPI                string
 		BankAccountsAPI        string
 		ValidateTransactionAPI string
+		CreateTransactionAPI   string
 	}
 	TPBankInfo struct {
 		Name string
@@ -41,25 +42,17 @@ type (
 		webapi.ITPBankInfo
 		webapi.ITPBankPreValidateTransaction
 		webapi.ITPBankValidateTransaction
+		webapi.ITPBankCreateTransaction
 	}
 )
 
-func (s *TPBankSDK) getActorType(ctx context.Context, isMe bool) string {
-	if isMe {
-		return "sender"
-	}
-	return "receiver"
-}
-
 func (s *TPBankSDK) PreValidate(ctx context.Context, i *model.TransactionCreateInputPartner) (*model.TransactionCreateInputPartner, error) {
-	i.FeePaidBy = s.getActorType(ctx, i.IsFeePaidByMe)
 	data, err := template.RenderToStr(s.Layout, map[string]string{
 		"receiver-bank-account-number": i.ReceiverBankAccountNumber,
 		"sender-bank-account-number":   i.SenderBankAccountNumber,
 		"sender-name":                  i.SenderName,
 		"amount":                       i.Amount.String(),
 		"description":                  i.Description,
-		"actor-type":                   i.FeePaidBy,
 	}, ctx)
 	if err != nil {
 		return nil, err
@@ -82,6 +75,9 @@ func (s *TPBankSDK) getAuthURL(ctx context.Context) string {
 }
 func (s *TPBankSDK) getBankAccountURL(ctx context.Context) string {
 	return path.Join(s.BaseURL, s.BankAccountsAPI)
+}
+func (s *TPBankSDK) getCreateTransactionURL(ctx context.Context) string {
+	return path.Join(s.BaseURL, s.CreateTransactionAPI)
 }
 func (s *TPBankSDK) makeRequest(ctx context.Context, method, url string, body, headers map[string]string) (*http.Response, error) {
 	var handler func(context.Context, string, map[string]string, map[string]string) (*http.Response, error)
@@ -126,7 +122,6 @@ func (s *TPBankSDK) Validate(ctx context.Context, i *model.TransactionCreateInpu
 		"description":                  i.Description,
 		"token":                        i.Token,
 		"signature":                    i.Signature,
-		"fee_paid_by":                  i.FeePaidBy,
 		"sender_name":                  i.SenderName,
 		"sender_bank_account_number":   i.SenderBankAccountNumber,
 		"receiver_bank_account_number": i.ReceiverBankAccountNumber,
@@ -189,6 +184,32 @@ func (s *TPBankSDK) auth(ctx context.Context) error {
 	}
 	s.AccessToken = t.AccessToken
 	return nil
+}
+func (s *TPBankSDK) Create(ctx context.Context, i *model.TransactionCreateInputPartner) error {
+	resp, err := s.makePostRequest(ctx, s.getCreateTransactionURL(ctx), map[string]string{
+		"amount":                       i.Amount.String(),
+		"description":                  i.Description,
+		"token":                        i.Token,
+		"signature":                    i.Signature,
+		"sender_name":                  i.SenderName,
+		"sender_bank_account_number":   i.SenderBankAccountNumber,
+		"receiver_bank_account_number": i.ReceiverBankAccountNumber,
+	}, nil)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode == http.StatusCreated {
+		return nil
+	}
+	type r struct {
+		Message string `json:"message"`
+	}
+	t := new(r)
+	err = json.NewDecoder(resp.Body).Decode(t)
+	if err != nil {
+		return err
+	}
+	return fmt.Errorf(t.Message)
 }
 
 func (s *TPBankInfo) GetName() string {
@@ -307,5 +328,6 @@ func NewTPBankAPI(
 		ITPBankGetBankAccount:         sdk,
 		ITPBankPreValidateTransaction: sdk,
 		ITPBankInfo:                   NewTPBankInfo(name),
+		ITPBankCreateTransaction:      sdk,
 	}
 }

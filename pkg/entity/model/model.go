@@ -25,12 +25,10 @@ type (
 		AccountNumber string
 	}
 	TransactionCreateInputPartner struct {
-		IsFeePaidByMe             bool
 		Amount                    decimal.Decimal
 		Description               string
 		Token                     string
 		Signature                 string
-		FeePaidBy                 string
 		SenderName                string
 		SenderBankAccountNumber   string
 		ReceiverBankAccountNumber string

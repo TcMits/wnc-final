@@ -18,4 +18,4 @@ db:
   pool_max: 90
 
 transaction_usecase:
-  layout: '{{.receiver-bank-account-number}}{{.sender-bank-account-number}}{{.sender-name}}{{.amount}}{{.description}}{{.actor-type}}'
+  layout: '{{.receiver-bank-account-number}}{{.sender-bank-account-number}}{{.sender-name}}{{.amount}}{{.description}}'

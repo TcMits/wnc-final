@@ -21,10 +21,14 @@ type (
 	ITPBankPreValidateTransaction interface {
 		PreValidate(context.Context, *model.TransactionCreateInputPartner) (*model.TransactionCreateInputPartner, error)
 	}
+	ITPBankCreateTransaction interface {
+		Create(context.Context, *model.TransactionCreateInputPartner) error
+	}
 	ITPBankAPI interface {
 		ITPBankGetBankAccount
 		ITPBankInfo
 		ITPBankValidateTransaction
 		ITPBankPreValidateTransaction
+		ITPBankCreateTransaction
 	}
 )

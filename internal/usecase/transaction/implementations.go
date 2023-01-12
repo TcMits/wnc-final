@@ -311,8 +311,6 @@ func (s *EmployeeTransactionIsNextUseCase) IsNext(ctx context.Context, limit, of
 
 // admin
 func (s *AdminTransactionListUseCase) List(ctx context.Context, limit, offset *int, o *model.TransactionOrderInput, w *model.TransactionWhereInput) ([]*model.Transaction, error) {
-	ents, _ := s.repoList.List(ctx, limit, offset, nil, nil)
-	fmt.Println(len(ents))
 	entites, err := s.repoList.List(ctx, limit, offset, o, w)
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.AdminTransactionListUseCase.List: %s", err))

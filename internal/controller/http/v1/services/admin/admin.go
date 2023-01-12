@@ -30,6 +30,7 @@ func RegisterServices(
 	uc1 usecase.IAdminAuthUseCase,
 	uc2 usecase.IAdminMeUseCase,
 	uc3 usecase.IAdminTransactionUseCase,
+	uc4 usecase.IAdminEmployeeUseCase,
 	// logger
 	l logger.Interface,
 ) {
@@ -39,6 +40,7 @@ func RegisterServices(
 		RegisterDocsController(h, l)
 		RegisterAuthController(h, l, uc1)
 		RegisterTransactionController(h, l, uc3)
+		RegisterEmployeeController(h, l, uc4)
 		h = h.Party(
 			"/me",
 		)

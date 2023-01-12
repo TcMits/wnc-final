@@ -20,6 +20,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/contact"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/debt"
+	"github.com/TcMits/wnc-final/internal/usecase/employee"
 	"github.com/TcMits/wnc-final/internal/usecase/me"
 	"github.com/TcMits/wnc-final/internal/usecase/option"
 	"github.com/TcMits/wnc-final/internal/usecase/stream"
@@ -216,6 +217,15 @@ func Run(cfg *config.Config) {
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)
+	aUc4 := employee.NewAdminEmployeeUseCase(
+		repository.GetEmployeeListRepository(client),
+		repository.GetEmployeeCreateRepository(client),
+		repository.GetEmployeeUpdateRepository(client),
+		repository.GetEmployeeDeleteRepository(client),
+		repository.GetEmployeeIsNextRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+	)
 	// partner
 	pUc1 := auth.NewPartnerAuthUseCase(
 		repository.GetPartnerListRepository(client),
@@ -253,6 +263,7 @@ func Run(cfg *config.Config) {
 		aUc1,
 		aUc2,
 		aUc3,
+		aUc4,
 		pUc1,
 		pUc2,
 		b,

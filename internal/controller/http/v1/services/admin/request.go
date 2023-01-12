@@ -33,6 +33,16 @@ type (
 		UpdateTimeAsc  bool `url:"update_time"`
 		UpdateTimeDesc bool `url:"-update_time"`
 	}
+	employeeCreateReq struct {
+		Username  string `json:"username" validate:"required"`
+		FirstName string `json:"first_name" validate:"required"`
+		LastName  string `json:"last_name" validate:"required"`
+	}
+	employeeUpdateReq struct {
+		Username  *string `json:"username"`
+		FirstName *string `json:"first_name"`
+		LastName  *string `json:"last_name"`
+	}
 )
 
 func newListRequest() *listRequest {

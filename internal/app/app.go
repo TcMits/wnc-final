@@ -3,9 +3,6 @@ package app
 
 import (
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/TcMits/wnc-final/cmd/createuser/createuser"
 	"github.com/TcMits/wnc-final/cmd/gendata/gendata"
@@ -26,7 +23,6 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/stream"
 	"github.com/TcMits/wnc-final/internal/usecase/transaction"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
-	"github.com/TcMits/wnc-final/pkg/infrastructure/httpserver"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 )
 
@@ -302,27 +298,5 @@ func Run(cfg *config.Config) {
 		b,
 		l,
 	)
-
-	if err := handler.Build(); err != nil {
-		l.Fatal(fmt.Errorf("app - Run - handler.Build: %w", err))
-	}
-	httpServer := httpserver.New(handler, httpserver.Port(cfg.HTTP.Port))
-	l.Info("Listening and serving HTTP on %s", httpServer.Addr())
-
-	// Waiting signal
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
-
-	select {
-	case s := <-interrupt:
-		l.Info("app - Run - signal: " + s.String())
-	case err = <-httpServer.Notify():
-		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
-	}
-
-	// Shutdown
-	err = httpServer.Shutdown()
-	if err != nil {
-		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
-	}
+	handler.Listen(fmt.Sprintf(":%s", cfg.HTTP.Port))
 }

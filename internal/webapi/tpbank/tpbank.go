@@ -161,7 +161,6 @@ func (s *TPBankSDK) Get(ctx context.Context, w *model.WhereInputPartner) (*model
 	if resp.StatusCode == http.StatusNoContent {
 		return nil, nil
 	}
-	fmt.Sprintln(resp.StatusCode)
 	t := new(model.BankAccountPartner)
 	err = json.NewDecoder(resp.Body).Decode(t)
 	if err != nil {

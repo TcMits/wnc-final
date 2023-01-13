@@ -115,8 +115,12 @@ func (b *Broker) ServeHTTP(ctx iris.Context) {
 			if err != nil {
 				b.logger.Warn("internal.sse.Broker.ServeHTTP: %s", err)
 			} else {
-				ctx.Writef("data: %s\n\n", pl)
-				flusher.Flush()
+				_, err := ctx.Writef("data: %s\n\n", pl)
+				if err != nil {
+					b.logger.Warn("internal.sse.Broker.ServeHTTP: %s", err)
+				} else {
+					flusher.Flush()
+				}
 			}
 		}
 	}

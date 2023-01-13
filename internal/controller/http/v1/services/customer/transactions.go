@@ -175,7 +175,7 @@ func (r *transactionRoute) tpBankCreate(ctx iris.Context) {
 			ReceiverBankAccountNumber: createInReq.AccountNumber,
 			Amount:                    createInReq.Amount,
 			Description:               &createInReq.Description,
-			TransactionType:           transaction.TransactionTypeInternal,
+			TransactionType:           transaction.TransactionTypeExternal,
 		},
 		IsFeePaidByMe: createInReq.IsFeePaidByMe,
 	}

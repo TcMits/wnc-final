@@ -266,6 +266,16 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.Layout,
 		&cfg.TransactionUseCase.FeeAmount,
 	)
+	pUc3 := bankaccount.NewPartnerBankAccountUseCase(
+		repository.GetBankAccountListRepository(client),
+		repository.GetBankAccountIsNextRepository(client),
+		repository.GetPartnerListRepository(client),
+		repository.GetCustomerListRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		&cfg.TransactionUseCase.FeeAmount,
+		&cfg.TransactionUseCase.FeeDesc,
+	)
 
 	v1.RegisterV1HTTPServices(
 		handler,
@@ -288,6 +298,7 @@ func Run(cfg *config.Config) {
 		aUc4,
 		pUc1,
 		pUc2,
+		pUc3,
 		b,
 		l,
 	)

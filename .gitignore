@@ -38,3 +38,4 @@ ent-clean-template
 
 db.*
 /heroku
+main.html

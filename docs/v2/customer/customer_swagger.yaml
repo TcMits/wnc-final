@@ -347,6 +347,13 @@ definitions:
     - description
     - is_fee_paid_by_me
     type: object
+  customer.tpBankbankAccountResp:
+    properties:
+      account_number:
+        type: string
+      name:
+        type: string
+    type: object
   customer.transactionConfirmReq:
     properties:
       otp:
@@ -1140,7 +1147,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/customer.bankAccountResp'
+            $ref: '#/definitions/customer.tpBankbankAccountResp'
         "400":
           description: Bad Request
           schema:

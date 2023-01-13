@@ -939,7 +939,7 @@ const docTemplatecustomer = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/customer.bankAccountResp"
+                            "$ref": "#/definitions/customer.tpBankbankAccountResp"
                         }
                     },
                     "400": {
@@ -2088,6 +2088,17 @@ const docTemplatecustomer = `{
                 },
                 "is_fee_paid_by_me": {
                     "type": "boolean"
+                }
+            }
+        },
+        "customer.tpBankbankAccountResp": {
+            "type": "object",
+            "properties": {
+                "account_number": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

@@ -201,7 +201,7 @@ func (s *bankAccountRoute) detail(ctx iris.Context) {
 // @Accept      json
 // @Produce     json
 // @Param       account_number query string false "Bank account number"
-// @Success     200 {object} bankAccountResp
+// @Success     200 {object} tpBankbankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
 // @Router      /me/bank-accounts/tp-bank/{account_number} [get]

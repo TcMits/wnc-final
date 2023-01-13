@@ -29,6 +29,7 @@ func RegisterServices(
 	// adding more usecases here
 	uc1 usecase.IPartnerTransactionUseCase,
 	uc2 usecase.IPartnerAuthUseCase,
+	uc3 usecase.IPartnerBankAccountUseCase,
 	// logger
 	l logger.Interface,
 ) {
@@ -38,5 +39,6 @@ func RegisterServices(
 		RegisterDocsController(h, l)
 		RegisterAuthController(h, l, uc2)
 		RegisterTransactionController(h, l, uc1)
+		RegisterBankAccountController(h, l, uc3)
 	}
 }

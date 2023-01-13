@@ -94,10 +94,11 @@ func getDefaultResponse(entity any) any {
 			TransactionType:           rs.TransactionType,
 			Description:               rs.Description,
 		}
-	case *model.BankAccount:
-		rs, _ := entity.(*model.BankAccount)
+	case *model.PartnerBankAccountResp:
+		rs, _ := entity.(*model.PartnerBankAccountResp)
 		result = &bankAccountResp{
 			AccountNumber: rs.AccountNumber,
+			Name:          rs.Name,
 		}
 	default:
 		result = entity

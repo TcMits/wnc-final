@@ -116,3 +116,12 @@ func TestVerifySignature(t *testing.T) {
 	err := VerifySignature(context.Background(), sig, msg, public)
 	require.Nil(t, err)
 }
+
+func TestParsePrivateKey(t *testing.T) {
+	t.Parallel()
+	pair, _ := GenerateRSAKeyPair()
+	priv := pair.PrivateKey
+	p, err := ParsePrivateKey(priv)
+	require.Nil(t, err)
+	require.NotNil(t, p)
+}

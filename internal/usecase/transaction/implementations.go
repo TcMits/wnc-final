@@ -351,9 +351,9 @@ func (s *PartnerTransactionValidateCreateInputUseCase) ValidateCreate(ctx contex
 		return nil, err
 	}
 	data, err := template.RenderToStr(s.layout, map[string]string{
-		"receiver-bank-account-number": i.ReceiverBankAccountNumber,
-		"sender-bank-account-number":   i.SenderBankAccountNumber,
-		"sender-name":                  i.SenderName,
+		"receiver_bank_account_number": i.ReceiverBankAccountNumber,
+		"sender_bank_account_number":   i.SenderBankAccountNumber,
+		"sender_name":                  i.SenderName,
 		"amount":                       i.Amount.String(),
 		"description":                  *i.Description,
 	}, ctx)

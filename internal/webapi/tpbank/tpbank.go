@@ -48,9 +48,9 @@ type (
 
 func (s *TPBankSDK) PreValidate(ctx context.Context, i *model.TransactionCreateInputPartner) (*model.TransactionCreateInputPartner, error) {
 	data, err := template.RenderToStr(s.Layout, map[string]string{
-		"receiver-bank-account-number": i.ReceiverBankAccountNumber,
-		"sender-bank-account-number":   i.SenderBankAccountNumber,
-		"sender-name":                  i.SenderName,
+		"receiver_bank_account_number": i.ReceiverBankAccountNumber,
+		"sender_bank_account_number":   i.SenderBankAccountNumber,
+		"sender_name":                  i.SenderName,
 		"amount":                       i.Amount.String(),
 		"description":                  i.Description,
 	}, ctx)
@@ -157,9 +157,11 @@ func (s *TPBankSDK) Get(ctx context.Context, w *model.WhereInputPartner) (*model
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusNoContent {
 		return nil, nil
 	}
+	fmt.Sprintln(resp.StatusCode)
 	t := new(model.BankAccountPartner)
 	err = json.NewDecoder(resp.Body).Decode(t)
 	if err != nil {
@@ -174,6 +176,7 @@ func (s *TPBankSDK) auth(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("invalid payload")
 	}
@@ -201,6 +204,7 @@ func (s *TPBankSDK) Create(ctx context.Context, i *model.TransactionCreateInputP
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusCreated {
 		return nil
 	}
@@ -237,7 +241,6 @@ func MakeGetRequest(ctx context.Context, url string, body, headers map[string]st
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
 	return res, err
 }
 
@@ -257,7 +260,6 @@ func MakePostRequest(ctx context.Context, url string, body, headers map[string]s
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
 	return res, err
 }
 
@@ -332,5 +334,6 @@ func NewTPBankAPI(
 		ITPBankPreValidateTransaction: sdk,
 		ITPBankInfo:                   NewTPBankInfo(name),
 		ITPBankCreateTransaction:      sdk,
+		ITPBankValidateTransaction:    sdk,
 	}
 }

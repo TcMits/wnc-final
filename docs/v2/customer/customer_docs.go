@@ -1819,9 +1819,7 @@ const docTemplatecustomer = `{
             "required": [
                 "amount",
                 "description",
-                "receiver_bank_account_number",
-                "receiver_id",
-                "receiver_name"
+                "receiver_id"
             ],
             "properties": {
                 "amount": {
@@ -1830,13 +1828,7 @@ const docTemplatecustomer = `{
                 "description": {
                     "type": "string"
                 },
-                "receiver_bank_account_number": {
-                    "type": "string"
-                },
                 "receiver_id": {
-                    "type": "string"
-                },
-                "receiver_name": {
                     "type": "string"
                 }
             }

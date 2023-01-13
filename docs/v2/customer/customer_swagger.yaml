@@ -171,18 +171,12 @@ definitions:
         type: number
       description:
         type: string
-      receiver_bank_account_number:
-        type: string
       receiver_id:
-        type: string
-      receiver_name:
         type: string
     required:
     - amount
     - description
-    - receiver_bank_account_number
     - receiver_id
-    - receiver_name
     type: object
   customer.debtFulfillReq:
     properties:

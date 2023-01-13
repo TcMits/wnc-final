@@ -41,6 +41,7 @@ func (s *CustomerDebtCreateUseCase) Create(ctx context.Context, i *model.DebtCre
 	}
 	err = s.taskExecutor.ExecuteTask(ctx, &task.DebtNotifyPayload{
 		UserID: receiver.ID,
+		ID:     entity.ID,
 	})
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtCreateUseCase.Create: %s", err))

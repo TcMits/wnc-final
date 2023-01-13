@@ -134,7 +134,7 @@ var transactionFactory = factory.NewFactory(
 	if err != nil {
 		return nil, err
 	}
-	return e.ID, nil
+	return &e.ID, nil
 }).Attr("SenderName", func(a factory.Args) (interface{}, error) {
 	ins := a.Instance().(*TransactionCreateInput)
 	sid := ins.SenderID

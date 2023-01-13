@@ -65,7 +65,7 @@ func genData(client *ent.Client, cfg *config.Config) {
 		_, err = ent.CreateFakeTransaction(ctx, client, nil,
 			ent.Opt{
 				Key:   "SenderID",
-				Value: bA.ID,
+				Value: &bA.ID,
 			},
 		)
 		if err != nil {

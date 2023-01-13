@@ -73,7 +73,7 @@ func genData(client *ent.Client, cfg *config.Config) {
 		}
 	}
 	// contacts
-	for i := 1; i < 3; i++ {
+	for i := 1; i < 10; i++ {
 		_, err = ent.CreateFakeContact(ctx, client, nil,
 			ent.Opt{
 				Key:   "BankName",

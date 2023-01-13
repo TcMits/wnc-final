@@ -60,19 +60,16 @@ func (s *CustomerDebtValidateCreateInputUseCase) ValidateCreate(ctx context.Cont
 	if ownerBA == nil {
 		return nil, usecase.ValidationError(fmt.Errorf("invalid owner"))
 	}
-	if !ownerBA.IsForPayment {
-		return nil, usecase.ValidationError(fmt.Errorf("owner not for payment"))
-	}
 	owner := user
-	receiverBA, err := s.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{ID: generic.GetPointer(i.ReceiverID)})
+	receiverBA, err := s.bAGFUC.GetFirst(ctx, nil, &model.BankAccountWhereInput{
+		ID:           generic.GetPointer(i.ReceiverID),
+		IsForPayment: generic.GetPointer(true),
+	})
 	if err != nil {
 		return nil, err
 	}
 	if receiverBA == nil {
 		return nil, usecase.ValidationError(fmt.Errorf("invalid receiver"))
-	}
-	if !receiverBA.IsForPayment {
-		return nil, usecase.ValidationError(fmt.Errorf("receiver not for payment"))
 	}
 	receiver, err := s.cGFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: generic.GetPointer(receiverBA.CustomerID)})
 	if err != nil {

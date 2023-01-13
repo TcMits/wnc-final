@@ -26,6 +26,9 @@ type (
 	CustomerBankAccountGetFirstMineUseCase struct {
 		bALMUC usecase.ICustomerBankAccountListMineUseCase
 	}
+	CustomerBankAccountDeleteUseCase struct {
+		repo repository.DeleteModelRepository[*model.BankAccount]
+	}
 	CustomerBankAccountIsNextUseCase struct {
 		iNUC usecase.IIsNextUseCase[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput]
 	}
@@ -35,6 +38,7 @@ type (
 	CustomerBankAccountUseCase struct {
 		usecase.ICustomerBankAccountUpdateUseCase
 		usecase.ICustomerBankAccountValidateUpdateInputUseCase
+		usecase.ICustomerBankAccountDeleteUseCase
 		usecase.ICustomerBankAccountListUseCase
 		usecase.ICustomerConfigUseCase
 		usecase.ICustomerGetUserUseCase
@@ -58,9 +62,13 @@ type (
 	EmployeeBankAccountGetFirstUseCase struct {
 		bALUC usecase.IEmployeeBankAccountListUseCase
 	}
+	EmployeeBankAccountDeleteUseCase struct {
+		repo repository.DeleteModelRepository[*model.BankAccount]
+	}
 	EmployeeBankAccountUseCase struct {
 		usecase.IEmployeeConfigUseCase
 		usecase.IEmployeeGetUserUseCase
+		usecase.IEmployeeBankAccountDeleteUseCase
 		usecase.IEmployeeBankAccountUpdateUseCase
 		usecase.IEmployeeBankAccountValidateUpdateInputUseCase
 		usecase.IEmployeeBankAccountGetFirstUseCase

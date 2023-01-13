@@ -170,6 +170,51 @@ const docTemplateemployee = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Delete a bank account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bank account"
+                ],
+                "summary": "Delete a bank account",
+                "operationId": "bankaccount-delete",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of bank account",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/employee.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/employee.errorResponse"
+                        }
+                    }
+                }
             }
         },
         "/customers": {

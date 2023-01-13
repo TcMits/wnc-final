@@ -136,12 +136,16 @@ type (
 	ICustomerBankAccountListMineUseCase interface {
 		ListMine(context.Context, *int, *int, *model.BankAccountOrderInput, *model.BankAccountWhereInput) ([]*model.BankAccount, error)
 	}
+	ICustomerBankAccountDeleteUseCase interface {
+		iDeleteUseCase[*model.BankAccount]
+	}
 	ICustomerTPBankBankAccountGetUseCase interface {
 		Get(context.Context, *model.BankAccountWhereInput) (*model.BankAccountPartner, error)
 	}
 	ICustomerBankAccountUseCase interface {
 		ICustomerGetUserUseCase
 		ICustomerConfigUseCase
+		ICustomerBankAccountDeleteUseCase
 		ICustomerBankAccountUpdateUseCase
 		ICustomerBankAccountValidateUpdateInputUseCase
 		ICustomerBankAccountListUseCase
@@ -334,9 +338,13 @@ type (
 	IEmployeeBankAccountGetFirstUseCase interface {
 		GetFirst(context.Context, *model.BankAccountOrderInput, *model.BankAccountWhereInput) (*model.BankAccount, error)
 	}
+	IEmployeeBankAccountDeleteUseCase interface {
+		iDeleteUseCase[*model.BankAccount]
+	}
 	IEmployeeBankAcountUseCase interface {
 		IEmployeeConfigUseCase
 		IEmployeeGetUserUseCase
+		IEmployeeBankAccountDeleteUseCase
 		IEmployeeBankAccountUpdateUseCase
 		IEmployeeBankAccountValidateUpdateInputUseCase
 		IEmployeeBankAccountGetFirstUseCase

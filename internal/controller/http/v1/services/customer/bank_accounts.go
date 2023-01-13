@@ -27,6 +27,7 @@ func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc us
 	h.Get("/bank-accounts/tp-bank/{account_number:string}", route.getTPBankAcc)
 	h.Put("/bank-accounts/{id:uuid}", route.update)
 	h.Get("/bank-accounts/{id:uuid}", route.detail)
+	h.Delete("/bank-accounts/{id:uuid}", route.delete)
 	h.Get("/bank-accounts", route.listing)
 	h.Options("/bank-accounts/guest", func(_ iris.Context) {})
 	h.Options("/bank-accounts", func(_ iris.Context) {})
@@ -161,6 +162,39 @@ func (r *bankAccountRoute) update(ctx iris.Context) {
 		return
 	}
 	ctx.JSON(getResponse(e))
+}
+
+// @Summary     Delete a bank account
+// @Description Delete a bank account
+// @ID          bankaccount-delete
+// @Tags  	    Bank account
+// @Security 	Bearer
+// @Accept      json
+// @Produce     json
+// @Param       id path string true "ID of bank account"
+// @Success     204 ""
+// @Failure     400 {object} errorResponse
+// @Failure     500 {object} errorResponse
+// @Router      /me/bank-accounts/{id} [delete]
+func (s *bankAccountRoute) delete(ctx iris.Context) {
+	req := new(detailRequest)
+	if err := ReadID(ctx, req); err != nil {
+		handleBindingError(ctx, err, s.logger, req, nil)
+		return
+	}
+	entity, err := s.uc.GetFirstMine(ctx, nil, &model.BankAccountWhereInput{ID: &req.id})
+	if err != nil {
+		HandleError(ctx, err, s.logger)
+		return
+	}
+	if entity != nil {
+		err = s.uc.Delete(ctx, entity)
+		if err != nil {
+			HandleError(ctx, err, s.logger)
+			return
+		}
+	}
+	ctx.StatusCode(iris.StatusNoContent)
 }
 
 // @Summary     Get a bank account

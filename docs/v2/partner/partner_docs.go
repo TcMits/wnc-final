@@ -302,7 +302,7 @@ const docTemplatepartner = `{
             "required": [
                 "amount",
                 "description",
-                "fee_paid_by",
+                "receiver_bank_account_number",
                 "sender_bank_account_number",
                 "sender_name",
                 "signature",
@@ -315,7 +315,7 @@ const docTemplatepartner = `{
                 "description": {
                     "type": "string"
                 },
-                "fee_paid_by": {
+                "receiver_bank_account_number": {
                     "type": "string"
                 },
                 "sender_bank_account_number": {

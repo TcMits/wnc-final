@@ -9,6 +9,14 @@ import (
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 )
 
+func (s *CustomerBankAccountDeleteUseCase) Delete(ctx context.Context, e *model.BankAccount) error {
+	err := s.repo.Delete(ctx, e)
+	if err != nil {
+		return usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.CustomerBankAccountDeleteUseCase.Delete: %s", err))
+	}
+	return nil
+}
+
 func (s *CustomerTPBankBankAccountGetUseCase) Get(ctx context.Context, w *model.BankAccountWhereInput) (*model.BankAccountPartner, error) {
 	e, err := s.w1.Get(ctx, &model.WhereInputPartner{
 		AccountNumber: *w.AccountNumber,
@@ -94,6 +102,14 @@ func (s *CustomerBankAccountIsNextUseCase) IsNext(ctx context.Context, limit, of
 	}
 	w.CustomerID = generic.GetPointer(user.ID)
 	return s.iNUC.IsNext(ctx, limit, offset, o, w)
+}
+
+func (s *EmployeeBankAccountDeleteUseCase) Delete(ctx context.Context, e *model.BankAccount) error {
+	err := s.repo.Delete(ctx, e)
+	if err != nil {
+		return usecase.WrapError(fmt.Errorf("internal.usecase.bankaccount.implementations.EmployeeBankAccountDeleteUseCase.Delete: %s", err))
+	}
+	return nil
 }
 
 func (s *EmployeeBankAccountValidateUpdateInputUseCase) ValidateUpdate(ctx context.Context, m *model.BankAccount, i *model.BankAccountUpdateInput) (*model.BankAccountUpdateInput, error) {

@@ -12,6 +12,14 @@ import (
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 )
 
+func NewCustomerBankAccountDeleteUseCase(
+	r repository.DeleteModelRepository[*model.BankAccount],
+) usecase.ICustomerBankAccountDeleteUseCase {
+	return &CustomerBankAccountDeleteUseCase{
+		repo: r,
+	}
+}
+
 func NewCustomerTPBankBankAccountGetUseCase(
 	layout,
 	baseUrl,
@@ -98,6 +106,7 @@ func NewCustomerBankAccountUseCase(
 	repoUpdate repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
 	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	repoIsNext repository.IIsNextModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	repoDelete repository.DeleteModelRepository[*model.BankAccount],
 	rlc repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	sk,
 	prodOwnerName *string,
@@ -123,6 +132,7 @@ func NewCustomerBankAccountUseCase(
 		ICustomerBankAccountGetFirstMineUseCase:        NewCustomerBankAccountGetFirstMineUseCase(repoList),
 		ICustomerBankAccountListMineUseCase:            NewCustomerBankAccountListMineUseCase(repoList),
 		ICustomerBankAccountGetFirstUseCase:            NewCustomerBankAccountGetFirstUseCase(repoList),
+		ICustomerBankAccountDeleteUseCase:              NewCustomerBankAccountDeleteUseCase(repoDelete),
 		ICustomerTPBankBankAccountGetUseCase: NewCustomerTPBankBankAccountGetUseCase(
 			layout,
 			baseUrl,
@@ -136,6 +146,14 @@ func NewCustomerBankAccountUseCase(
 			tpBankPrivateK,
 		),
 		IIsNextUseCase: NewCustomerBankAccountIsNextUseCase(repoIsNext),
+	}
+}
+
+func NewEmployeeBankAccountDeleteUseCase(
+	r repository.DeleteModelRepository[*model.BankAccount],
+) usecase.IEmployeeBankAccountDeleteUseCase {
+	return &EmployeeBankAccountDeleteUseCase{
+		repo: r,
 	}
 }
 
@@ -171,6 +189,7 @@ func NewEmployeeBankAccountUseCase(
 	repoUpdate repository.UpdateModelRepository[*model.BankAccount, *model.BankAccountUpdateInput],
 	repoList repository.ListModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
 	repoIsNext repository.IIsNextModelRepository[*model.BankAccount, *model.BankAccountOrderInput, *model.BankAccountWhereInput],
+	repoDelete repository.DeleteModelRepository[*model.BankAccount],
 	rle repository.ListModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput],
 	sk *string,
 	prodOwnerName *string,
@@ -182,6 +201,7 @@ func NewEmployeeBankAccountUseCase(
 		IEmployeeGetUserUseCase:                        employee.NewEmployeeGetUserUseCase(rle),
 		IEmployeeBankAccountGetFirstUseCase:            NewEmployeeBankAccountGetFirstUseCase(repoList),
 		IEmployeeBankAccountListUseCase:                NewEmployeeBankAccountListUseCase(repoList),
+		IEmployeeBankAccountDeleteUseCase:              NewEmployeeBankAccountDeleteUseCase(repoDelete),
 		IIsNextUseCase:                                 outliers.NewIsNextUseCase(repoIsNext),
 	}
 }

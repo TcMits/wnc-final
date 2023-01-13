@@ -28,7 +28,8 @@ func (s *DebtCreateTaskExecutor) ExecuteTask(ctx context.Context, pl *DebtNotify
 		msgpl.If = func(c *model.Customer) bool {
 			return c.ID == pl.UserID
 		}
-		msgpl.Msg = "hello world"
+		msgpl.Msg = "Debt created"
+		msgpl.Event = sse.DebtCreated
 		err := s.b.Notify(msgpl)
 		if err != nil {
 			s.l.Warn("Notify failed due to: %s", err)

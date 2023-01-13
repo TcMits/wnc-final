@@ -136,11 +136,9 @@ func (s *debtRoute) create(ctx iris.Context) {
 		return
 	}
 	in := &model.DebtCreateInput{
-		ReceiverBankAccountNumber: createInReq.ReceiverBankAccountNumber,
-		ReceiverName:              createInReq.ReceiverName,
-		ReceiverID:                createInReq.ReceiverID,
-		Amount:                    createInReq.Amount,
-		Description:               createInReq.Description,
+		ReceiverID:  createInReq.ReceiverID,
+		Amount:      createInReq.Amount,
+		Description: createInReq.Description,
 	}
 	in, err := s.uc.ValidateCreate(ctx, in)
 	if err != nil {

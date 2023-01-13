@@ -68,13 +68,16 @@ func (s *TPBankSDK) PreValidate(ctx context.Context, i *model.TransactionCreateI
 }
 
 func (s *TPBankSDK) getValidateTransactionURL(ctx context.Context) string {
-	return path.Join(s.BaseURL, s.ValidateTransactionAPI)
+	u, _ := url.JoinPath(s.BaseURL, s.ValidateTransactionAPI)
+	return u
 }
 func (s *TPBankSDK) getAuthURL(ctx context.Context) string {
-	return path.Join(s.BaseURL, s.AuthAPI)
+	u, _ := url.JoinPath(s.BaseURL, s.AuthAPI)
+	return u
 }
 func (s *TPBankSDK) getBankAccountURL(ctx context.Context) string {
-	return path.Join(s.BaseURL, s.BankAccountsAPI)
+	u, _ := url.JoinPath(s.BaseURL, s.BankAccountsAPI)
+	return u
 }
 func (s *TPBankSDK) getCreateTransactionURL(ctx context.Context) string {
 	return path.Join(s.BaseURL, s.CreateTransactionAPI)

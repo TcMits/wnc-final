@@ -44,11 +44,9 @@ type (
 		OTP   string `json:"otp" validate:"required"`
 	}
 	debtCreateReq struct {
-		ReceiverBankAccountNumber string          `json:"receiver_bank_account_number" validate:"required"`
-		ReceiverName              string          `json:"receiver_name" validate:"required"`
-		ReceiverID                uuid.UUID       `json:"receiver_id" validate:"required"`
-		Description               *string         `json:"description" validate:"required"`
-		Amount                    decimal.Decimal `json:"amount" validate:"required"`
+		ReceiverID  uuid.UUID       `json:"receiver_id" validate:"required"`
+		Description *string         `json:"description" validate:"required"`
+		Amount      decimal.Decimal `json:"amount" validate:"required"`
 	}
 	debtCancelReq struct {
 		Description string `json:"description" validate:"required"`

@@ -55,7 +55,7 @@ func (r *transactionRoute) create(ctx iris.Context) {
 			ReceiverBankAccountNumber: createInReq.ReceiverBankAccountNumber,
 		},
 		Token:     createInReq.Token,
-		Signature: createInReq.Description,
+		Signature: createInReq.Signature,
 	}
 	in, err := r.uc.ValidateCreate(ctx, in)
 	if err != nil {
@@ -90,13 +90,14 @@ func (r *transactionRoute) validate(ctx iris.Context) {
 	}
 	in := &model.PartnerTransactionCreateInput{
 		TransactionCreateInput: &model.TransactionCreateInput{
-			Amount:                  createInReq.Amount,
-			Description:             &createInReq.Description,
-			SenderName:              createInReq.SenderName,
-			SenderBankAccountNumber: createInReq.SenderBankAccountNumber,
+			Amount:                    createInReq.Amount,
+			Description:               &createInReq.Description,
+			SenderName:                createInReq.SenderName,
+			SenderBankAccountNumber:   createInReq.SenderBankAccountNumber,
+			ReceiverBankAccountNumber: createInReq.ReceiverBankAccountNumber,
 		},
 		Token:     createInReq.Token,
-		Signature: createInReq.Description,
+		Signature: createInReq.Signature,
 	}
 	_, err := r.uc.ValidateCreate(ctx, in)
 	if err != nil {

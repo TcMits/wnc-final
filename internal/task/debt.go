@@ -15,6 +15,7 @@ type (
 		l logger.Interface
 	}
 	DebtNotifyPayload struct {
+		ID     uuid.UUID
 		UserID uuid.UUID
 	}
 )
@@ -28,7 +29,7 @@ func (s *DebtCreateTaskExecutor) ExecuteTask(ctx context.Context, pl *DebtNotify
 		msgpl.If = func(c *model.Customer) bool {
 			return c.ID == pl.UserID
 		}
-		msgpl.Msg = "Debt created"
+		msgpl.Msg = pl.ID.String()
 		msgpl.Event = sse.DebtCreated
 		err := s.b.Notify(msgpl)
 		if err != nil {

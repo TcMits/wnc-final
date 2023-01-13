@@ -50,7 +50,7 @@ func GenerateHashData(ctx context.Context, secretKey, data string) string {
 	return sha
 }
 func ValidateHashData(ctx context.Context, data, secretKey, token string) error {
-	tk := GenerateHashData(ctx, data, secretKey)
+	tk := GenerateHashData(ctx, secretKey, data)
 	if tk != token {
 		return errors.New("invalid token")
 	}
@@ -83,11 +83,11 @@ func ParsePrivateKey(privateK string) (*rsa.PrivateKey, error) {
 }
 
 func VerifySignature(ctx context.Context, sig, msg, publicK string) error {
-	hashed := sha256.Sum256([]byte(msg))
 	pub, err := ParsePublicKey(publicK)
 	if err != nil {
 		return err
 	}
+	hashed := sha256.Sum256([]byte(msg))
 	err = rsa.VerifyPKCS1v15(pub, crypto.SHA256, hashed[:], []byte(sig))
 	return err
 }

@@ -20,7 +20,5 @@ import (
 // @Router      /stream [get]
 func RegisterStreamController(handler iris.Party, l logger.Interface, broker *sse.Broker, uc usecase.ICustomerStreamUseCase) {
 	h := handler.Party("/")
-	h.Get("/stream", middleware.Authenticator(uc.GetSecret(), uc.GetUser), func(ctx iris.Context) {
-		broker.ServeHTTP(ctx)
-	})
+	h.Get("/stream", middleware.Authenticator(uc.GetSecret(), uc.GetUser), broker.ServeHTTP)
 }

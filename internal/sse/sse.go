@@ -97,7 +97,6 @@ func (b *Broker) ServeHTTP(ctx iris.Context) {
 	ctx.ContentType("application/json, text/event-stream")
 	ctx.Header("Cache-Control", "no-cache")
 	ctx.Header("Connection", "keep-alive")
-	ctx.Header("Access-Control-Allow-Origin", "*")
 
 	messageChan := make(chan MessagePayload)
 
@@ -107,6 +106,8 @@ func (b *Broker) ServeHTTP(ctx iris.Context) {
 		b.RemoveClient(messageChan)
 	})
 	user := middleware.GetUserFromCtxAsCustomer(ctx)
+	ctx.Writef("data: success\n\n")
+	flusher.Flush()
 	for {
 		data := <-messageChan
 		if data.If(user) {
@@ -114,7 +115,7 @@ func (b *Broker) ServeHTTP(ctx iris.Context) {
 			if err != nil {
 				b.logger.Warn("internal.sse.Broker.ServeHTTP: %s", err)
 			} else {
-				ctx.Writef("%s\n\n", pl)
+				ctx.Writef("data: %s\n\n", pl)
 				flusher.Flush()
 			}
 		}

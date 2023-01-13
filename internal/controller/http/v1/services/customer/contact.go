@@ -43,11 +43,11 @@ func RegisterContactController(handler iris.Party, l logger.Interface, uc usecas
 // @Router      /contacts/{id} [get]
 func (s *contactRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, s.logger, req, nil)
 		return
 	}
-	entity, err := s.uc.GetFirstMine(ctx, nil, &model.ContactWhereInput{ID: req.id})
+	entity, err := s.uc.GetFirstMine(ctx, nil, &model.ContactWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return
@@ -145,7 +145,7 @@ func (s *contactRoute) create(ctx iris.Context) {
 // @Router      /contacts/{id} [put]
 func (r *contactRoute) update(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
@@ -154,7 +154,7 @@ func (r *contactRoute) update(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, updateInReq, nil)
 		return
 	}
-	entity, err := r.uc.GetFirstMine(ctx, nil, &model.ContactWhereInput{ID: req.id})
+	entity, err := r.uc.GetFirstMine(ctx, nil, &model.ContactWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
@@ -193,11 +193,11 @@ func (r *contactRoute) update(ctx iris.Context) {
 // @Router      /contacts/{id} [delete]
 func (r *contactRoute) delete(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	entity, err := r.uc.GetFirstMine(ctx, nil, &model.ContactWhereInput{ID: req.id})
+	entity, err := r.uc.GetFirstMine(ctx, nil, &model.ContactWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return

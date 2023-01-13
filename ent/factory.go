@@ -142,7 +142,7 @@ var transactionFactory = factory.NewFactory(
 	if err != nil {
 		return nil, err
 	}
-	ba, err := client.BankAccount.Query().Where(bankaccount.ID(sid)).First(a.Context())
+	ba, err := client.BankAccount.Query().Where(bankaccount.ID(*sid)).First(a.Context())
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ var transactionFactory = factory.NewFactory(
 	if err != nil {
 		return nil, err
 	}
-	ba, err := client.BankAccount.Query().Where(bankaccount.ID(sid)).First(a.Context())
+	ba, err := client.BankAccount.Query().Where(bankaccount.ID(*sid)).First(a.Context())
 	if err != nil {
 		return nil, err
 	}

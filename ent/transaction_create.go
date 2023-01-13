@@ -136,6 +136,14 @@ func (tc *TransactionCreate) SetSenderID(u uuid.UUID) *TransactionCreate {
 	return tc
 }
 
+// SetNillableSenderID sets the "sender_id" field if the given value is not nil.
+func (tc *TransactionCreate) SetNillableSenderID(u *uuid.UUID) *TransactionCreate {
+	if u != nil {
+		tc.SetSenderID(*u)
+	}
+	return tc
+}
+
 // SetAmount sets the "amount" field.
 func (tc *TransactionCreate) SetAmount(d decimal.Decimal) *TransactionCreate {
 	tc.mutation.SetAmount(d)
@@ -392,9 +400,6 @@ func (tc *TransactionCreate) check() error {
 			return &ValidationError{Name: "sender_name", err: fmt.Errorf(`ent: validator failed for field "Transaction.sender_name": %w`, err)}
 		}
 	}
-	if _, ok := tc.mutation.SenderID(); !ok {
-		return &ValidationError{Name: "sender_id", err: errors.New(`ent: missing required field "Transaction.sender_id"`)}
-	}
 	if _, ok := tc.mutation.Amount(); !ok {
 		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "Transaction.amount"`)}
 	}
@@ -405,9 +410,6 @@ func (tc *TransactionCreate) check() error {
 		if err := transaction.TransactionTypeValidator(v); err != nil {
 			return &ValidationError{Name: "transaction_type", err: fmt.Errorf(`ent: validator failed for field "Transaction.transaction_type": %w`, err)}
 		}
-	}
-	if _, ok := tc.mutation.SenderID(); !ok {
-		return &ValidationError{Name: "sender", err: errors.New(`ent: missing required edge "Transaction.sender"`)}
 	}
 	return nil
 }

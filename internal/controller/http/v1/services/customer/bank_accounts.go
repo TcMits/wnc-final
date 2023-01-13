@@ -127,7 +127,7 @@ func (r *bankAccountRoute) guestListing(ctx iris.Context) {
 // @Router      /me/bank-accounts/{id} [put]
 func (r *bankAccountRoute) update(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
@@ -137,7 +137,7 @@ func (r *bankAccountRoute) update(ctx iris.Context) {
 		return
 	}
 	e, err := r.uc.GetFirstMine(ctx, nil, &model.BankAccountWhereInput{
-		ID: req.id,
+		ID: &req.id,
 	})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
@@ -175,11 +175,11 @@ func (r *bankAccountRoute) update(ctx iris.Context) {
 // @Router      /me/bank-accounts/{id} [get]
 func (s *bankAccountRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, s.logger, req, nil)
 		return
 	}
-	entity, err := s.uc.GetFirstMine(ctx, nil, &model.BankAccountWhereInput{ID: req.id})
+	entity, err := s.uc.GetFirstMine(ctx, nil, &model.BankAccountWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return
@@ -237,11 +237,11 @@ func (s *bankAccountRoute) getTPBankAcc(ctx iris.Context) {
 // @Router      /me/bank-accounts/guest/{id} [get]
 func (s *bankAccountRoute) guestDetail(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, s.logger, req, nil)
 		return
 	}
-	entity, err := s.uc.GetFirst(ctx, nil, &model.BankAccountWhereInput{ID: req.id})
+	entity, err := s.uc.GetFirst(ctx, nil, &model.BankAccountWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return

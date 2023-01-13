@@ -50,11 +50,11 @@ func RegisterDebtController(handler iris.Party, l logger.Interface, uc usecase.I
 // @Router      /debts/{id} [get]
 func (s *debtRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, s.logger, req, nil)
 		return
 	}
-	entity, err := s.uc.GetFirstMine(ctx, nil, &model.DebtWhereInput{ID: req.id})
+	entity, err := s.uc.GetFirstMine(ctx, nil, &model.DebtWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return
@@ -168,7 +168,7 @@ func (s *debtRoute) create(ctx iris.Context) {
 // @Router      /debts/cancel/{id} [put]
 func (s *debtRoute) cancel(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, s.logger, req, nil)
 		return
 	}
@@ -177,7 +177,7 @@ func (s *debtRoute) cancel(ctx iris.Context) {
 		handleBindingError(ctx, err, s.logger, updateInReq, nil)
 		return
 	}
-	entity, err := s.uc.GetFirstMine(ctx, nil, &model.DebtWhereInput{ID: req.id})
+	entity, err := s.uc.GetFirstMine(ctx, nil, &model.DebtWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return
@@ -215,11 +215,11 @@ func (s *debtRoute) cancel(ctx iris.Context) {
 // @Router      /debts/fulfill/{id} [put]
 func (s *debtRoute) fulfill(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, s.logger, req, nil)
 		return
 	}
-	entity, err := s.uc.GetFirstMine(ctx, nil, &model.DebtWhereInput{ID: req.id})
+	entity, err := s.uc.GetFirstMine(ctx, nil, &model.DebtWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return
@@ -254,7 +254,7 @@ func (s *debtRoute) fulfill(ctx iris.Context) {
 // @Router      /debts/fulfill-with-token/{id} [put]
 func (s *debtRoute) fulfillWithToken(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, s.logger, req, nil)
 		return
 	}
@@ -263,7 +263,7 @@ func (s *debtRoute) fulfillWithToken(ctx iris.Context) {
 		handleBindingError(ctx, err, s.logger, request, nil)
 		return
 	}
-	entity, err := s.uc.GetFirstMine(ctx, nil, &model.DebtWhereInput{ID: req.id})
+	entity, err := s.uc.GetFirstMine(ctx, nil, &model.DebtWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return

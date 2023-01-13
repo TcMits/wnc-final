@@ -112,11 +112,11 @@ func (r *customerRoute) listing(ctx iris.Context) {
 // @Router      /customers/{id} [get]
 func (s *customerRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, s.logger, req, nil)
 		return
 	}
-	entity, err := s.uc.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: req.id})
+	entity, err := s.uc.GetFirst(ctx, nil, &model.CustomerWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return

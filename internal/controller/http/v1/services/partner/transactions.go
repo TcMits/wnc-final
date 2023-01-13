@@ -67,6 +67,7 @@ func (r *transactionRoute) create(ctx iris.Context) {
 		HandleError(ctx, err, r.logger)
 		return
 	}
+	ctx.StatusCode(iris.StatusCreated)
 	ctx.JSON(getResponse(entity))
 }
 
@@ -104,5 +105,5 @@ func (r *transactionRoute) validate(ctx iris.Context) {
 		HandleError(ctx, err, r.logger)
 		return
 	}
-	ctx.JSON(iris.StatusNoContent)
+	ctx.StatusCode(iris.StatusNoContent)
 }

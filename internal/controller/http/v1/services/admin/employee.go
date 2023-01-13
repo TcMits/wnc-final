@@ -43,11 +43,11 @@ func RegisterEmployeeController(handler iris.Party, l logger.Interface, uc useca
 // @Router      /employees/{id} [get]
 func (s *employeeRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, s.logger, req, nil)
 		return
 	}
-	entity, err := s.uc.GetFirst(ctx, nil, &model.EmployeeWhereInput{ID: req.id})
+	entity, err := s.uc.GetFirst(ctx, nil, &model.EmployeeWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, s.logger)
 		return
@@ -145,7 +145,7 @@ func (s *employeeRoute) create(ctx iris.Context) {
 // @Router      /employees/{id} [put]
 func (r *employeeRoute) update(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
@@ -154,7 +154,7 @@ func (r *employeeRoute) update(ctx iris.Context) {
 		handleBindingError(ctx, err, r.logger, updateInReq, nil)
 		return
 	}
-	entity, err := r.uc.GetFirst(ctx, nil, &model.EmployeeWhereInput{ID: req.id})
+	entity, err := r.uc.GetFirst(ctx, nil, &model.EmployeeWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
@@ -198,11 +198,11 @@ func (r *employeeRoute) update(ctx iris.Context) {
 // @Router      /employees/{id} [delete]
 func (r *employeeRoute) delete(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	entity, err := r.uc.GetFirst(ctx, nil, &model.EmployeeWhereInput{ID: req.id})
+	entity, err := r.uc.GetFirst(ctx, nil, &model.EmployeeWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return

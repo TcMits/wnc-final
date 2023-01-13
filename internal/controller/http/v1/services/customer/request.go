@@ -3,6 +3,7 @@ package customer
 import (
 	"github.com/TcMits/wnc-final/ent/debt"
 	"github.com/google/uuid"
+	"github.com/kataras/iris/v12"
 	"github.com/shopspring/decimal"
 )
 
@@ -19,7 +20,7 @@ type (
 		Password *string `json:"password" validate:"required"`
 	}
 	detailRequest struct {
-		id *uuid.UUID `param:"id" validate:"required"`
+		id uuid.UUID `param:"id"`
 	}
 )
 
@@ -102,4 +103,14 @@ func newListRequest() *listRequest {
 	return &listRequest{
 		Limit: 10,
 	}
+}
+
+func ReadID(ctx iris.Context, req *detailRequest) error {
+	id := ctx.Params().Get("id")
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
+	req.id = uid
+	return nil
 }

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"path"
 	"time"
 
 	"github.com/TcMits/wnc-final/internal/webapi"
@@ -80,7 +79,8 @@ func (s *TPBankSDK) getBankAccountURL(ctx context.Context) string {
 	return u
 }
 func (s *TPBankSDK) getCreateTransactionURL(ctx context.Context) string {
-	return path.Join(s.BaseURL, s.CreateTransactionAPI)
+	u, _ := url.JoinPath(s.BaseURL, s.CreateTransactionAPI)
+	return u
 }
 func (s *TPBankSDK) makeRequest(ctx context.Context, method, url string, body, headers map[string]string) (*http.Response, error) {
 	var handler func(context.Context, string, map[string]string, map[string]string) (*http.Response, error)

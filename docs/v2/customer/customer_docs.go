@@ -908,7 +908,7 @@ const docTemplatecustomer = `{
                 }
             }
         },
-        "/me/bank-accounts/tp-bank": {
+        "/me/bank-accounts/tp-bank/{account_number}": {
             "get": {
                 "security": [
                     {

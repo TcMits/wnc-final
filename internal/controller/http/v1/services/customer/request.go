@@ -88,6 +88,9 @@ type (
 	bankAccountFilterReq struct {
 		AccountNumber *string `url:"account_number"`
 	}
+	bankAccountTPBankReq struct {
+		AccountNumber string `param:"account_number"`
+	}
 	debtFilterReq struct {
 		OwnerID    *uuid.UUID   `url:"owner_id"`
 		ReceiverID *uuid.UUID   `url:"receiver_id"`
@@ -112,5 +115,11 @@ func ReadID(ctx iris.Context, req *detailRequest) error {
 		return err
 	}
 	req.id = uid
+	return nil
+}
+
+func ReadAccountNumber(ctx iris.Context, req *bankAccountTPBankReq) error {
+	ac := ctx.Params().Get("account_number")
+	req.AccountNumber = ac
 	return nil
 }

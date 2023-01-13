@@ -22,7 +22,8 @@ transaction_usecase:
 
 tp_bank:
  name: 'TPBank'
- base_url: 'https://warm-everglades-43727.herokuapp.com/api/partner/v1/'
+ base_url: 'http://golang-tpbank:8080/api/partner/v1/'
+#  base_url: 'https://warm-everglades-43727.herokuapp.com/api/partner/v1/'
  auth_api: 'auth/'
  bank_account_api: 'bank-accounts/'
  validate_transaction_api: 'transactions/validate/'

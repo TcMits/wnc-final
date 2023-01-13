@@ -1,6 +1,8 @@
 package customer
 
 import (
+	"fmt"
+
 	"github.com/TcMits/wnc-final/internal/controller/http/v1/services/customer/middleware"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
@@ -22,7 +24,7 @@ func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc us
 	h.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
 	h.Get("/bank-accounts/guest/{id:uuid}", route.guestDetail)
 	h.Get("/bank-accounts/guest", route.guestListing)
-	h.Get("/bank-accounts/tp-bank", route.getTPBankAcc)
+	h.Get("/bank-accounts/tp-bank/{account_number:string}", route.getTPBankAcc)
 	h.Put("/bank-accounts/{id:uuid}", route.update)
 	h.Get("/bank-accounts/{id:uuid}", route.detail)
 	h.Get("/bank-accounts", route.listing)
@@ -202,15 +204,16 @@ func (s *bankAccountRoute) detail(ctx iris.Context) {
 // @Success     200 {object} bankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /me/bank-accounts/tp-bank [get]
+// @Router      /me/bank-accounts/tp-bank/{account_number} [get]
 func (s *bankAccountRoute) getTPBankAcc(ctx iris.Context) {
-	filterReq := new(bankAccountFilterReq)
-	if err := ctx.ReadQuery(filterReq); err != nil {
+	filterReq := new(bankAccountTPBankReq)
+	if err := ReadAccountNumber(ctx, filterReq); err != nil {
 		handleBindingError(ctx, err, s.logger, filterReq, nil)
 		return
 	}
+	fmt.Println(filterReq.AccountNumber)
 	e, err := s.uc.Get(ctx, &model.BankAccountWhereInput{
-		AccountNumber: filterReq.AccountNumber,
+		AccountNumber: &filterReq.AccountNumber,
 	})
 	if err != nil {
 		HandleError(ctx, err, s.logger)

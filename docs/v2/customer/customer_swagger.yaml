@@ -1123,7 +1123,7 @@ paths:
       summary: Get a guest bank account
       tags:
       - Bank account
-  /me/bank-accounts/tp-bank:
+  /me/bank-accounts/tp-bank/{account_number}:
     get:
       consumes:
       - application/json

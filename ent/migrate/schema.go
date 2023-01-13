@@ -291,7 +291,7 @@ var (
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647, Default: ""},
 		{Name: "source_transaction_id", Type: field.TypeUUID, Unique: true, Nullable: true},
 		{Name: "receiver_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "sender_id", Type: field.TypeUUID},
+		{Name: "sender_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// TransactionsTable holds the schema information for the "transactions" table.
 	TransactionsTable = &schema.Table{

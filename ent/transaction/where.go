@@ -1068,6 +1068,20 @@ func SenderIDNotIn(vs ...uuid.UUID) predicate.Transaction {
 	})
 }
 
+// SenderIDIsNil applies the IsNil predicate on the "sender_id" field.
+func SenderIDIsNil() predicate.Transaction {
+	return predicate.Transaction(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldSenderID)))
+	})
+}
+
+// SenderIDNotNil applies the NotNil predicate on the "sender_id" field.
+func SenderIDNotNil() predicate.Transaction {
+	return predicate.Transaction(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldSenderID)))
+	})
+}
+
 // AmountEQ applies the EQ predicate on the "amount" field.
 func AmountEQ(v decimal.Decimal) predicate.Transaction {
 	return predicate.Transaction(func(s *sql.Selector) {

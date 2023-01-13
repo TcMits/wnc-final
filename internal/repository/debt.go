@@ -100,7 +100,7 @@ func (s *debtFullfillRepository) addOwnerBankAccount(ctx context.Context, e *mod
 }
 func (s *debtFullfillRepository) createTransaction(ctx context.Context, e *model.Debt) (*model.Transaction, error) {
 	i := &model.TransactionCreateInput{
-		SenderID:                  *e.ReceiverID,
+		SenderID:                  e.ReceiverID,
 		SenderBankAccountNumber:   e.ReceiverBankAccountNumber,
 		SenderName:                e.ReceiverName,
 		SenderBankName:            e.ReceiverBankName,

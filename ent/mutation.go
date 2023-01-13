@@ -7010,9 +7010,22 @@ func (m *TransactionMutation) OldSenderID(ctx context.Context) (v *uuid.UUID, er
 	return oldValue.SenderID, nil
 }
 
+// ClearSenderID clears the value of the "sender_id" field.
+func (m *TransactionMutation) ClearSenderID() {
+	m.sender = nil
+	m.clearedFields[transaction.FieldSenderID] = struct{}{}
+}
+
+// SenderIDCleared returns if the "sender_id" field was cleared in this mutation.
+func (m *TransactionMutation) SenderIDCleared() bool {
+	_, ok := m.clearedFields[transaction.FieldSenderID]
+	return ok
+}
+
 // ResetSenderID resets all changes to the "sender_id" field.
 func (m *TransactionMutation) ResetSenderID() {
 	m.sender = nil
+	delete(m.clearedFields, transaction.FieldSenderID)
 }
 
 // SetAmount sets the "amount" field.
@@ -7254,7 +7267,7 @@ func (m *TransactionMutation) ClearSender() {
 
 // SenderCleared reports if the "sender" edge to the BankAccount entity was cleared.
 func (m *TransactionMutation) SenderCleared() bool {
-	return m.clearedsender
+	return m.SenderIDCleared() || m.clearedsender
 }
 
 // SenderIDs returns the "sender" edge IDs in the mutation.
@@ -7619,6 +7632,9 @@ func (m *TransactionMutation) ClearedFields() []string {
 	if m.FieldCleared(transaction.FieldReceiverID) {
 		fields = append(fields, transaction.FieldReceiverID)
 	}
+	if m.FieldCleared(transaction.FieldSenderID) {
+		fields = append(fields, transaction.FieldSenderID)
+	}
 	if m.FieldCleared(transaction.FieldDescription) {
 		fields = append(fields, transaction.FieldDescription)
 	}
@@ -7641,6 +7657,9 @@ func (m *TransactionMutation) ClearField(name string) error {
 		return nil
 	case transaction.FieldReceiverID:
 		m.ClearReceiverID()
+		return nil
+	case transaction.FieldSenderID:
+		m.ClearSenderID()
 		return nil
 	case transaction.FieldDescription:
 		m.ClearDescription()

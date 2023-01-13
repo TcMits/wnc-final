@@ -481,7 +481,7 @@ type TransactionCreateInput struct {
 	ReceiverBankAccountNumber string                      `json:"receiver_bank_account_number,omitempty" form:"receiver_bank_account_number"`
 	ReceiverBankName          string                      `json:"receiver_bank_name,omitempty" form:"receiver_bank_name"`
 	ReceiverName              string                      `json:"receiver_name,omitempty" form:"receiver_name"`
-	SenderID                  uuid.UUID                   `json:"sender_id,omitempty" form:"sender_id"`
+	SenderID                  *uuid.UUID                  `json:"sender_id,omitempty" form:"sender_id"`
 	SenderBankAccountNumber   string                      `json:"sender_bank_account_number,omitempty" form:"sender_bank_account_number"`
 	SenderBankName            string                      `json:"sender_bank_name,omitempty" form:"sender_bank_name"`
 	SenderName                string                      `json:"sender_name,omitempty" form:"sender_name"`
@@ -524,7 +524,9 @@ func (i *TransactionCreateInput) Mutate(m *TransactionMutation) {
 	if v := i.ReceiverID; v != nil {
 		m.SetReceiverID(*v)
 	}
-	m.SetSenderID(i.SenderID)
+	if v := i.SenderID; v != nil {
+		m.SetSenderID(*v)
+	}
 	if v := i.DebtID; v != nil {
 		m.SetDebtID(*v)
 	}
@@ -1048,10 +1050,12 @@ type TransactionWhereInput struct {
 	SenderNameContainsFold *string  `json:"sender_name_contains_fold,omitempty" form:"sender_name_contains_fold" param:"sender_name_contains_fold" url:"sender_name_contains_fold"`
 
 	// "sender_id" field predicates.
-	SenderID      *uuid.UUID  `json:"sender_id,omitempty" form:"sender_id" param:"sender_id" url:"sender_id"`
-	SenderIDNEQ   *uuid.UUID  `json:"sender_id_neq,omitempty" form:"sender_id_neq" param:"sender_id_neq" url:"sender_id_neq"`
-	SenderIDIn    []uuid.UUID `json:"sender_id_in,omitempty" form:"sender_id_in" param:"sender_id_in" url:"sender_id_in"`
-	SenderIDNotIn []uuid.UUID `json:"sender_id_not_in,omitempty" form:"sender_id_not_in" param:"sender_id_not_in" url:"sender_id_not_in"`
+	SenderID       *uuid.UUID  `json:"sender_id,omitempty" form:"sender_id" param:"sender_id" url:"sender_id"`
+	SenderIDNEQ    *uuid.UUID  `json:"sender_id_neq,omitempty" form:"sender_id_neq" param:"sender_id_neq" url:"sender_id_neq"`
+	SenderIDIn     []uuid.UUID `json:"sender_id_in,omitempty" form:"sender_id_in" param:"sender_id_in" url:"sender_id_in"`
+	SenderIDNotIn  []uuid.UUID `json:"sender_id_not_in,omitempty" form:"sender_id_not_in" param:"sender_id_not_in" url:"sender_id_not_in"`
+	SenderIDIsNil  bool        `json:"sender_id_is_nil,omitempty" form:"sender_id_is_nil" param:"sender_id_is_nil" url:"sender_id_is_nil"`
+	SenderIDNotNil bool        `json:"sender_id_not_nil,omitempty" form:"sender_id_not_nil" param:"sender_id_not_nil" url:"sender_id_not_nil"`
 
 	// "amount" field predicates.
 	Amount      *decimal.Decimal  `json:"amount,omitempty" form:"amount" param:"amount" url:"amount"`
@@ -1543,6 +1547,12 @@ func (i *TransactionWhereInput) P() (predicate.Transaction, error) {
 	}
 	if len(i.SenderIDNotIn) > 0 {
 		predicates = append(predicates, transaction.SenderIDNotIn(i.SenderIDNotIn...))
+	}
+	if i.SenderIDIsNil {
+		predicates = append(predicates, transaction.SenderIDIsNil())
+	}
+	if i.SenderIDNotNil {
+		predicates = append(predicates, transaction.SenderIDNotNil())
 	}
 	if i.Amount != nil {
 		predicates = append(predicates, transaction.AmountEQ(*i.Amount))

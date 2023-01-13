@@ -134,6 +134,20 @@ func (tu *TransactionUpdate) SetSenderID(u uuid.UUID) *TransactionUpdate {
 	return tu
 }
 
+// SetNillableSenderID sets the "sender_id" field if the given value is not nil.
+func (tu *TransactionUpdate) SetNillableSenderID(u *uuid.UUID) *TransactionUpdate {
+	if u != nil {
+		tu.SetSenderID(*u)
+	}
+	return tu
+}
+
+// ClearSenderID clears the value of the "sender_id" field.
+func (tu *TransactionUpdate) ClearSenderID() *TransactionUpdate {
+	tu.mutation.ClearSenderID()
+	return tu
+}
+
 // SetAmount sets the "amount" field.
 func (tu *TransactionUpdate) SetAmount(d decimal.Decimal) *TransactionUpdate {
 	tu.mutation.ResetAmount()
@@ -371,9 +385,6 @@ func (tu *TransactionUpdate) check() error {
 		if err := transaction.TransactionTypeValidator(v); err != nil {
 			return &ValidationError{Name: "transaction_type", err: fmt.Errorf(`ent: validator failed for field "Transaction.transaction_type": %w`, err)}
 		}
-	}
-	if _, ok := tu.mutation.SenderID(); tu.mutation.SenderCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Transaction.sender"`)
 	}
 	return nil
 }
@@ -731,6 +742,20 @@ func (tuo *TransactionUpdateOne) SetSenderID(u uuid.UUID) *TransactionUpdateOne 
 	return tuo
 }
 
+// SetNillableSenderID sets the "sender_id" field if the given value is not nil.
+func (tuo *TransactionUpdateOne) SetNillableSenderID(u *uuid.UUID) *TransactionUpdateOne {
+	if u != nil {
+		tuo.SetSenderID(*u)
+	}
+	return tuo
+}
+
+// ClearSenderID clears the value of the "sender_id" field.
+func (tuo *TransactionUpdateOne) ClearSenderID() *TransactionUpdateOne {
+	tuo.mutation.ClearSenderID()
+	return tuo
+}
+
 // SetAmount sets the "amount" field.
 func (tuo *TransactionUpdateOne) SetAmount(d decimal.Decimal) *TransactionUpdateOne {
 	tuo.mutation.ResetAmount()
@@ -981,9 +1006,6 @@ func (tuo *TransactionUpdateOne) check() error {
 		if err := transaction.TransactionTypeValidator(v); err != nil {
 			return &ValidationError{Name: "transaction_type", err: fmt.Errorf(`ent: validator failed for field "Transaction.transaction_type": %w`, err)}
 		}
-	}
-	if _, ok := tuo.mutation.SenderID(); tuo.mutation.SenderCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Transaction.sender"`)
 	}
 	return nil
 }

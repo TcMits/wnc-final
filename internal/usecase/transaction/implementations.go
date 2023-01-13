@@ -64,11 +64,11 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.C
 		iFPBMAny := pl["is_fee_paid_by_me"]
 		isFeePaidByMe, _ := iFPBMAny.(bool)
 		if isFeePaidByMe {
-			ni.SenderID = *e.SenderID
+			ni.SenderID = e.SenderID
 			ni.SenderBankAccountNumber = e.SenderBankAccountNumber
 			ni.SenderBankName = e.SenderBankName
 		} else {
-			ni.SenderID = *e.ReceiverID
+			ni.SenderID = e.ReceiverID
 			ni.SenderBankAccountNumber = e.ReceiverBankAccountNumber
 			ni.SenderBankName = e.ReceiverBankName
 		}
@@ -89,7 +89,7 @@ func (uc *CustomerTransactionConfirmSuccessUseCase) ConfirmSuccess(ctx context.C
 				Status:                  generic.GetPointer(transaction.StatusSuccess),
 				TransactionType:         transaction.TransactionTypeInternal,
 				Description:             uc.cfUC.GetFeeDesc(),
-				SenderID:                *e.SenderID,
+				SenderID:                e.SenderID,
 				SenderBankAccountNumber: e.SenderBankAccountNumber,
 				SenderBankName:          e.SenderBankName,
 			}
@@ -171,7 +171,7 @@ func (uc *CustomerTransactionValidateCreateInputUseCase) ValidateCreate(ctx cont
 		return nil, usecase.ValidationError(fmt.Errorf("insufficient balance sender"))
 	}
 	i.Status = generic.GetPointer(transaction.StatusDraft)
-	i.SenderID = ba.ID
+	i.SenderID = &ba.ID
 	i.SenderBankAccountNumber = ba.AccountNumber
 	i.SenderBankName = *uc.cfUC.GetProductOwnerName()
 	i.SenderName = user.GetName()

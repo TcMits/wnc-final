@@ -60,6 +60,7 @@ func (Transaction) Fields() []ent.Field {
 			String("sender_name").
 			MaxLen(256),
 		field.UUID("sender_id", uuid.UUID{}).
+			Optional().
 			Nillable(),
 		field.Float("amount").
 			GoType(decimal.Decimal{}).
@@ -98,7 +99,6 @@ func (Transaction) Edges() []ent.Edge {
 			}),
 		edge.
 			To("sender", BankAccount.Type).
-			Required().
 			Unique().
 			Field("sender_id").
 			Annotations(entsql.Annotation{

@@ -136,7 +136,7 @@ func newPartnerTransactionConfirmSuccessRepository(
 	client *ent.Client,
 ) *partnerTransactionCreateRepository {
 	return &partnerTransactionCreateRepository{
-		r1: GetPartnerTransactionCreateRepository(client),
+		r1: GetTransactionCreateRepository(client),
 		r2: GetBankAccountUpdateRepository(client),
 		r3: GetBankAccountListRepository(client),
 	}

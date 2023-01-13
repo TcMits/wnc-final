@@ -206,11 +206,11 @@ func (r *transactionRoute) tpBankCreate(ctx iris.Context) {
 // @Router      /transactions/{id} [get]
 func (r *transactionRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	entity, err := r.uc.GetFirstMine(ctx, nil, &model.TransactionWhereInput{ID: req.id})
+	entity, err := r.uc.GetFirstMine(ctx, nil, &model.TransactionWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
@@ -237,11 +237,11 @@ func (r *transactionRoute) detail(ctx iris.Context) {
 // @Router      /transactions/confirm-success/{id} [put]
 func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	entity, err := r.uc.GetFirstMine(ctx, nil, &model.TransactionWhereInput{ID: req.id})
+	entity, err := r.uc.GetFirstMine(ctx, nil, &model.TransactionWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return
@@ -286,11 +286,11 @@ func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
 // @Router      /transactions/tp-bank/confirm-success/{id} [put]
 func (r *transactionRoute) tpBankConfirm(ctx iris.Context) {
 	req := new(detailRequest)
-	if err := ctx.ReadParams(req); err != nil {
+	if err := ReadID(ctx, req); err != nil {
 		handleBindingError(ctx, err, r.logger, req, nil)
 		return
 	}
-	entity, err := r.uc.GetFirstMine(ctx, nil, &model.TransactionWhereInput{ID: req.id})
+	entity, err := r.uc.GetFirstMine(ctx, nil, &model.TransactionWhereInput{ID: &req.id})
 	if err != nil {
 		HandleError(ctx, err, r.logger)
 		return

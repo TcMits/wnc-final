@@ -62,7 +62,6 @@ func ParsePublicKey(publicK string) (*rsa.PublicKey, error) {
 	if block == nil {
 		return nil, errors.New("failed to parse")
 	}
-
 	pub, err := x509.ParsePKCS1PublicKey(block.Bytes)
 	if err != nil {
 		return nil, err
@@ -74,7 +73,6 @@ func ParsePrivateKey(privateK string) (*rsa.PrivateKey, error) {
 	if block == nil {
 		return nil, errors.New("failed to parse")
 	}
-
 	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
@@ -88,7 +86,11 @@ func VerifySignature(ctx context.Context, sig, msg, publicK string) error {
 		return err
 	}
 	hashed := sha256.Sum256([]byte(msg))
-	err = rsa.VerifyPKCS1v15(pub, crypto.SHA256, hashed[:], []byte(sig))
+	sigDe, err := hex.DecodeString(sig)
+	if err != nil {
+		return err
+	}
+	err = rsa.VerifyPKCS1v15(pub, crypto.SHA256, hashed[:], sigDe)
 	return err
 }
 func GenerateSignature(ctx context.Context, msg, privateK string) (string, error) {
@@ -108,7 +110,7 @@ func GenerateSignature(ctx context.Context, msg, privateK string) (string, error
 	if err != nil {
 		return "", err
 	}
-	return string(signature), nil
+	return hex.EncodeToString(signature), nil
 }
 
 func GenerateRSAKeyPair() (*RSAKeyPair, error) {

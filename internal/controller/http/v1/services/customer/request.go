@@ -55,7 +55,6 @@ type (
 	contactCreateReq struct {
 		AccountNumber string `json:"account_number," validate:"required"`
 		SuggestName   string `json:"suggest_name" validate:"required"`
-		BankName      string `json:"bank_name" validate:"required"`
 	}
 	contactUpdateReq struct {
 		AccountNumber string `json:"account_number"`

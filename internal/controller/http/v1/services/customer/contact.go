@@ -115,7 +115,6 @@ func (s *contactRoute) create(ctx iris.Context) {
 	in := &model.ContactCreateInput{
 		AccountNumber: createInReq.AccountNumber,
 		SuggestName:   createInReq.SuggestName,
-		BankName:      createInReq.BankName,
 	}
 	in, err := s.uc.ValidateCreate(ctx, in)
 	if err != nil {

@@ -95,6 +95,7 @@ func (s *CustomerContactValidateCreateInputUseCase) ValidateCreate(ctx context.C
 			return nil, usecase.ValidationError(fmt.Errorf("invalid account number"))
 		}
 		alterName = r.Name
+		i.BankName = s.w1.GetName()
 	} else {
 		alterName = target.GetName()
 	}

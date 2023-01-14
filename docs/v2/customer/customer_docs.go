@@ -1793,14 +1793,10 @@ const docTemplatecustomer = `{
             "type": "object",
             "required": [
                 "account_number",
-                "bank_name",
                 "suggest_name"
             ],
             "properties": {
                 "account_number": {
-                    "type": "string"
-                },
-                "bank_name": {
                     "type": "string"
                 },
                 "suggest_name": {

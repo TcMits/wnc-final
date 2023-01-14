@@ -106,6 +106,7 @@ func NewCustomerDebtFulfillUseCase(
 		cfUC:                   config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
 		debtFulfillMailTemp:    debtFulfillEmailTemplate,
 		debtFulfillSubjectMail: debtFulfillSubjectMail,
+		otpTimeout:             otpTimeout,
 	}
 }
 func NewCustomerDebtValidateFulfillWithTokenUseCase(
@@ -151,18 +152,19 @@ func NewCustomerDebtUseCase(
 	otpTimeout time.Duration,
 ) usecase.ICustomerDebtUseCase {
 	return &CustomerDebtUseCase{
-		ICustomerDebtListUseCase:                NewCustomerDebtListUseCase(repoList),
-		ICustomerDebtCreateUseCase:              NewCustomerDebtCreateUseCase(repoCreate, rlc, notifyTask, sk, prodOwnerName, fee, feeDesc),
-		ICustomerDebtValidateCreateInputUseCase: NewCustomerDebtValidateCreateInputUseCase(rlba, rlc, sk, prodOwnerName, fee, feeDesc),
-		ICustomerConfigUseCase:                  config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
-		ICustomerGetUserUseCase:                 auth.NewCustomerGetUserUseCase(rlc),
-		ICustomerDebtGetFirstMineUseCase:        NewCustomerDebtGetFirstMineUseCase(repoList),
-		ICustomerDebtListMineUseCase:            NewCustomerDebtListMineUseCase(repoList),
-		ICustomerDebtCancelUseCase:              NewCustomerDebtCancelUseCase(repoUpdate, notifyTask, rlc),
-		ICustomerDebtValidateCancelUseCase:      NewCustomerDebtValidateCancelUseCase(rlc),
-		ICustomerDebtValidateFulfillUseCase:     NewCustomerDebtValidateFulfillUseCase(rlc, rlba),
-		ICustomerDebtFulfillUseCase:             NewCustomerDebtFulfillUseCase(mailTask, sk, prodOwnerName, feeDesc, debtFulfillSubjectMail, debtFulfillEmailTemplate, fee, otpTimeout),
-		ICustomerDebtFulfillWithTokenUseCase:    NewCustomerDebtFulfillWithTokenUseCase(repoFulfill, rlc, notifyTask),
-		IIsNextUseCase:                          NewCustomerDebtIsNextUseCase(repoIsNext),
+		ICustomerDebtListUseCase:                     NewCustomerDebtListUseCase(repoList),
+		ICustomerDebtCreateUseCase:                   NewCustomerDebtCreateUseCase(repoCreate, rlc, notifyTask, sk, prodOwnerName, fee, feeDesc),
+		ICustomerDebtValidateCreateInputUseCase:      NewCustomerDebtValidateCreateInputUseCase(rlba, rlc, sk, prodOwnerName, fee, feeDesc),
+		ICustomerConfigUseCase:                       config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		ICustomerGetUserUseCase:                      auth.NewCustomerGetUserUseCase(rlc),
+		ICustomerDebtGetFirstMineUseCase:             NewCustomerDebtGetFirstMineUseCase(repoList),
+		ICustomerDebtListMineUseCase:                 NewCustomerDebtListMineUseCase(repoList),
+		ICustomerDebtCancelUseCase:                   NewCustomerDebtCancelUseCase(repoUpdate, notifyTask, rlc),
+		ICustomerDebtValidateCancelUseCase:           NewCustomerDebtValidateCancelUseCase(rlc),
+		ICustomerDebtValidateFulfillUseCase:          NewCustomerDebtValidateFulfillUseCase(rlc, rlba),
+		ICustomerDebtFulfillUseCase:                  NewCustomerDebtFulfillUseCase(mailTask, sk, prodOwnerName, feeDesc, debtFulfillSubjectMail, debtFulfillEmailTemplate, fee, otpTimeout),
+		ICustomerDebtFulfillWithTokenUseCase:         NewCustomerDebtFulfillWithTokenUseCase(repoFulfill, rlc, notifyTask),
+		ICustomerDebtValidateFulfillWithTokenUseCase: NewCustomerDebtValidateFulfillWithTokenUseCase(sk, prodOwnerName, feeDesc, fee),
+		IIsNextUseCase:                               NewCustomerDebtIsNextUseCase(repoIsNext),
 	}
 }

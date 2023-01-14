@@ -123,13 +123,10 @@ definitions:
     properties:
       account_number:
         type: string
-      bank_name:
-        type: string
       suggest_name:
         type: string
     required:
     - account_number
-    - bank_name
     - suggest_name
     type: object
   customer.contactResp:

@@ -24,7 +24,7 @@ type (
 
 	// App -.
 	App struct {
-		Name      string `yaml:"name"`
+		Name      string `env-required:"true" env:"APP_NAME"`
 		Version   string `yaml:"version"`
 		SecretKey string `yaml:"secret_key"`
 		Debug     bool   `yaml:"debug" env-required:"true" env:"APP_DEBUG"`

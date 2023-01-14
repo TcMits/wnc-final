@@ -1,5 +1,4 @@
 app:
-  name: 'Sacombank'
   version: '1.0.0'
   secret_key: 'dummy'
   debug: true

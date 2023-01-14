@@ -197,7 +197,7 @@ func (s *CustomerValidateCreateUseCase) ValidateCreate(ctx context.Context, i *m
 		return nil, err
 	}
 	if es {
-		return nil, usecase.WrapError(fmt.Errorf("username %s is in use", i.Username))
+		return nil, usecase.ValidationError(fmt.Errorf("username %s is in use", i.Username))
 	}
 	es, err = s.isExist(ctx, &model.CustomerWhereInput{
 		Email: &i.Email,
@@ -206,7 +206,7 @@ func (s *CustomerValidateCreateUseCase) ValidateCreate(ctx context.Context, i *m
 		return nil, err
 	}
 	if es {
-		return nil, usecase.WrapError(fmt.Errorf("email %s is in use", i.Email))
+		return nil, usecase.ValidationError(fmt.Errorf("email %s is in use", i.Email))
 	}
 	es, err = s.isExist(ctx, &model.CustomerWhereInput{
 		PhoneNumber: &i.PhoneNumber,
@@ -215,7 +215,7 @@ func (s *CustomerValidateCreateUseCase) ValidateCreate(ctx context.Context, i *m
 		return nil, err
 	}
 	if es {
-		return nil, usecase.WrapError(fmt.Errorf("phone number %s is in use", i.PhoneNumber))
+		return nil, usecase.ValidationError(fmt.Errorf("phone number %s is in use", i.PhoneNumber))
 	}
 	i.Password = generic.GetPointer("12345678")
 	i.IsActive = generic.GetPointer(true)

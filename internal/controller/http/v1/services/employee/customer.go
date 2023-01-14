@@ -60,6 +60,7 @@ func (s *customerRoute) create(ctx iris.Context) {
 		HandleError(ctx, err, s.logger)
 		return
 	}
+	ctx.StatusCode(iris.StatusCreated)
 	ctx.JSON(getResponse(entity))
 }
 

@@ -24,9 +24,9 @@ type (
 
 type (
 	customerCreateReq struct {
-		Username    string `json:"username" validate:"required"`
+		Username    string `json:"username" validate:"required,min=6"`
 		Email       string `json:"email" validate:"required,email"`
-		PhoneNumber string `json:"phone_number" validate:"required"`
+		PhoneNumber string `json:"phone_number" validate:"required,min=12"`
 	}
 	bankAccountFilterReq struct {
 		AccountNumber *string `url:"account_number"`

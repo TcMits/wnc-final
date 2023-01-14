@@ -72,7 +72,7 @@ func (s *bankAccountRoute) delete(ctx iris.Context) {
 // @Param       username query string false "Username of bank account"
 // @Success     200 {object} EntitiesResponseTemplate[bankAccountResp]
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts [get]
+// @Router      /api/v1/employee/bank-accounts [get]
 func (r *bankAccountRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -125,7 +125,7 @@ func (r *bankAccountRoute) listing(ctx iris.Context) {
 // @Success     200 {object} bankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts/{id} [put]
+// @Router      /api/v1/employee/bank-accounts/{id} [put]
 func (r *bankAccountRoute) update(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {
@@ -174,7 +174,7 @@ func (r *bankAccountRoute) update(ctx iris.Context) {
 // @Success     200 {object} bankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts/{id} [get]
+// @Router      /api/v1/employee/bank-accounts/{id} [get]
 func (s *bankAccountRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {

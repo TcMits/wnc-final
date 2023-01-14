@@ -72,7 +72,7 @@ func (s *customerRoute) create(ctx iris.Context) {
 // @Produce     json
 // @Success     200 {object} EntitiesResponseTemplate[customerResponse]
 // @Failure     500 {object} errorResponse
-// @Router      /customers [get]
+// @Router      /api/v1/employee/customers [get]
 func (r *customerRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -109,7 +109,7 @@ func (r *customerRoute) listing(ctx iris.Context) {
 // @Success     200 {object} customerResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /customers/{id} [get]
+// @Router      /api/v1/employee/customers/{id} [get]
 func (s *customerRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {

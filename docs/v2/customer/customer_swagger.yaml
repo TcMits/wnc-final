@@ -678,6 +678,104 @@ paths:
       summary: Show bank accounts
       tags:
       - Bank account
+  /api/customer/v1/me/bank-accounts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a bank account
+      operationId: bankaccount-delete
+      parameters:
+      - description: ID of bank account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Delete a bank account
+      tags:
+      - Bank account
+    get:
+      consumes:
+      - application/json
+      description: Get a bank account
+      operationId: bankaccount-get
+      parameters:
+      - description: ID of bank account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.bankAccountResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a bank account
+      tags:
+      - Bank account
+    put:
+      consumes:
+      - application/json
+      description: Update a bank account
+      operationId: bankaccount-update
+      parameters:
+      - description: Update a bank account
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/customer.bankAccountUpdateReq'
+      - description: ID of bank account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.bankAccountResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Update a bank account
+      tags:
+      - Bank account
   /api/customer/v1/me/bank-accounts/guest:
     get:
       consumes:
@@ -703,6 +801,69 @@ paths:
       security:
       - Bearer: []
       summary: Show guest bank accounts
+      tags:
+      - Bank account
+  /api/customer/v1/me/bank-accounts/guest/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a guest bank account
+      operationId: guestbankaccount-get
+      parameters:
+      - description: ID of bank account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.guestBankAccountResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a guest bank account
+      tags:
+      - Bank account
+  /api/customer/v1/me/bank-accounts/tp-bank/{account_number}:
+    get:
+      consumes:
+      - application/json
+      description: Get a tp bank bank account
+      operationId: tpbankbankaccount-get
+      parameters:
+      - description: Bank account number
+        in: query
+        name: account_number
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/customer.tpBankbankAccountResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/customer.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a tp bank bank account
       tags:
       - Bank account
   /api/customer/v1/me/change-password:
@@ -1378,165 +1539,4 @@ paths:
       summary: Renew token
       tags:
       - Authentication
-  /me/bank-accounts/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a bank account
-      operationId: bankaccount-delete
-      parameters:
-      - description: ID of bank account
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/customer.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/customer.errorResponse'
-      security:
-      - Bearer: []
-      summary: Delete a bank account
-      tags:
-      - Bank account
-    get:
-      consumes:
-      - application/json
-      description: Get a bank account
-      operationId: bankaccount-get
-      parameters:
-      - description: ID of bank account
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/customer.bankAccountResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/customer.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/customer.errorResponse'
-      security:
-      - Bearer: []
-      summary: Get a bank account
-      tags:
-      - Bank account
-    put:
-      consumes:
-      - application/json
-      description: Update a bank account
-      operationId: bankaccount-update
-      parameters:
-      - description: Update a bank account
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/customer.bankAccountUpdateReq'
-      - description: ID of bank account
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/customer.bankAccountResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/customer.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/customer.errorResponse'
-      security:
-      - Bearer: []
-      summary: Update a bank account
-      tags:
-      - Bank account
-  /me/bank-accounts/guest/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a guest bank account
-      operationId: guestbankaccount-get
-      parameters:
-      - description: ID of bank account
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/customer.guestBankAccountResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/customer.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/customer.errorResponse'
-      security:
-      - Bearer: []
-      summary: Get a guest bank account
-      tags:
-      - Bank account
-  /me/bank-accounts/tp-bank/{account_number}:
-    get:
-      consumes:
-      - application/json
-      description: Get a tp bank bank account
-      operationId: tpbankbankaccount-get
-      parameters:
-      - description: Bank account number
-        in: query
-        name: account_number
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/customer.tpBankbankAccountResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/customer.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/customer.errorResponse'
-      security:
-      - Bearer: []
-      summary: Get a tp bank bank account
-      tags:
-      - Bank account
 swagger: "2.0"

@@ -125,7 +125,7 @@ func (r *bankAccountRoute) guestListing(ctx iris.Context) {
 // @Success     200 {object} bankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /me/bank-accounts/{id} [put]
+// @Router      /api/customer/v1/me/bank-accounts/{id} [put]
 func (r *bankAccountRoute) update(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {
@@ -173,7 +173,7 @@ func (r *bankAccountRoute) update(ctx iris.Context) {
 // @Success     204 ""
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /me/bank-accounts/{id} [delete]
+// @Router      /api/customer/v1/me/bank-accounts/{id} [delete]
 func (s *bankAccountRoute) delete(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {
@@ -206,7 +206,7 @@ func (s *bankAccountRoute) delete(ctx iris.Context) {
 // @Success     200 {object} bankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /me/bank-accounts/{id} [get]
+// @Router      /api/customer/v1/me/bank-accounts/{id} [get]
 func (s *bankAccountRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {
@@ -236,7 +236,7 @@ func (s *bankAccountRoute) detail(ctx iris.Context) {
 // @Success     200 {object} tpBankbankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /me/bank-accounts/tp-bank/{account_number} [get]
+// @Router      /api/customer/v1/me/bank-accounts/tp-bank/{account_number} [get]
 func (s *bankAccountRoute) getTPBankAcc(ctx iris.Context) {
 	filterReq := new(bankAccountTPBankReq)
 	if err := ReadAccountNumber(ctx, filterReq); err != nil {
@@ -268,7 +268,7 @@ func (s *bankAccountRoute) getTPBankAcc(ctx iris.Context) {
 // @Success     200 {object} guestBankAccountResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /me/bank-accounts/guest/{id} [get]
+// @Router      /api/customer/v1/me/bank-accounts/guest/{id} [get]
 func (s *bankAccountRoute) guestDetail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {

@@ -198,6 +198,37 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/v1/employee/bank-accounts:
+    get:
+      consumes:
+      - application/json
+      description: Show bank accounts
+      operationId: bankaccount-listing
+      parameters:
+      - description: Account number of bank account
+        in: query
+        name: account_number
+        type: string
+      - description: Username of bank account
+        in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.EntitiesResponseTemplate-employee_bankAccountResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show bank accounts
+      tags:
+      - Bank account
   /api/v1/employee/bank-accounts/{id}:
     delete:
       consumes:
@@ -228,7 +259,96 @@ paths:
       summary: Delete a bank account
       tags:
       - Bank account
+    get:
+      consumes:
+      - application/json
+      description: Get a bank account
+      operationId: bankaccount-get
+      parameters:
+      - description: ID of bank account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.bankAccountResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a bank account
+      tags:
+      - Bank account
+    put:
+      consumes:
+      - application/json
+      description: Deposit a bank account
+      operationId: bankaccount-deposit
+      parameters:
+      - description: Update a bank account
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/employee.bankAccountUpdateReq'
+      - description: ID of bank account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.bankAccountResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Deposit a bank account
+      tags:
+      - Bank account
   /api/v1/employee/customers:
+    get:
+      consumes:
+      - application/json
+      description: Show customers
+      operationId: customer-listing
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.EntitiesResponseTemplate-employee_customerResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show customers
+      tags:
+      - Customer
     post:
       consumes:
       - application/json
@@ -261,7 +381,62 @@ paths:
       summary: Create a customer
       tags:
       - Customer
+  /api/v1/employee/customers/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a customer
+      operationId: customer-get
+      parameters:
+      - description: ID of customer
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.customerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a customer
+      tags:
+      - Customer
   /api/v1/employee/login:
+    delete:
+      consumes:
+      - application/json
+      description: Logout
+      operationId: logout
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Logout
+      tags:
+      - Authentication
     post:
       consumes:
       - application/json
@@ -318,6 +493,37 @@ paths:
       summary: Get profile
       tags:
       - Me
+  /api/v1/employee/token:
+    post:
+      consumes:
+      - application/json
+      description: Renew token
+      operationId: renewtoken
+      parameters:
+      - description: Renew token
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/employee.renewTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.tokenPairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      summary: Renew token
+      tags:
+      - Authentication
   /api/v1/employee/transactions:
     get:
       consumes:
@@ -397,213 +603,4 @@ paths:
       summary: Get a transaction
       tags:
       - Transaction
-  /bank-accounts:
-    get:
-      consumes:
-      - application/json
-      description: Show bank accounts
-      operationId: bankaccount-listing
-      parameters:
-      - description: Account number of bank account
-        in: query
-        name: account_number
-        type: string
-      - description: Username of bank account
-        in: query
-        name: username
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/employee.EntitiesResponseTemplate-employee_bankAccountResp'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      security:
-      - Bearer: []
-      summary: Show bank accounts
-      tags:
-      - Bank account
-  /bank-accounts/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a bank account
-      operationId: bankaccount-get
-      parameters:
-      - description: ID of bank account
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/employee.bankAccountResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      security:
-      - Bearer: []
-      summary: Get a bank account
-      tags:
-      - Bank account
-    put:
-      consumes:
-      - application/json
-      description: Deposit a bank account
-      operationId: bankaccount-deposit
-      parameters:
-      - description: Update a bank account
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/employee.bankAccountUpdateReq'
-      - description: ID of bank account
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/employee.bankAccountResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      security:
-      - Bearer: []
-      summary: Deposit a bank account
-      tags:
-      - Bank account
-  /customers:
-    get:
-      consumes:
-      - application/json
-      description: Show customers
-      operationId: customer-listing
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/employee.EntitiesResponseTemplate-employee_customerResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      security:
-      - Bearer: []
-      summary: Show customers
-      tags:
-      - Customer
-  /customers/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a customer
-      operationId: customer-get
-      parameters:
-      - description: ID of customer
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/employee.customerResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      security:
-      - Bearer: []
-      summary: Get a customer
-      tags:
-      - Customer
-  /login:
-    delete:
-      consumes:
-      - application/json
-      description: Logout
-      operationId: logout
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      security:
-      - Bearer: []
-      summary: Logout
-      tags:
-      - Authentication
-  /token:
-    post:
-      consumes:
-      - application/json
-      description: Renew token
-      operationId: renewtoken
-      parameters:
-      - description: Renew token
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/employee.renewTokenRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/employee.tokenPairResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      summary: Renew token
-      tags:
-      - Authentication
 swagger: "2.0"

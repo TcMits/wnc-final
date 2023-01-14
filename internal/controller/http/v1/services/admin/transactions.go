@@ -117,7 +117,7 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 // @Success     200 {object} transactionResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /transactions/{id} [get]
+// @Router      /api/admin/v1/transactions/{id} [get]
 func (r *transactionRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {

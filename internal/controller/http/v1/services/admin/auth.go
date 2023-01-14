@@ -72,7 +72,7 @@ func (r *authRoute) login(ctx iris.Context) {
 // @Success     204  ""
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /login [Delete]
+// @Router      /api/admin/v1/login [Delete]
 func (r *authRoute) logout(ctx iris.Context) {
 	err := r.uc.Logout(ctx)
 	if err != nil {
@@ -92,7 +92,7 @@ func (r *authRoute) logout(ctx iris.Context) {
 // @Success     200 {object} tokenPairResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /token [post]
+// @Router      /api/admin/v1/token [post]
 func (r *authRoute) renewToken(ctx iris.Context) {
 	request := new(renewTokenRequest)
 	if err := ctx.ReadJSON(request); err != nil {

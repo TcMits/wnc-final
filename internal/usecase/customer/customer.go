@@ -11,6 +11,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/usecase/outliers"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
+	"github.com/TcMits/wnc-final/pkg/tool/password"
 )
 
 type (
@@ -217,7 +218,11 @@ func (s *CustomerValidateCreateUseCase) ValidateCreate(ctx context.Context, i *m
 	if es {
 		return nil, usecase.ValidationError(fmt.Errorf("phone number %s is in use", i.PhoneNumber))
 	}
-	i.Password = generic.GetPointer("12345678")
+	hashPwd, err := password.GetHashPassword("12345678")
+	if err != nil {
+		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.customer.customer.CustomerValidateCreateUseCase.ValidateCreate: %s", err))
+	}
+	i.Password = generic.GetPointer(hashPwd)
 	i.IsActive = generic.GetPointer(true)
 	return i, nil
 }

@@ -126,8 +126,29 @@ func genData(client *ent.Client, cfg *config.Config) {
 			Value: u1.ID,
 		},
 		ent.Opt{
+			Key:   "CashIn",
+			Value: float64(100000000),
+		},
+		ent.Opt{
 			Key:   "AccountNumber",
 			Value: generic.GetPointer("11112222333344445"),
+		},
+	)
+	if err != nil {
+		log.Fatalf("failed generate data: %v", err)
+	}
+	_, err = ent.CreateFakeBankAccount(ctx, client, nil,
+		ent.Opt{
+			Key:   "IsForPayment",
+			Value: generic.GetPointer(true),
+		},
+		ent.Opt{
+			Key:   "CashIn",
+			Value: float64(100000000),
+		},
+		ent.Opt{
+			Key:   "AccountNumber",
+			Value: generic.GetPointer("33334444555566667"),
 		},
 	)
 	if err != nil {
@@ -163,8 +184,84 @@ func genData(client *ent.Client, cfg *config.Config) {
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
-	// 8 transaction
-	for i := 1; i < 8; i++ {
+	// Gen data according to request
+	testerFac := ent.CustomerFactory(ctx, ent.Opt{
+		Key:   "Username",
+		Value: "iamcustomer",
+	})
+	if emailTester := cfg.Mail.EmailTester; emailTester != "" {
+		testerFac.Email = emailTester
+	}
+	tester, err := ent.CreateFakeCustomer(ctx, client, testerFac)
+	if err != nil {
+		log.Fatalf("failed generate data: %v", err)
+	}
+	bA, err = ent.CreateFakeBankAccount(ctx, client, nil,
+		ent.Opt{
+			Key:   "CustomerID",
+			Value: tester.ID,
+		},
+		ent.Opt{
+			Key:   "CashIn",
+			Value: float64(100000000),
+		},
+		ent.Opt{
+			Key:   "IsForPayment",
+			Value: generic.GetPointer(true),
+		},
+		ent.Opt{
+			Key:   "AccountNumber",
+			Value: generic.GetPointer("22223333444455556"),
+		},
+	)
+	if err != nil {
+		log.Fatalf("failed generate data: %v", err)
+	}
+	for i := 1; i <= 8; i++ {
+		_, err = ent.CreateFakeTransaction(ctx, client, nil,
+			ent.Opt{
+				Key:   "SenderID",
+				Value: &bA.ID,
+			},
+			ent.Opt{
+				Key:   "Status",
+				Value: generic.GetPointer(transaction.StatusSuccess),
+			},
+			ent.Opt{
+				Key:   "SenderBankName",
+				Value: "Sacombank",
+			},
+			ent.Opt{
+				Key:   "ReceiverBankName",
+				Value: "Sacombank",
+			},
+		)
+		if err != nil {
+			log.Fatalf("failed generate data: %v", err)
+		}
+		_, err = ent.CreateFakeTransaction(ctx, client, nil,
+			ent.Opt{
+				Key:   "ReceiverID",
+				Value: &bA.ID,
+			},
+			ent.Opt{
+				Key:   "Status",
+				Value: generic.GetPointer(transaction.StatusSuccess),
+			},
+			ent.Opt{
+				Key:   "SenderBankName",
+				Value: "Sacombank",
+			},
+			ent.Opt{
+				Key:   "ReceiverBankName",
+				Value: "Sacombank",
+			},
+		)
+		if err != nil {
+			log.Fatalf("failed generate data: %v", err)
+		}
+	}
+	for i := 1; i <= 7; i++ {
 		bA, err = ent.CreateFakeBankAccount(ctx, client, nil, ent.Opt{
 			Key:   "IsForPayment",
 			Value: generic.GetPointer(true),

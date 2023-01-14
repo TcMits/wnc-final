@@ -1,14 +1,72 @@
 version: "3.7"
 
 services:
-    golang:
-        build:
+    golang-sacombank:
+        build: 
             context: .
             dockerfile: ./compose/production/golang/Dockerfile
-        image: golang
+        image: golang_sacombank
+        container_name: golang_sacombank
         env_file:
-            - ./.envs/.production/.golang
-            - ./.envs/.production/.sqlite
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:8080/ping/"]
+            - ./.envs/.production/.sacombank-golang.sample
+            - ./.envs/.production/.sacombank-postgres.sample
+        ports:
+            - 8080:8080
         restart: always
+        depends_on:
+            postgres-sacombank:
+                condition: service_healthy
+
+    golang-tpbank:
+        build: 
+            context: .
+            dockerfile: ./compose/production/golang/Dockerfile
+        image: golang_tpbank
+        container_name: golang_tpbank
+        env_file:
+            - ./.envs/.production/.tpbank-golang.sample
+            - ./.envs/.production/.tpbank-postgres.sample
+        ports:
+            - 8081:8081
+        restart: always
+        depends_on:
+            postgres-tpbank:
+                condition: service_healthy
+    
+    postgres-sacombank:
+        build:
+            context: .
+            dockerfile: ./compose/production/postgres/Dockerfile
+        image: postgres_db_sacombank
+        container_name: postgres_db_sacombank
+        command: postgres -c log_destination=stderr -c log_connections=on -c max_connections=100 -c log_disconnections=on
+        volumes:
+            - db-sacombank:/var/lib/postgresql/data:Z
+        env_file:
+            - ./.envs/.production/.sacombank-postgres.sample
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    postgres-tpbank:
+        build:
+            context: .
+            dockerfile: ./compose/production/postgres/Dockerfile
+        image: postgres_db_tpbank
+        container_name: postgres_db_tpbank
+        command: postgres -c log_destination=stderr -c log_connections=on -c max_connections=100 -c log_disconnections=on
+        volumes:
+            - db-tpbank:/var/lib/postgresql/data:Z
+        env_file:
+            - ./.envs/.production/.tpbank-postgres.sample
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+    db-sacombank:
+    db-tpbank:

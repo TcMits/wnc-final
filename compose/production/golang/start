@@ -6,4 +6,5 @@ set -o nounset
 
 /migrate
 /createuser
+/gendata
 /app

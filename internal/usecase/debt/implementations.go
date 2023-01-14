@@ -203,6 +203,7 @@ func (uc *CustomerDebtValidateFulfillUseCase) ValidateFulfill(ctx context.Contex
 }
 func (s *CustomerDebtFulfillUseCase) Fulfill(ctx context.Context, e *model.Debt) (*model.DebtFulfillResp, error) {
 	otp := usecase.GenerateOTP(6)
+	fmt.Println(otp)
 	otpHashValue, err := usecase.GenerateHashInfo(usecase.MakeOTPValue(ctx, otp, e.ID.String()))
 	if err != nil {
 		return nil, err

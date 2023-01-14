@@ -2,14 +2,20 @@ app:
   name: 'Sacombank'
   version: '1.0.0'
   secret_key: 'dummy'
+  debug: true
 
 mail:
+  # Fill your email in single quote below 
+  your_email: ''
   confirm_email_template: './templates/transaction_confirm.html'
   confirm_email_subject: 'Confirm transaction'
   otp_timeout: '300s'
+  email_host: 'smtp.gmail.com'
+  email_host_password: 'imuuixbpbhjafihg'
+  email_host_user: 'lehuy.hl27@gmail.com'
+  email_host_port: 587
+  email_host_sender_name: 'lehuy.hl27@gmail.com'
 
-http:
-  port: '8080'
 
 logger:
   log_level: 'info'
@@ -17,13 +23,18 @@ logger:
 db:
   pool_max: 90
 
+auth_usecase:
+ access_ttl: '3600s'
+ refresh_ttl: '7200s'
+
 transaction_usecase:
   layout: '{{.receiver_bank_account_number}}{{.sender_bank_account_number}}{{.sender_name}}{{.amount}}{{.description}}'
+  amount: 1000
+  desc: 'Fee transaction'
 
 tp_bank:
  name: 'TPBank'
- base_url: 'http://golang-tpbank:8080/api/partner/v1/'
-#  base_url: 'https://warm-everglades-43727.herokuapp.com/api/partner/v1/'
+ base_url: 'http://golang-tpbank:8081/api/partner/v1/'
  auth_api: 'auth/'
  bank_account_api: 'bank-accounts/'
  validate_transaction_api: 'transactions/validate/'

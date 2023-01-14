@@ -1,10 +1,26 @@
 # wnc-final
 
 ## Quick start
-Local development:
+Lưu ý: Để sử dụng được chức năng nhận OTP qua email, vui lòng điền email của bạn vào file config.yml (trong folder config) ở mục mail  và bạn có thể dùng email này để đăng nhập (với password mặc định là: 123456789), nếu không điền email bạn vẫn có thể dùng tài khoản khách hàng (tham khảo bên dưới), với tài khoản này sẽ có demo 8 giao dịch chuyển và nhận tiền.
+
+Data:
+-   Customer account:
+    - Username: iamcustomer
+    - Password: 123456789
+    - Account number: 22223333444455556
+    - Account number của khách hàng khác cùng ngân hàng (dùng để test): 11112222333344445
+    - Account number của khách hàng khác khác ngân hàng (dùng để test): 33334444555566667
+-   Employee account:
+    - Username: iamemployee
+    - Password: 123456789
+-   Admin account:
+    - Username: iamadmin
+    - Password: 123456789
+
+Run app:
 ```sh
-# Run app
-docker compose -f local.yml up
+# Run backend app
+docker compose -f production.yml up
 ```
 
 Generate docs customer app files:

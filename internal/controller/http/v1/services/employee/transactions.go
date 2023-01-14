@@ -137,5 +137,6 @@ func (r *transactionRoute) detail(ctx iris.Context) {
 		ctx.JSON(getResponse(entity))
 	} else {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 }

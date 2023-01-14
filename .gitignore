@@ -32,9 +32,8 @@ ent-clean-template
 .envs/.production/*
 !.envs/.production/*.sample
 
-.envs/.local/.golang
-.envs/.local/.postgres
-.envs/.local/.sqlite
+.envs/.local/*
+!.envs/.local/*.sample
 
 db.*
 /heroku

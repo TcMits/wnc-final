@@ -12,6 +12,10 @@ WORKDIR /app
 
 # createuser cmd
 RUN GOOS=linux GOARCH=amd64 \
+    go build -o /bin/gendata ./cmd/gendata
+
+# createuser cmd
+RUN GOOS=linux GOARCH=amd64 \
     go build -o /bin/createuser ./cmd/createuser
 
 # migrate cmd
@@ -34,6 +38,7 @@ WORKDIR /
 COPY --from=builder /bin/app /app
 COPY --from=builder /bin/migrate /migrate
 COPY --from=builder /bin/createuser /createuser
+COPY --from=builder /bin/gendata /gendata
 COPY --from=builder /app/config /config
 COPY --from=builder /app/locales /locales
 COPY --from=builder /app/compose/production/golang/start /start
@@ -41,5 +46,4 @@ COPY --from=builder /app/templates/ /templates
 
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
-EXPOSE 8080
 CMD ["/start"]

@@ -63,6 +63,7 @@ func (s *debtRoute) detail(ctx iris.Context) {
 		ctx.JSON(getResponse(entity))
 	} else {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 }
 
@@ -184,6 +185,7 @@ func (s *debtRoute) cancel(ctx iris.Context) {
 	}
 	if entity == nil {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 	i := &model.DebtUpdateInput{
 		Description: &updateInReq.Description,
@@ -226,6 +228,7 @@ func (s *debtRoute) fulfill(ctx iris.Context) {
 	}
 	if entity == nil {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 	err = s.uc.ValidateFulfill(ctx, entity)
 	if err != nil {
@@ -270,6 +273,7 @@ func (s *debtRoute) fulfillWithToken(ctx iris.Context) {
 	}
 	if entity == nil {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 	i := &model.DebtFulfillWithTokenInput{
 		Otp:   request.Otp,

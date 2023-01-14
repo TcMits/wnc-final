@@ -219,6 +219,7 @@ func (r *transactionRoute) detail(ctx iris.Context) {
 		ctx.JSON(getResponse(entity))
 	} else {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 }
 
@@ -268,6 +269,7 @@ func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
 		ctx.JSON(getResponse(entity))
 	} else {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 }
 
@@ -317,5 +319,6 @@ func (r *transactionRoute) tpBankConfirm(ctx iris.Context) {
 		ctx.JSON(getResponse(entity))
 	} else {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 }

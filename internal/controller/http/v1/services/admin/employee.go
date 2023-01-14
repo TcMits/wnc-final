@@ -56,6 +56,7 @@ func (s *employeeRoute) detail(ctx iris.Context) {
 		ctx.JSON(getResponse(entity))
 	} else {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 }
 
@@ -161,6 +162,7 @@ func (r *employeeRoute) update(ctx iris.Context) {
 	}
 	if entity == nil {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 	i := new(model.EmployeeUpdateInput)
 	if updateInReq.Username != nil {
@@ -207,13 +209,12 @@ func (r *employeeRoute) delete(ctx iris.Context) {
 		HandleError(ctx, err, r.logger)
 		return
 	}
-	if entity == nil {
-		ctx.StatusCode(iris.StatusNoContent)
-	}
-	err = r.uc.Delete(ctx, entity)
-	if err != nil {
-		HandleError(ctx, err, r.logger)
-		return
+	if entity != nil {
+		err = r.uc.Delete(ctx, entity)
+		if err != nil {
+			HandleError(ctx, err, r.logger)
+			return
+		}
 	}
 	ctx.StatusCode(iris.StatusNoContent)
 }

@@ -24,10 +24,10 @@ type (
 
 	// App -.
 	App struct {
-		Name      string `env-required:"true" yaml:"name"    env:"APP_NAME"`
-		Version   string `env-required:"true" yaml:"version" env:"APP_VERSION"`
-		SecretKey string `env-required:"true" yaml:"secret_key" env:"APP_SECRET_KEY"`
-		Debug     bool   `env-required:"true" yaml:"debug" env:"APP_DEBUG"`
+		Name      string `yaml:"name"`
+		Version   string `yaml:"version"`
+		SecretKey string `yaml:"secret_key"`
+		Debug     bool   `yaml:"debug" env-required:"true" env:"APP_DEBUG"`
 	}
 
 	TPBank struct {
@@ -36,7 +36,7 @@ type (
 		SecretKey            string `yaml:"secret_key"`
 		PrivateKey           string `yaml:"private_key"`
 		PublicKey            string `yaml:"public_key"`
-		BaseURL              string `yaml:"base_url"`
+		BaseURL              string `yaml:"base_url" env-required:"true" env:"TPBANK_BASE_URL"`
 		AuthAPI              string `yaml:"auth_api"`
 		BankAccountAPI       string `yaml:"bank_account_api"`
 		ValidateAPI          string `yaml:"validate_transaction_api"`
@@ -45,40 +45,41 @@ type (
 
 	// HTTP -.
 	HTTP struct {
-		Port string `env-required:"true" yaml:"port" env:"PORT"`
+		Port string `env-required:"true" env:"PORT"`
 	}
 
 	// Log -.
 	Log struct {
-		Level string `env-required:"true" yaml:"log_level" env:"LOG_LEVEL"`
+		Level string `yaml:"log_level"`
 	}
 
 	// PG -.
 	DB struct {
-		PoolMax int    `env-required:"true" yaml:"pool_max" env:"DB_POOL_MAX" env-default:"90"`
-		URL     string `env-required:"true"                 env:"DB_URL"`
+		PoolMax int    `yaml:"pool_max"`
+		URL     string `env-required:"true" env:"DB_URL"`
 	}
 
 	Mail struct {
-		Host                 string        `env-required:"true"                 env:"EMAIL_HOST"`
-		SenderName           string        `env-required:"true"                 env:"EMAIL_HOST_SENDER_NAME"`
-		Password             string        `env-required:"true"                 env:"EMAIL_HOST_PASSWORD"`
-		User                 string        `env-required:"true"                 env:"EMAIL_HOST_USER"`
-		Port                 int           `env-required:"true"                 env:"EMAIL_HOST_PORT"`
-		ConfirmEmailTemplate string        `yaml:"confirm_email_template" env:"EMAIL_CONFIRM_TEMPLATE"`
-		ConfirmEmailSubject  string        `yaml:"confirm_email_subject" env:"EMAIL_CONFIRM_SUBJECT"`
-		FrontendURL          string        `yaml:"frontend_url" env:"EMAIL_FRONTEND_URL"`
-		OTPTimeout           time.Duration `yaml:"otp_timeout" env:"EMAIL_OTP_TIMEOUT"`
+		Host                 string        `yaml:"email_host"`
+		SenderName           string        `yaml:"email_host_sender_name"`
+		Password             string        `yaml:"email_host_password"`
+		User                 string        `yaml:"email_host_user"`
+		Port                 int           `yaml:"email_host_port"`
+		ConfirmEmailTemplate string        `yaml:"confirm_email_template"`
+		ConfirmEmailSubject  string        `yaml:"confirm_email_subject"`
+		FrontendURL          string        `yaml:"frontend_url"`
+		EmailTester          string        `yaml:"your_email"`
+		OTPTimeout           time.Duration `yaml:"otp_timeout"`
 	}
 
 	// Usecases.
 	AuthUseCase struct {
-		AccessTTL  time.Duration `env-required:"true" env:"AUTH_ACCESS_TTL"`
-		RefreshTTL time.Duration `env-required:"true" env:"AUTH_REFRESH_TTL"`
+		AccessTTL  time.Duration `yaml:"access_ttl"`
+		RefreshTTL time.Duration `yaml:"refresh_ttl"`
 	}
 	TransactionUseCase struct {
-		FeeAmount float64 `env-required:"true" env:"FEE_AMOUNT"`
-		FeeDesc   string  `env-required:"true" env:"FEE_DESC"`
+		FeeAmount float64 `yaml:"amount"`
+		FeeDesc   string  `yaml:"desc"`
 		Layout    string  `yaml:"layout"`
 	}
 )

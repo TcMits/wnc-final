@@ -56,6 +56,7 @@ func (s *contactRoute) detail(ctx iris.Context) {
 		ctx.JSON(getResponse(entity))
 	} else {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 }
 
@@ -160,6 +161,7 @@ func (r *contactRoute) update(ctx iris.Context) {
 	}
 	if entity == nil {
 		ctx.StatusCode(iris.StatusNoContent)
+		return
 	}
 	i := &model.ContactUpdateInput{
 		AccountNumber: &updateInReq.AccountNumber,
@@ -201,13 +203,12 @@ func (r *contactRoute) delete(ctx iris.Context) {
 		HandleError(ctx, err, r.logger)
 		return
 	}
-	if entity == nil {
-		ctx.StatusCode(iris.StatusNoContent)
-	}
-	err = r.uc.Delete(ctx, entity)
-	if err != nil {
-		HandleError(ctx, err, r.logger)
-		return
+	if entity != nil {
+		err = r.uc.Delete(ctx, entity)
+		if err != nil {
+			HandleError(ctx, err, r.logger)
+			return
+		}
 	}
 	ctx.StatusCode(iris.StatusNoContent)
 }

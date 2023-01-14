@@ -10,12 +10,11 @@ services:
         volumes:
             - .:/wnc-final:z
         env_file:
-            - ./.envs/.local/.golang
-            - ./.envs/.local/.sacombank-golang
-            - ./.envs/.local/.sacombank-postgres
+            - ./.envs/.local/.sacombank-golang.sample
+            - ./.envs/.local/.sacombank-postgres.sample
         command: /start
         ports:
-            - 8081:8081
+            - 8080:8080
         restart: always
         depends_on:
             postgres-sacombank:
@@ -30,12 +29,11 @@ services:
         volumes:
             - .:/wnc-final:z
         env_file:
-            - ./.envs/.local/.golang
-            - ./.envs/.local/.tpbank-golang
-            - ./.envs/.local/.tpbank-postgres
+            - ./.envs/.local/.tpbank-golang.sample
+            - ./.envs/.local/.tpbank-postgres.sample
         command: /start
         ports:
-            - 8080:8080
+            - 8081:8081
         restart: always
         depends_on:
             postgres-tpbank:
@@ -51,7 +49,7 @@ services:
         volumes:
             - db-sacombank:/var/lib/postgresql/data:Z
         env_file:
-            - ./.envs/.local/.sacombank-postgres
+            - ./.envs/.local/.sacombank-postgres.sample
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
             interval: 10s
@@ -68,7 +66,7 @@ services:
         volumes:
             - db-tpbank:/var/lib/postgresql/data:Z
         env_file:
-            - ./.envs/.local/.tpbank-postgres
+            - ./.envs/.local/.tpbank-postgres.sample
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
             interval: 10s

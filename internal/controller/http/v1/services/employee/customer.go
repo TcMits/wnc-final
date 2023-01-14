@@ -38,7 +38,7 @@ func RegisterCustomerController(handler iris.Party, l logger.Interface, uc useca
 // @Success     201 {object} customerResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /customers [post]
+// @Router      /api/v1/employee/customers [post]
 func (s *customerRoute) create(ctx iris.Context) {
 	createInReq := new(customerCreateReq)
 	if err := ctx.ReadBody(createInReq); err != nil {

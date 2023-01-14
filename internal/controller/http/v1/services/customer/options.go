@@ -14,7 +14,7 @@ import (
 // @Produce     json
 // @Success     200 {object} optionsResp
 // @Failure     500 {object} errorResponse
-// @Router      /options [get]
+// @Router      /api/customer/v1/options [get]
 func RegisterOptionController(handler iris.Party, l logger.Interface, uc usecase.IOptionsUseCase) {
 	h := handler.Party("/")
 	h.Get("/options", func(ctx iris.Context) {

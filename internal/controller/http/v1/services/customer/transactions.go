@@ -51,7 +51,7 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 // @Param       only_send query bool false "True if only send transaction otherwise ignored"
 // @Success     200 {object} EntitiesResponseTemplate[transactionResp]
 // @Failure     500 {object} errorResponse
-// @Router      /transactions [get]
+// @Router      /api/customer/v1/me/transactions [get]
 func (r *transactionRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -123,7 +123,7 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 // @Success     201 {object} transactionCreateResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /transactions [post]
+// @Router      /api/customer/v1/me/transactions [post]
 func (r *transactionRoute) create(ctx iris.Context) {
 	createInReq := new(transactionCreateReq)
 	if err := ctx.ReadBody(createInReq); err != nil {
@@ -163,7 +163,7 @@ func (r *transactionRoute) create(ctx iris.Context) {
 // @Success     201 {object} transactionCreateResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /transactions/tp-bank [post]
+// @Router      /api/customer/v1/me/transactions/tp-bank [post]
 func (r *transactionRoute) tpBankCreate(ctx iris.Context) {
 	createInReq := new(tpBankTransactionCreateReq)
 	if err := ctx.ReadBody(createInReq); err != nil {
@@ -203,7 +203,7 @@ func (r *transactionRoute) tpBankCreate(ctx iris.Context) {
 // @Success     200 {object} transactionResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /transactions/{id} [get]
+// @Router      /api/customer/v1/me/transactions/{id} [get]
 func (r *transactionRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {
@@ -235,7 +235,7 @@ func (r *transactionRoute) detail(ctx iris.Context) {
 // @Success     200 {object} transactionResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /transactions/confirm-success/{id} [put]
+// @Router      /api/customer/v1/me/transactions/confirm-success/{id} [put]
 func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {
@@ -285,7 +285,7 @@ func (r *transactionRoute) confirmSuccess(ctx iris.Context) {
 // @Success     200 {object} transactionResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /transactions/tp-bank/confirm-success/{id} [put]
+// @Router      /api/customer/v1/me/transactions/tp-bank/confirm-success/{id} [put]
 func (r *transactionRoute) tpBankConfirm(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {

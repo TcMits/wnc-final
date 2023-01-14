@@ -38,7 +38,7 @@ func RegisterMeController(handler iris.Party, l logger.Interface, uc usecase.ICu
 // @Success     200 {object} meResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /me/ [get]
+// @Router      /api/customer/v1/me/ [get]
 func (s *meRoute) detail(ctx iris.Context) {
 	e, err := s.uc.GetUserFromCtx(ctx)
 	if err != nil {
@@ -58,7 +58,7 @@ func (s *meRoute) detail(ctx iris.Context) {
 // @Success     200 {object} meResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /me/change-password [post]
+// @Router      /api/customer/v1/me/change-password [post]
 func (s *meRoute) changePassword(ctx iris.Context) {
 	request := new(changePasswordReq)
 	if err := ctx.ReadJSON(request); err != nil {

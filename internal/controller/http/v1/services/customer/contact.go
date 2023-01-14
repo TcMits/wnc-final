@@ -40,7 +40,7 @@ func RegisterContactController(handler iris.Party, l logger.Interface, uc usecas
 // @Success     200 {object} contactResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /contacts/{id} [get]
+// @Router      /api/customer/v1/me/contacts/{id} [get]
 func (s *contactRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {
@@ -69,7 +69,7 @@ func (s *contactRoute) detail(ctx iris.Context) {
 // @Produce     json
 // @Success     200 {object} EntitiesResponseTemplate[contactResp]
 // @Failure     500 {object} errorResponse
-// @Router      /contacts [get]
+// @Router      /api/customer/v1/me/contacts [get]
 func (s *contactRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -106,7 +106,7 @@ func (s *contactRoute) listing(ctx iris.Context) {
 // @Success     201 {object} contactResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /contacts [post]
+// @Router      /api/customer/v1/me/contacts [post]
 func (s *contactRoute) create(ctx iris.Context) {
 	createInReq := new(contactCreateReq)
 	if err := ctx.ReadBody(createInReq); err != nil {
@@ -142,7 +142,7 @@ func (s *contactRoute) create(ctx iris.Context) {
 // @Success     200 {object} contactResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /contacts/{id} [put]
+// @Router      /api/customer/v1/me/contacts/{id} [put]
 func (r *contactRoute) update(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {
@@ -191,7 +191,7 @@ func (r *contactRoute) update(ctx iris.Context) {
 // @Param       id path string true "ID of contact"
 // @Success     204 ""
 // @Failure     500 {object} errorResponse
-// @Router      /contacts/{id} [delete]
+// @Router      /api/customer/v1/me/contacts/{id} [delete]
 func (r *contactRoute) delete(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {

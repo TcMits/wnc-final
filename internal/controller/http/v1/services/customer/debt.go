@@ -47,7 +47,7 @@ func RegisterDebtController(handler iris.Party, l logger.Interface, uc usecase.I
 // @Success     200 {object} debtResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /debts/{id} [get]
+// @Router      /api/customer/v1/me/debts/{id} [get]
 func (s *debtRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {
@@ -79,7 +79,7 @@ func (s *debtRoute) detail(ctx iris.Context) {
 // @Param       status query string false "Status of debt"
 // @Success     200 {object} EntitiesResponseTemplate[debtResp]
 // @Failure     500 {object} errorResponse
-// @Router      /debts [get]
+// @Router      /api/customer/v1/me/debts [get]
 func (s *debtRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -129,7 +129,7 @@ func (s *debtRoute) listing(ctx iris.Context) {
 // @Success     201 {object} debtResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /debts [post]
+// @Router      /api/customer/v1/me/debts [post]
 func (s *debtRoute) create(ctx iris.Context) {
 	createInReq := new(debtCreateReq)
 	if err := ctx.ReadBody(createInReq); err != nil {
@@ -166,7 +166,7 @@ func (s *debtRoute) create(ctx iris.Context) {
 // @Success     200 {object} debtResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /debts/cancel/{id} [put]
+// @Router      /api/customer/v1/me/debts/cancel/{id} [put]
 func (s *debtRoute) cancel(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {
@@ -214,7 +214,7 @@ func (s *debtRoute) cancel(ctx iris.Context) {
 // @Success     200 {object} debtFulfillResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /debts/fulfill/{id} [put]
+// @Router      /api/customer/v1/me/debts/fulfill/{id} [put]
 func (s *debtRoute) fulfill(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {
@@ -254,7 +254,7 @@ func (s *debtRoute) fulfill(ctx iris.Context) {
 // @Success     200 {object} debtResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /debts/fulfill-with-token/{id} [put]
+// @Router      /api/customer/v1/me/debts/fulfill-with-token/{id} [put]
 func (s *debtRoute) fulfillWithToken(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {

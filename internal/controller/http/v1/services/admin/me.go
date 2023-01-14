@@ -34,7 +34,7 @@ func RegisterMeController(handler iris.Party, l logger.Interface, uc usecase.IAd
 // @Success     200 {object} meResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /me/ [get]
+// @Router      /api/admin/v1/me/ [get]
 func (s *meRoute) detail(ctx iris.Context) {
 	e, err := s.uc.GetUserFromCtx(ctx)
 	if err != nil {

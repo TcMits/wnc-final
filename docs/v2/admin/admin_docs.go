@@ -16,7 +16,7 @@ const docTemplateadmin = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/employees": {
+        "/api/admin/v1/employees": {
             "get": {
                 "security": [
                     {
@@ -101,7 +101,7 @@ const docTemplateadmin = `{
                 }
             }
         },
-        "/employees/{id}": {
+        "/api/admin/v1/employees/{id}": {
             "get": {
                 "security": [
                     {
@@ -247,7 +247,7 @@ const docTemplateadmin = `{
                 }
             }
         },
-        "/login": {
+        "/api/admin/v1/login": {
             "post": {
                 "description": "Login",
                 "consumes": [
@@ -292,45 +292,9 @@ const docTemplateadmin = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Logout",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Logout",
-                "operationId": "logout",
-                "responses": {
-                    "204": {
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/admin.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/admin.errorResponse"
-                        }
-                    }
-                }
             }
         },
-        "/me/": {
+        "/api/admin/v1/me/": {
             "get": {
                 "security": [
                     {
@@ -371,54 +335,7 @@ const docTemplateadmin = `{
                 }
             }
         },
-        "/token": {
-            "post": {
-                "description": "Renew token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Renew token",
-                "operationId": "renewtoken",
-                "parameters": [
-                    {
-                        "description": "Renew token",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/admin.renewTokenRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/admin.tokenPairResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/admin.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/admin.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/transactions": {
+        "/api/admin/v1/transactions": {
             "get": {
                 "security": [
                     {
@@ -474,6 +391,91 @@ const docTemplateadmin = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/admin.EntitiesResponseTemplate-admin_transactionResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/admin.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Logout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout",
+                "operationId": "logout",
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/admin.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/admin.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/token": {
+            "post": {
+                "description": "Renew token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Renew token",
+                "operationId": "renewtoken",
+                "parameters": [
+                    {
+                        "description": "Renew token",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.renewTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.tokenPairResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/admin.errorResponse"
                         }
                     },
                     "500": {

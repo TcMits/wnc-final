@@ -16,7 +16,7 @@ const docTemplatecustomer = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/change-password-with-token": {
+        "/api/customer/v1/change-password-with-token": {
             "post": {
                 "description": "Change password with token",
                 "consumes": [
@@ -60,7 +60,353 @@ const docTemplatecustomer = `{
                 }
             }
         },
-        "/contacts": {
+        "/api/customer/v1/customers/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a customer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Get a customer",
+                "operationId": "customer-get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of customer",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.meResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/forget-password": {
+            "post": {
+                "description": "Forget password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Forget password",
+                "operationId": "forget-password",
+                "parameters": [
+                    {
+                        "description": "Forget password",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.forgetPasswordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.forgetPasswordResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/login": {
+            "post": {
+                "description": "Login",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login",
+                "operationId": "login",
+                "parameters": [
+                    {
+                        "description": "Login",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.loginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.tokenPairResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Logout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout",
+                "operationId": "logout",
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/me/": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Me"
+                ],
+                "summary": "Get profile",
+                "operationId": "me",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.meResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/me/bank-accounts": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Show bank accounts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bank account"
+                ],
+                "summary": "Show bank accounts",
+                "operationId": "bankaccount-listing",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.EntitiesResponseTemplate-customer_bankAccountResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/me/bank-accounts/guest": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Show guest bank accounts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bank account"
+                ],
+                "summary": "Show guest bank accounts",
+                "operationId": "guestbankaccount-listing",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bank account number",
+                        "name": "account_number",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.EntitiesResponseTemplate-customer_guestBankAccountResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/me/change-password": {
+            "post": {
+                "description": "Change password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Me"
+                ],
+                "summary": "Change password",
+                "operationId": "change-password",
+                "parameters": [
+                    {
+                        "description": "Change password",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.changePasswordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.meResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/me/contacts": {
             "get": {
                 "security": [
                     {
@@ -145,7 +491,7 @@ const docTemplatecustomer = `{
                 }
             }
         },
-        "/contacts/{id}": {
+        "/api/customer/v1/me/contacts/{id}": {
             "get": {
                 "security": [
                     {
@@ -291,57 +637,7 @@ const docTemplatecustomer = `{
                 }
             }
         },
-        "/customers/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Get a customer",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Customer"
-                ],
-                "summary": "Get a customer",
-                "operationId": "customer-get",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID of customer",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.meResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/debts": {
+        "/api/customer/v1/me/debts": {
             "get": {
                 "security": [
                     {
@@ -446,7 +742,7 @@ const docTemplatecustomer = `{
                 }
             }
         },
-        "/debts/cancel/{id}": {
+        "/api/customer/v1/me/debts/cancel/{id}": {
             "put": {
                 "security": [
                     {
@@ -505,7 +801,7 @@ const docTemplatecustomer = `{
                 }
             }
         },
-        "/debts/fulfill-with-token/{id}": {
+        "/api/customer/v1/me/debts/fulfill-with-token/{id}": {
             "put": {
                 "description": "Fulfill a debt with token",
                 "consumes": [
@@ -559,7 +855,7 @@ const docTemplatecustomer = `{
                 }
             }
         },
-        "/debts/fulfill/{id}": {
+        "/api/customer/v1/me/debts/fulfill/{id}": {
             "put": {
                 "security": [
                     {
@@ -609,7 +905,7 @@ const docTemplatecustomer = `{
                 }
             }
         },
-        "/debts/{id}": {
+        "/api/customer/v1/me/debts/{id}": {
             "get": {
                 "security": [
                     {
@@ -659,9 +955,14 @@ const docTemplatecustomer = `{
                 }
             }
         },
-        "/forget-password": {
-            "post": {
-                "description": "Forget password",
+        "/api/customer/v1/me/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Show transactions",
                 "consumes": [
                     "application/json"
                 ],
@@ -669,26 +970,91 @@ const docTemplatecustomer = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Authentication"
+                    "Transaction"
                 ],
-                "summary": "Forget password",
-                "operationId": "forget-password",
+                "summary": "Show transactions",
+                "operationId": "transaction-listing",
                 "parameters": [
                     {
-                        "description": "Forget password",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/customer.forgetPasswordReq"
-                        }
+                        "type": "boolean",
+                        "description": "True if sort ascent by update_time otherwise ignored",
+                        "name": "update_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "True if sort descent by update_time otherwise ignored",
+                        "name": "-update_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "True if only debt transaction otherwise ignored",
+                        "name": "only_debt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "True if only receive transaction otherwise ignored",
+                        "name": "only_receive",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "True if only send transaction otherwise ignored",
+                        "name": "only_send",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/customer.forgetPasswordResp"
+                            "$ref": "#/definitions/customer.EntitiesResponseTemplate-customer_transactionResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Create a transaction",
+                "operationId": "transaction-create",
+                "parameters": [
+                    {
+                        "description": "Create a transaction",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.transactionCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/customer.transactionCreateResp"
                         }
                     },
                     "400": {
@@ -706,9 +1072,294 @@ const docTemplatecustomer = `{
                 }
             }
         },
-        "/login": {
+        "/api/customer/v1/me/transactions/confirm-success/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Confirm success a transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Confirm success",
+                "operationId": "transaction-confirmsuccess",
+                "parameters": [
+                    {
+                        "description": "Confirm a transaction",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.transactionConfirmReq"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of transaction",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.transactionResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/me/transactions/tp-bank": {
             "post": {
-                "description": "Login",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a tp bank transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Create a tp bank transaction",
+                "operationId": "tpbanktransaction-create",
+                "parameters": [
+                    {
+                        "description": "Create a tp bank transaction",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.tpBankTransactionCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/customer.transactionCreateResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/me/transactions/tp-bank/confirm-success/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Confirm a tp bank transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Confirm a tp bank transaction",
+                "operationId": "tpbanktransaction-confirmsuccess",
+                "parameters": [
+                    {
+                        "description": "Confirm a transaction",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customer.transactionConfirmReq"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID of transaction",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.transactionResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/me/transactions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Get a transaction",
+                "operationId": "transaction-get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of transaction",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.transactionResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/options": {
+            "get": {
+                "description": "Show all options",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Option"
+                ],
+                "summary": "Show options",
+                "operationId": "option",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.optionsResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/stream": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Receive events",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Receive events",
+                "operationId": "event",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customer.eventResp"
+                        }
+                    },
+                    "505": {
+                        "description": "HTTP Version Not Supported",
+                        "schema": {
+                            "$ref": "#/definitions/customer.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customer/v1/token": {
+            "post": {
+                "description": "Renew token",
                 "consumes": [
                     "application/json"
                 ],
@@ -718,16 +1369,16 @@ const docTemplatecustomer = `{
                 "tags": [
                     "Authentication"
                 ],
-                "summary": "Login",
-                "operationId": "login",
+                "summary": "Renew token",
+                "operationId": "renewtoken",
                 "parameters": [
                     {
-                        "description": "Login",
+                        "description": "Renew token",
                         "name": "payload",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/customer.loginRequest"
+                            "$ref": "#/definitions/customer.renewTokenRequest"
                         }
                     }
                 ],
@@ -742,161 +1393,6 @@ const docTemplatecustomer = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Logout",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Logout",
-                "operationId": "logout",
-                "responses": {
-                    "204": {
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/me/": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Get profile",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Me"
-                ],
-                "summary": "Get profile",
-                "operationId": "me",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.meResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/me/bank-accounts": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Show bank accounts",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Bank account"
-                ],
-                "summary": "Show bank accounts",
-                "operationId": "bankaccount-listing",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.EntitiesResponseTemplate-customer_bankAccountResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/me/bank-accounts/guest": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Show guest bank accounts",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Bank account"
-                ],
-                "summary": "Show guest bank accounts",
-                "operationId": "guestbankaccount-listing",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bank account number",
-                        "name": "account_number",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.EntitiesResponseTemplate-customer_guestBankAccountResp"
                         }
                     },
                     "500": {
@@ -1143,502 +1639,6 @@ const docTemplatecustomer = `{
                 "responses": {
                     "204": {
                         "description": ""
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/me/change-password": {
-            "post": {
-                "description": "Change password",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Me"
-                ],
-                "summary": "Change password",
-                "operationId": "change-password",
-                "parameters": [
-                    {
-                        "description": "Change password",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/customer.changePasswordReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.meResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/options": {
-            "get": {
-                "description": "Show all options",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Option"
-                ],
-                "summary": "Show options",
-                "operationId": "option",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.optionsResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/stream": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Receive events",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event"
-                ],
-                "summary": "Receive events",
-                "operationId": "event",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.eventResp"
-                        }
-                    },
-                    "505": {
-                        "description": "HTTP Version Not Supported",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/token": {
-            "post": {
-                "description": "Renew token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Renew token",
-                "operationId": "renewtoken",
-                "parameters": [
-                    {
-                        "description": "Renew token",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/customer.renewTokenRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.tokenPairResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/transactions": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Show transactions",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Transaction"
-                ],
-                "summary": "Show transactions",
-                "operationId": "transaction-listing",
-                "parameters": [
-                    {
-                        "type": "boolean",
-                        "description": "True if sort ascent by update_time otherwise ignored",
-                        "name": "update_time",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "True if sort descent by update_time otherwise ignored",
-                        "name": "-update_time",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "True if only debt transaction otherwise ignored",
-                        "name": "only_debt",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "True if only receive transaction otherwise ignored",
-                        "name": "only_receive",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "True if only send transaction otherwise ignored",
-                        "name": "only_send",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.EntitiesResponseTemplate-customer_transactionResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Create a transaction",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Transaction"
-                ],
-                "summary": "Create a transaction",
-                "operationId": "transaction-create",
-                "parameters": [
-                    {
-                        "description": "Create a transaction",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/customer.transactionCreateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/customer.transactionCreateResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/transactions/confirm-success/{id}": {
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Confirm success a transaction",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Transaction"
-                ],
-                "summary": "Confirm success",
-                "operationId": "transaction-confirmsuccess",
-                "parameters": [
-                    {
-                        "description": "Confirm a transaction",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/customer.transactionConfirmReq"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "ID of transaction",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.transactionResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/transactions/tp-bank": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Create a tp bank transaction",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Transaction"
-                ],
-                "summary": "Create a tp bank transaction",
-                "operationId": "tpbanktransaction-create",
-                "parameters": [
-                    {
-                        "description": "Create a tp bank transaction",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/customer.tpBankTransactionCreateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/customer.transactionCreateResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/transactions/tp-bank/confirm-success/{id}": {
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Confirm a tp bank transaction",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Transaction"
-                ],
-                "summary": "Confirm a tp bank transaction",
-                "operationId": "tpbanktransaction-confirmsuccess",
-                "parameters": [
-                    {
-                        "description": "Confirm a transaction",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/customer.transactionConfirmReq"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "ID of transaction",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.transactionResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/customer.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/transactions/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Get a transaction",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Transaction"
-                ],
-                "summary": "Get a transaction",
-                "operationId": "transaction-get",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID of transaction",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/customer.transactionResp"
-                        }
                     },
                     "400": {
                         "description": "Bad Request",

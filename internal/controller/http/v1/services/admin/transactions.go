@@ -44,7 +44,7 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 // @Param       bank_name query string false "Bank name"
 // @Success     200 {object} EntitiesResponseTemplate[transactionResp]
 // @Failure     500 {object} errorResponse
-// @Router      /transactions [get]
+// @Router      /api/admin/v1/transactions [get]
 func (r *transactionRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {

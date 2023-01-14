@@ -39,7 +39,7 @@ func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc us
 // @Success     204 ""
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts/{id} [delete]
+// @Router      /api/v1/employee/bank-accounts/{id} [delete]
 func (s *bankAccountRoute) delete(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {

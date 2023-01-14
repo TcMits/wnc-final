@@ -36,7 +36,7 @@ func RegisterCustomerController(handler iris.Party, l logger.Interface, uc useca
 // @Success     200 {object} meResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /customers/{id} [get]
+// @Router      /api/customer/v1/customers/{id} [get]
 func (s *customerRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {

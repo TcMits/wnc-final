@@ -17,7 +17,7 @@ import (
 // @Produce     json
 // @Success     200 {object} eventResp
 // @Failure     505 {object} errorResponse
-// @Router      /stream [get]
+// @Router      /api/customer/v1/stream [get]
 func RegisterStreamController(handler iris.Party, l logger.Interface, broker *sse.Broker, uc usecase.ICustomerStreamUseCase) {
 	h := handler.Party("/")
 	h.Get("/stream", middleware.Authenticator(uc.GetSecret(), uc.GetUser), broker.ServeHTTP)

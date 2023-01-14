@@ -198,6 +198,205 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/v1/employee/bank-accounts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a bank account
+      operationId: bankaccount-delete
+      parameters:
+      - description: ID of bank account
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Delete a bank account
+      tags:
+      - Bank account
+  /api/v1/employee/customers:
+    post:
+      consumes:
+      - application/json
+      description: Create a customer
+      operationId: customer-create
+      parameters:
+      - description: Create a customer
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/employee.customerCreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/employee.customerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Create a customer
+      tags:
+      - Customer
+  /api/v1/employee/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      operationId: login
+      parameters:
+      - description: Login
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/employee.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.tokenPairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      summary: Login
+      tags:
+      - Authentication
+  /api/v1/employee/me/:
+    get:
+      consumes:
+      - application/json
+      description: Get profile
+      operationId: me
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.meResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get profile
+      tags:
+      - Me
+  /api/v1/employee/transactions:
+    get:
+      consumes:
+      - application/json
+      description: Show transactions
+      operationId: transaction-listing
+      parameters:
+      - description: True if sort ascent by update_time otherwise ignored
+        in: query
+        name: update_time
+        type: boolean
+      - description: True if sort descent by update_time otherwise ignored
+        in: query
+        name: -update_time
+        type: boolean
+      - description: True if only debt transaction otherwise ignored
+        in: query
+        name: only_debt
+        type: boolean
+      - description: True if only receive transaction otherwise ignored
+        in: query
+        name: only_receive
+        type: boolean
+      - description: True if only send transaction otherwise ignored
+        in: query
+        name: only_send
+        type: boolean
+      - description: ID of customer, required if only_{query} is true
+        in: query
+        name: customer_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.EntitiesResponseTemplate-employee_transactionResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Show transactions
+      tags:
+      - Transaction
+  /api/v1/employee/transactions/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a transaction
+      operationId: transaction-get
+      parameters:
+      - description: ID of transaction
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employee.transactionResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/employee.errorResponse'
+      security:
+      - Bearer: []
+      summary: Get a transaction
+      tags:
+      - Transaction
   /bank-accounts:
     get:
       consumes:
@@ -230,35 +429,6 @@ paths:
       tags:
       - Bank account
   /bank-accounts/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a bank account
-      operationId: bankaccount-delete
-      parameters:
-      - description: ID of bank account
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      security:
-      - Bearer: []
-      summary: Delete a bank account
-      tags:
-      - Bank account
     get:
       consumes:
       - application/json
@@ -349,38 +519,6 @@ paths:
       summary: Show customers
       tags:
       - Customer
-    post:
-      consumes:
-      - application/json
-      description: Create a customer
-      operationId: customer-create
-      parameters:
-      - description: Create a customer
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/employee.customerCreateReq'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/employee.customerResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      security:
-      - Bearer: []
-      summary: Create a customer
-      tags:
-      - Customer
   /customers/{id}:
     get:
       consumes:
@@ -437,62 +575,6 @@ paths:
       summary: Logout
       tags:
       - Authentication
-    post:
-      consumes:
-      - application/json
-      description: Login
-      operationId: login
-      parameters:
-      - description: Login
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/employee.loginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/employee.tokenPairResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      summary: Login
-      tags:
-      - Authentication
-  /me/:
-    get:
-      consumes:
-      - application/json
-      description: Get profile
-      operationId: me
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/employee.meResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      security:
-      - Bearer: []
-      summary: Get profile
-      tags:
-      - Me
   /token:
     post:
       consumes:
@@ -524,83 +606,4 @@ paths:
       summary: Renew token
       tags:
       - Authentication
-  /transactions:
-    get:
-      consumes:
-      - application/json
-      description: Show transactions
-      operationId: transaction-listing
-      parameters:
-      - description: True if sort ascent by update_time otherwise ignored
-        in: query
-        name: update_time
-        type: boolean
-      - description: True if sort descent by update_time otherwise ignored
-        in: query
-        name: -update_time
-        type: boolean
-      - description: True if only debt transaction otherwise ignored
-        in: query
-        name: only_debt
-        type: boolean
-      - description: True if only receive transaction otherwise ignored
-        in: query
-        name: only_receive
-        type: boolean
-      - description: True if only send transaction otherwise ignored
-        in: query
-        name: only_send
-        type: boolean
-      - description: ID of customer, required if only_{query} is true
-        in: query
-        name: customer_id
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/employee.EntitiesResponseTemplate-employee_transactionResp'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      security:
-      - Bearer: []
-      summary: Show transactions
-      tags:
-      - Transaction
-  /transactions/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a transaction
-      operationId: transaction-get
-      parameters:
-      - description: ID of transaction
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/employee.transactionResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/employee.errorResponse'
-      security:
-      - Bearer: []
-      summary: Get a transaction
-      tags:
-      - Transaction
 swagger: "2.0"

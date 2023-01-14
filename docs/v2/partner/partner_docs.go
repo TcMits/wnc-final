@@ -16,7 +16,7 @@ const docTemplatepartner = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth": {
+        "/api/partner/v1/auth": {
             "post": {
                 "description": "Authenticate",
                 "consumes": [
@@ -63,7 +63,7 @@ const docTemplatepartner = `{
                 }
             }
         },
-        "/bank-accounts": {
+        "/api/partner/v1/bank-accounts": {
             "get": {
                 "security": [
                     {
@@ -106,7 +106,7 @@ const docTemplatepartner = `{
                 }
             }
         },
-        "/options": {
+        "/api/partner/v1/options": {
             "get": {
                 "description": "Show all options",
                 "consumes": [
@@ -136,7 +136,7 @@ const docTemplatepartner = `{
                 }
             }
         },
-        "/transactions": {
+        "/api/partner/v1/transactions": {
             "post": {
                 "security": [
                     {
@@ -188,7 +188,7 @@ const docTemplatepartner = `{
                 }
             }
         },
-        "/transactions/validate": {
+        "/api/partner/v1/transactions/validate": {
             "post": {
                 "security": [
                     {

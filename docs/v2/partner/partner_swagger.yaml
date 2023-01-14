@@ -119,7 +119,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /auth:
+  /api/partner/v1/auth:
     post:
       consumes:
       - application/json
@@ -150,7 +150,7 @@ paths:
       summary: Authenticate
       tags:
       - Authentication
-  /bank-accounts:
+  /api/partner/v1/bank-accounts:
     get:
       consumes:
       - application/json
@@ -177,7 +177,7 @@ paths:
       summary: Get bank account
       tags:
       - Bank account
-  /options:
+  /api/partner/v1/options:
     get:
       consumes:
       - application/json
@@ -197,7 +197,7 @@ paths:
       summary: Show options
       tags:
       - Option
-  /transactions:
+  /api/partner/v1/transactions:
     post:
       consumes:
       - application/json
@@ -230,7 +230,7 @@ paths:
       summary: Create a transaction
       tags:
       - Transaction
-  /transactions/validate:
+  /api/partner/v1/transactions/validate:
     post:
       consumes:
       - application/json

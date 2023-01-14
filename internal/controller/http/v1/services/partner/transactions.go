@@ -39,7 +39,7 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 // @Success     201 {object} transactionResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /transactions [post]
+// @Router      /api/partner/v1/transactions [post]
 func (r *transactionRoute) create(ctx iris.Context) {
 	createInReq := new(transactionCreateReq)
 	if err := ctx.ReadBody(createInReq); err != nil {
@@ -82,7 +82,7 @@ func (r *transactionRoute) create(ctx iris.Context) {
 // @Success     204 ""
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /transactions/validate [post]
+// @Router      /api/partner/v1/transactions/validate [post]
 func (r *transactionRoute) validate(ctx iris.Context) {
 	createInReq := new(transactionCreateReq)
 	if err := ctx.ReadBody(createInReq); err != nil {

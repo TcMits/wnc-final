@@ -4,7 +4,7 @@
         "contact": {}
     },
     "paths": {
-        "/auth": {
+        "/api/partner/v1/auth": {
             "post": {
                 "description": "Authenticate",
                 "consumes": [
@@ -51,7 +51,7 @@
                 }
             }
         },
-        "/bank-accounts": {
+        "/api/partner/v1/bank-accounts": {
             "get": {
                 "security": [
                     {
@@ -94,7 +94,7 @@
                 }
             }
         },
-        "/options": {
+        "/api/partner/v1/options": {
             "get": {
                 "description": "Show all options",
                 "consumes": [
@@ -124,7 +124,7 @@
                 }
             }
         },
-        "/transactions": {
+        "/api/partner/v1/transactions": {
             "post": {
                 "security": [
                     {
@@ -176,7 +176,7 @@
                 }
             }
         },
-        "/transactions/validate": {
+        "/api/partner/v1/transactions/validate": {
             "post": {
                 "security": [
                     {

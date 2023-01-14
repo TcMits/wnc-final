@@ -33,7 +33,7 @@ func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.I
 // @Success     200 {object} tokenPairResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /auth [post]
+// @Router      /api/partner/v1/auth [post]
 func (r *authRoute) login(ctx iris.Context) {
 	request := new(loginRequest)
 	if err := ctx.ReadJSON(request); err != nil {

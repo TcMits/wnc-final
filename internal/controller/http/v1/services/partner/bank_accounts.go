@@ -36,7 +36,7 @@ func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc us
 // @Param       account_number query string false "Account number of bank account"
 // @Success     200 {object} bankAccountResp
 // @Failure     500 {object} errorResponse
-// @Router      /bank-accounts [get]
+// @Router      /api/partner/v1/bank-accounts [get]
 func (r *bankAccountRoute) listing(ctx iris.Context) {
 	filterReq := new(bankAccountFilterReq)
 	if err := ctx.ReadQuery(filterReq); err != nil {

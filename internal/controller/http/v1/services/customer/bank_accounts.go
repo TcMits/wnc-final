@@ -42,7 +42,7 @@ func RegisterBankAccountController(handler iris.Party, l logger.Interface, uc us
 // @Produce     json
 // @Success     200 {object} EntitiesResponseTemplate[bankAccountResp]
 // @Failure     500 {object} errorResponse
-// @Router      /me/bank-accounts [get]
+// @Router      /api/customer/v1/me/bank-accounts [get]
 func (r *bankAccountRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -78,7 +78,7 @@ func (r *bankAccountRoute) listing(ctx iris.Context) {
 // @Param       account_number query string false "Bank account number"
 // @Success     200 {object} EntitiesResponseTemplate[guestBankAccountResp]
 // @Failure     500 {object} errorResponse
-// @Router      /me/bank-accounts/guest [get]
+// @Router      /api/customer/v1/me/bank-accounts/guest [get]
 func (r *bankAccountRoute) guestListing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {

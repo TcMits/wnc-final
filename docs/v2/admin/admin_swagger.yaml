@@ -164,7 +164,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /employees:
+  /api/admin/v1/employees:
     get:
       consumes:
       - application/json
@@ -218,7 +218,7 @@ paths:
       summary: Create a employee
       tags:
       - Employee
-  /employees/{id}:
+  /api/admin/v1/employees/{id}:
     delete:
       consumes:
       - application/json
@@ -312,30 +312,7 @@ paths:
       summary: Update a employee
       tags:
       - Employee
-  /login:
-    delete:
-      consumes:
-      - application/json
-      description: Logout
-      operationId: logout
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/admin.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/admin.errorResponse'
-      security:
-      - Bearer: []
-      summary: Logout
-      tags:
-      - Authentication
+  /api/admin/v1/login:
     post:
       consumes:
       - application/json
@@ -366,7 +343,7 @@ paths:
       summary: Login
       tags:
       - Authentication
-  /me/:
+  /api/admin/v1/me/:
     get:
       consumes:
       - application/json
@@ -392,38 +369,7 @@ paths:
       summary: Get profile
       tags:
       - Me
-  /token:
-    post:
-      consumes:
-      - application/json
-      description: Renew token
-      operationId: renewtoken
-      parameters:
-      - description: Renew token
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/admin.renewTokenRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/admin.tokenPairResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/admin.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/admin.errorResponse'
-      summary: Renew token
-      tags:
-      - Authentication
-  /transactions:
+  /api/admin/v1/transactions:
     get:
       consumes:
       - application/json
@@ -466,6 +412,61 @@ paths:
       summary: Show transactions
       tags:
       - Transaction
+  /login:
+    delete:
+      consumes:
+      - application/json
+      description: Logout
+      operationId: logout
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      security:
+      - Bearer: []
+      summary: Logout
+      tags:
+      - Authentication
+  /token:
+    post:
+      consumes:
+      - application/json
+      description: Renew token
+      operationId: renewtoken
+      parameters:
+      - description: Renew token
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/admin.renewTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.tokenPairResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/admin.errorResponse'
+      summary: Renew token
+      tags:
+      - Authentication
   /transactions/{id}:
     get:
       consumes:

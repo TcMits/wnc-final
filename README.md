@@ -38,7 +38,7 @@ golang_tpbank          | Now listening on: http://localhost:8081
 golang_tpbank          | Application started. Press CTRL+C to shut down.
 ```
 
-Generate docs customeSacombankr app files:
+Generate docs customer app files:
 ```sh
 swag init --exclude ./internal/controller/http/v1/services/employee,./internal/controller/http/v1/services/admin,./internal/controller/http/v1/services/partner -o ./docs/v2/customer/ --instanceName customer
 ```

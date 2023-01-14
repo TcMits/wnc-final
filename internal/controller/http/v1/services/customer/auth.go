@@ -44,7 +44,7 @@ func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.I
 // @Success     200 {object} tokenPairResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /login [post]
+// @Router      /api/customer/v1/login [post]
 func (r *authRoute) login(ctx iris.Context) {
 	request := new(loginRequest)
 	if err := ctx.ReadJSON(request); err != nil {
@@ -78,7 +78,7 @@ func (r *authRoute) login(ctx iris.Context) {
 // @Success     204  ""
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /login [Delete]
+// @Router      /api/customer/v1/login [Delete]
 func (r *authRoute) logout(ctx iris.Context) {
 	err := r.uc.Logout(ctx)
 	if err != nil {
@@ -98,7 +98,7 @@ func (r *authRoute) logout(ctx iris.Context) {
 // @Success     200 {object} tokenPairResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /token [post]
+// @Router      /api/customer/v1/token [post]
 func (r *authRoute) renewToken(ctx iris.Context) {
 	request := new(renewTokenRequest)
 	if err := ctx.ReadJSON(request); err != nil {
@@ -124,7 +124,7 @@ func (r *authRoute) renewToken(ctx iris.Context) {
 // @Success     200 {object} forgetPasswordResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /forget-password [post]
+// @Router      /api/customer/v1/forget-password [post]
 func (s *authRoute) forgetPassword(ctx iris.Context) {
 	request := new(forgetPasswordReq)
 	if err := ctx.ReadJSON(request); err != nil {
@@ -157,7 +157,7 @@ func (s *authRoute) forgetPassword(ctx iris.Context) {
 // @Success     204 ""
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /change-password-with-token [post]
+// @Router      /api/customer/v1/change-password-with-token [post]
 func (s *authRoute) changePassword(ctx iris.Context) {
 	request := new(changePasswordWithTokenReq)
 	if err := ctx.ReadJSON(request); err != nil {

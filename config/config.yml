@@ -10,10 +10,10 @@ mail:
   confirm_email_subject: 'Confirm transaction'
   otp_timeout: '300s'
   email_host: 'smtp.gmail.com'
-  email_host_password: 'imuuixbpbhjafihg'
-  email_host_user: 'lehuy.hl27@gmail.com'
+  email_host_password: 'zpsjlkkflxunqkcf'
+  email_host_user: 'dinhphat611@gmail.com'
   email_host_port: 587
-  email_host_sender_name: 'lehuy.hl27@gmail.com'
+  email_host_sender_name: 'dinhphat611@gmail.com'
 
 
 logger:

@@ -77,7 +77,7 @@ func (s *debtFullfillRepository) subtractReceiverBankAccount(ctx context.Context
 	bA := bAs[0]
 	aM, _ := e.Amount.Float64()
 	bA, err := s.bAUR.Update(ctx, bA, &model.BankAccountUpdateInput{
-		CashOut: generic.GetPointer(bA.CashOut + aM),
+		CashOut: generic.GetPointer(aM),
 	})
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (s *debtFullfillRepository) addOwnerBankAccount(ctx context.Context, e *mod
 	bA := bAs[0]
 	aM, _ := e.Amount.Float64()
 	bA, err := s.bAUR.Update(ctx, bA, &model.BankAccountUpdateInput{
-		CashIn: generic.GetPointer(bA.CashIn + aM),
+		CashIn: generic.GetPointer(aM),
 	})
 	if err != nil {
 		return nil, err

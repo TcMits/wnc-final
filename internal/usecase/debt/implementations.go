@@ -188,7 +188,8 @@ func (uc *CustomerDebtValidateFulfillUseCase) ValidateFulfill(ctx context.Contex
 			if err != nil {
 				return usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtValidateFulfillUseCase.ValidateFulfill: %s", err))
 			}
-			ok, err := bA.IsBalanceSufficient(e.Amount.Abs().InexactFloat64())
+			aM, _ := e.Amount.Float64()
+			ok, err := bA.IsBalanceSufficient(aM)
 			if err != nil {
 				return usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtValidateFulfillUseCase.ValidateFulfill: %s", err))
 			}

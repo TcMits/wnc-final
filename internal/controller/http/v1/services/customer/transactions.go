@@ -25,7 +25,7 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 		logger: l,
 	}
 	h.Use(middleware.Authenticator(uc.GetSecret(), uc.GetUser))
-	h.Post("/transactions/tp-bank/confirm-success/{id:uuid}", route.tpBankConfirm)
+	h.Put("/transactions/tp-bank/confirm-success/{id:uuid}", route.tpBankConfirm)
 	h.Post("/transactions/tp-bank", route.tpBankCreate)
 	h.Put("/transactions/confirm-success/{id:uuid}", route.confirmSuccess)
 	h.Get("/transactions/{id:uuid}", route.detail)

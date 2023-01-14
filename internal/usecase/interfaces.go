@@ -82,6 +82,12 @@ type (
 	ICustomerListUseCase interface {
 		iListUseCase[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
 	}
+	ICustomerUseCase interface {
+		ICustomerConfigUseCase
+		ICustomerGetUserUseCase
+		ICustomerListUseCase
+		ICustomerGetFirstUseCase
+	}
 	ICustomerMeUseCase interface {
 		ICustomerConfigUseCase
 		ICustomerGetUserUseCase

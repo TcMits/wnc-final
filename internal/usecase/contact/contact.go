@@ -3,7 +3,6 @@ package contact
 import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/usecase"
-	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
 	"github.com/TcMits/wnc-final/internal/usecase/outliers"
@@ -124,7 +123,7 @@ func NewCustomerContactUseCase(
 ) usecase.ICustomerContactUseCase {
 	return &CustomerContactUseCase{
 		ICustomerConfigUseCase:                     config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
-		ICustomerGetUserUseCase:                    auth.NewCustomerGetUserUseCase(rlc),
+		ICustomerGetUserUseCase:                    customer.NewCustomerGetUserUseCase(rlc),
 		ICustomerContactListUseCase:                NewCustomerContactListUseCase(repoList),
 		ICustomerContactListMineUseCase:            NewCustomerContactListMineUseCase(repoList),
 		ICustomerContactGetFirstMineUseCase:        NewCustomerContactGetFirstMineUseCase(repoList),

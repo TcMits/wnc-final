@@ -185,7 +185,7 @@ func NewCustomerTransactionUseCase(
 		),
 		ICustomerTransactionListUseCase:                 NewCustomerTransactionListUseCase(repoList),
 		ICustomerConfigUseCase:                          config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
-		ICustomerGetUserUseCase:                         auth.NewCustomerGetUserUseCase(rlc),
+		ICustomerGetUserUseCase:                         customer.NewCustomerGetUserUseCase(rlc),
 		ICustomerTransactionConfirmSuccessUseCase:       NewCustomerTransactionConfirmSuccessUseCase(repoConfirm, sk, prodOwnerName, fee, feeDesc),
 		ICustomerTransactionListMineUseCase:             NewCustomerTransactionListMineUseCase(repoList),
 		ICustomerTransactionGetFirstMineUseCase:         NewCustomerTransactionGetFirstMineUseCase(repoList),

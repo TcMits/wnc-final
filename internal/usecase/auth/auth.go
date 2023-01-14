@@ -57,9 +57,6 @@ type (
 	CustomerValidateForgetPassword struct {
 		cGFUC usecase.ICustomerGetFirstUseCase
 	}
-	CustomerGetUserUseCase struct {
-		gFUC usecase.ICustomerGetFirstUseCase
-	}
 	CustomerAuthUseCase struct {
 		usecase.ICustomerGetUserUseCase
 		usecase.ICustomerConfigUseCase
@@ -117,14 +114,6 @@ func NewCustomerValidateChangePasswordWithTokenUseCase(
 	}
 }
 
-func NewCustomerGetUserUseCase(
-	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
-) usecase.ICustomerGetUserUseCase {
-	uc := &CustomerGetUserUseCase{
-		gFUC: customer.NewCustomerGetFirstUseCase(repoList),
-	}
-	return uc
-}
 func NewCustomerAuthUseCase(
 	taskExctor task.IExecuteTask[*mail.EmailPayload],
 	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
@@ -139,7 +128,7 @@ func NewCustomerAuthUseCase(
 	refreshTTL,
 	accessTTL time.Duration,
 ) usecase.ICustomerAuthUseCase {
-	gUUC := NewCustomerGetUserUseCase(repoList)
+	gUUC := customer.NewCustomerGetUserUseCase(repoList)
 	uc := &CustomerAuthUseCase{
 		ICustomerGetUserUseCase:                         gUUC,
 		ICustomerConfigUseCase:                          config.NewCustomerConfigUseCase(secretKey, prodOwnerName, fee, feeDesc),
@@ -385,26 +374,6 @@ func (s *CustomerValidateChangePasswordWithTokenUseCase) ValidateChangePasswordW
 	i.HashPwd = &hashPwd
 	i.User = user
 	return i, nil
-}
-
-func (useCase *CustomerGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
-	usernameAny, ok := input["username"]
-	if !ok {
-		return nil, usecase.ValidationError(fmt.Errorf("username is required"))
-	}
-	username, ok := usernameAny.(string)
-	if !ok {
-		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))
-	}
-	u, err := useCase.gFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{
-		Or: []*model.CustomerWhereInput{
-			{Username: &username}, {PhoneNumber: &username}, {Email: &username},
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	return u, nil
 }
 
 // employee

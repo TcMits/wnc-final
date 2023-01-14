@@ -51,6 +51,13 @@ func Run(cfg *config.Config) {
 	b := sse.NewBroker(l)
 
 	// Customer Usecase
+	cUC1 := customer.NewCustomerUseCase(
+		repository.GetCustomerListRepository(client),
+		&cfg.App.SecretKey,
+		&cfg.App.Name,
+		&cfg.TransactionUseCase.FeeAmount,
+		&cfg.TransactionUseCase.FeeDesc,
+	)
 	CMeUc := me.NewCustomerMeUseCase(
 		repository.GetCustomerListRepository(client),
 		repository.GetCustomerUpdateRepository(client),
@@ -285,6 +292,7 @@ func Run(cfg *config.Config) {
 		cDUc,
 		cCUc,
 		cCOUc,
+		cUC1,
 		eUc2,
 		eUc1,
 		eUc3,

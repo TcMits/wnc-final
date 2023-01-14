@@ -128,7 +128,7 @@ func NewCustomerBankAccountUseCase(
 		ICustomerBankAccountValidateUpdateInputUseCase: NewCustomerBankAccountValidateUpdateInputUseCase(repoList),
 		ICustomerBankAccountListUseCase:                NewCustomerBankAccountListUseCase(repoList),
 		ICustomerConfigUseCase:                         config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
-		ICustomerGetUserUseCase:                        auth.NewCustomerGetUserUseCase(rlc),
+		ICustomerGetUserUseCase:                        customer.NewCustomerGetUserUseCase(rlc),
 		ICustomerBankAccountGetFirstMineUseCase:        NewCustomerBankAccountGetFirstMineUseCase(repoList),
 		ICustomerBankAccountListMineUseCase:            NewCustomerBankAccountListMineUseCase(repoList),
 		ICustomerBankAccountGetFirstUseCase:            NewCustomerBankAccountGetFirstUseCase(repoList),

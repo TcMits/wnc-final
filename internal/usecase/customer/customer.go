@@ -29,6 +29,15 @@ type (
 	CustomerGetFirstUseCase struct {
 		cLUC usecase.ICustomerListUseCase
 	}
+	CustomerGetUserUseCase struct {
+		gFUC usecase.ICustomerGetFirstUseCase
+	}
+	CustomerUseCase struct {
+		usecase.ICustomerConfigUseCase
+		usecase.ICustomerGetUserUseCase
+		usecase.ICustomerListUseCase
+		usecase.ICustomerGetFirstUseCase
+	}
 
 	EmployeeCustomerUseCase struct {
 		usecase.IEmployeeConfigUseCase
@@ -40,6 +49,29 @@ type (
 		usecase.IIsNextUseCase[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput]
 	}
 )
+
+func NewCustomerGetUserUseCase(
+	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+) usecase.ICustomerGetUserUseCase {
+	uc := &CustomerGetUserUseCase{
+		gFUC: NewCustomerGetFirstUseCase(repoList),
+	}
+	return uc
+}
+func NewCustomerUseCase(
+	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
+	sk *string,
+	prodOwnerName *string,
+	fee *float64,
+	feeDesc *string,
+) usecase.ICustomerUseCase {
+	return &CustomerUseCase{
+		ICustomerConfigUseCase:   config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
+		ICustomerGetUserUseCase:  NewCustomerGetUserUseCase(repoList),
+		ICustomerListUseCase:     NewCustomerListUseCase(repoList),
+		ICustomerGetFirstUseCase: NewCustomerGetFirstUseCase(repoList),
+	}
+}
 
 func NewCustomerValidateCreateUseCase(
 	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
@@ -104,6 +136,25 @@ func NewEmployeeCustomerUseCase(
 
 }
 
+func (useCase *CustomerGetUserUseCase) GetUser(ctx context.Context, input map[string]any) (any, error) {
+	usernameAny, ok := input["username"]
+	if !ok {
+		return nil, usecase.ValidationError(fmt.Errorf("username is required"))
+	}
+	username, ok := usernameAny.(string)
+	if !ok {
+		return nil, usecase.WrapError(fmt.Errorf("wrong type of username, expected type of string, not %T", username))
+	}
+	u, err := useCase.gFUC.GetFirst(ctx, nil, &model.CustomerWhereInput{
+		Or: []*model.CustomerWhereInput{
+			{Username: &username}, {PhoneNumber: &username}, {Email: &username},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
 func (uc *CustomerGetFirstUseCase) GetFirst(ctx context.Context, o *model.CustomerOrderInput, w *model.CustomerWhereInput) (*model.Customer, error) {
 	l, of := 1, 0
 	entities, err := uc.cLUC.List(ctx, &l, &of, o, w)

@@ -48,6 +48,7 @@ func RegisterV1HTTPServices(
 	customerUc6 usecase.ICustomerDebtUseCase,
 	customerUc7 usecase.ICustomerContactUseCase,
 	customerUc8 usecase.IOptionsUseCase,
+	customerUc9 usecase.ICustomerUseCase,
 	// adding more employee usecases here
 	employeeUc1 usecase.IEmployeeAuthUseCase,
 	employeeUc2 usecase.IEmployeeMeUseCase,
@@ -73,7 +74,7 @@ func RegisterV1HTTPServices(
 	handler.UseRouter(cors.New().Handler())
 	RegisterHealthCheckController(handler)
 
-	customer.RegisterServices(handler, customerUc1, customerUc2, customerUc3, customerUc4, customerUc5, customerUc6, customerUc7, customerUc8, b, l)
+	customer.RegisterServices(handler, customerUc1, customerUc2, customerUc3, customerUc4, customerUc5, customerUc6, customerUc7, customerUc8, customerUc9, b, l)
 	employee.RegisterServices(handler, employeeUc3, employeeUc1, employeeUc2, employeeUc4, employeeUc5, l)
 	admin.RegisterServices(handler, adminUc2, adminUc1, adminUc3, adminUc4, l)
 	partner.RegisterServices(handler, partnerUc2, partnerUc1, partnerUc3, l)

@@ -6,7 +6,6 @@ import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
-	"github.com/TcMits/wnc-final/internal/usecase/auth"
 	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
 	"github.com/TcMits/wnc-final/internal/usecase/config"
 	"github.com/TcMits/wnc-final/internal/usecase/customer"
@@ -156,7 +155,7 @@ func NewCustomerDebtUseCase(
 		ICustomerDebtCreateUseCase:                   NewCustomerDebtCreateUseCase(repoCreate, rlc, notifyTask, sk, prodOwnerName, fee, feeDesc),
 		ICustomerDebtValidateCreateInputUseCase:      NewCustomerDebtValidateCreateInputUseCase(rlba, rlc, sk, prodOwnerName, fee, feeDesc),
 		ICustomerConfigUseCase:                       config.NewCustomerConfigUseCase(sk, prodOwnerName, fee, feeDesc),
-		ICustomerGetUserUseCase:                      auth.NewCustomerGetUserUseCase(rlc),
+		ICustomerGetUserUseCase:                      customer.NewCustomerGetUserUseCase(rlc),
 		ICustomerDebtGetFirstMineUseCase:             NewCustomerDebtGetFirstMineUseCase(repoList),
 		ICustomerDebtListMineUseCase:                 NewCustomerDebtListMineUseCase(repoList),
 		ICustomerDebtCancelUseCase:                   NewCustomerDebtCancelUseCase(repoUpdate, notifyTask, rlc),

@@ -46,7 +46,7 @@ func RegisterTransactionController(handler iris.Party, l logger.Interface, uc us
 // @Param       customer_id query string false "ID of customer, required if only_{query} is true"
 // @Success     200 {object} EntitiesResponseTemplate[transactionResp]
 // @Failure     500 {object} errorResponse
-// @Router      /api/v1/employee/transactions [get]
+// @Router      /api/employee/v1/transactions [get]
 func (r *transactionRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -121,7 +121,7 @@ func (r *transactionRoute) listing(ctx iris.Context) {
 // @Success     200 {object} transactionResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /api/v1/employee/transactions/{id} [get]
+// @Router      /api/employee/v1/transactions/{id} [get]
 func (r *transactionRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {

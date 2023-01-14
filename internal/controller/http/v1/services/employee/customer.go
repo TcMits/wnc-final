@@ -35,10 +35,10 @@ func RegisterCustomerController(handler iris.Party, l logger.Interface, uc useca
 // @Accept      json
 // @Produce     json
 // @Param       payload body customerCreateReq true "Create a customer"
-// @Success     201 {object} customerResponse
+// @Success     201 {object} customerCreateResp
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /api/v1/employee/customers [post]
+// @Router      /api/employee/v1/customers [post]
 func (s *customerRoute) create(ctx iris.Context) {
 	createInReq := new(customerCreateReq)
 	if err := ctx.ReadBody(createInReq); err != nil {
@@ -73,7 +73,7 @@ func (s *customerRoute) create(ctx iris.Context) {
 // @Produce     json
 // @Success     200 {object} EntitiesResponseTemplate[customerResponse]
 // @Failure     500 {object} errorResponse
-// @Router      /api/v1/employee/customers [get]
+// @Router      /api/employee/v1/customers [get]
 func (r *customerRoute) listing(ctx iris.Context) {
 	req := newListRequest()
 	if err := ctx.ReadQuery(req); err != nil {
@@ -110,7 +110,7 @@ func (r *customerRoute) listing(ctx iris.Context) {
 // @Success     200 {object} customerResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /api/v1/employee/customers/{id} [get]
+// @Router      /api/employee/v1/customers/{id} [get]
 func (s *customerRoute) detail(ctx iris.Context) {
 	req := new(detailRequest)
 	if err := ReadID(ctx, req); err != nil {

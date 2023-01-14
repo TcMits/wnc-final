@@ -16,7 +16,7 @@ const docTemplateemployee = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/employee/bank-accounts": {
+        "/api/employee/v1/bank-accounts": {
             "get": {
                 "security": [
                     {
@@ -65,7 +65,7 @@ const docTemplateemployee = `{
                 }
             }
         },
-        "/api/v1/employee/bank-accounts/{id}": {
+        "/api/employee/v1/bank-accounts/{id}": {
             "get": {
                 "security": [
                     {
@@ -217,7 +217,7 @@ const docTemplateemployee = `{
                 }
             }
         },
-        "/api/v1/employee/customers": {
+        "/api/employee/v1/customers": {
             "get": {
                 "security": [
                     {
@@ -284,7 +284,7 @@ const docTemplateemployee = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/employee.customerResponse"
+                            "$ref": "#/definitions/employee.customerCreateResp"
                         }
                     },
                     "400": {
@@ -302,7 +302,7 @@ const docTemplateemployee = `{
                 }
             }
         },
-        "/api/v1/employee/customers/{id}": {
+        "/api/employee/v1/customers/{id}": {
             "get": {
                 "security": [
                     {
@@ -352,7 +352,7 @@ const docTemplateemployee = `{
                 }
             }
         },
-        "/api/v1/employee/login": {
+        "/api/employee/v1/login": {
             "post": {
                 "description": "Login",
                 "consumes": [
@@ -435,7 +435,7 @@ const docTemplateemployee = `{
                 }
             }
         },
-        "/api/v1/employee/me/": {
+        "/api/employee/v1/me/": {
             "get": {
                 "security": [
                     {
@@ -476,7 +476,7 @@ const docTemplateemployee = `{
                 }
             }
         },
-        "/api/v1/employee/token": {
+        "/api/employee/v1/token": {
             "post": {
                 "description": "Renew token",
                 "consumes": [
@@ -523,7 +523,7 @@ const docTemplateemployee = `{
                 }
             }
         },
-        "/api/v1/employee/transactions": {
+        "/api/employee/v1/transactions": {
             "get": {
                 "security": [
                     {
@@ -596,7 +596,7 @@ const docTemplateemployee = `{
                 }
             }
         },
-        "/api/v1/employee/transactions/{id}": {
+        "/api/employee/v1/transactions/{id}": {
             "get": {
                 "security": [
                     {
@@ -757,6 +757,49 @@ const docTemplateemployee = `{
             ],
             "properties": {
                 "email": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string",
+                    "minLength": 12
+                },
+                "username": {
+                    "type": "string",
+                    "minLength": 6
+                }
+            }
+        },
+        "employee.customerCreateResp": {
+            "type": "object",
+            "properties": {
+                "account_number": {
+                    "type": "string"
+                },
+                "bank_account_id": {
+                    "type": "string"
+                },
+                "cash_in": {
+                    "type": "number"
+                },
+                "cash_out": {
+                    "type": "number"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_for_payment": {
+                    "type": "boolean"
+                },
+                "last_name": {
                     "type": "string"
                 },
                 "phone_number": {

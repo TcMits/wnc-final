@@ -42,7 +42,7 @@ func GetCustomerListRepository(
 
 func GetCustomerCreateRepository(
 	client *ent.Client,
-) CreateModelRepository[*model.Customer, *model.CustomerCreateInput] {
+) CreateModelRepository[*model.EmployeeCreateCustomerResp, *model.CustomerCreateInput] {
 	return &CustomerCreateRepository{client: client}
 }
 
@@ -81,7 +81,7 @@ func (s *customerCreateRepository) getCandidateAccountNumber(ctx context.Context
 	return ac, nil
 }
 
-func (s *customerCreateRepository) create(ctx context.Context, i *model.CustomerCreateInput) (*model.Customer, error) {
+func (s *customerCreateRepository) create(ctx context.Context, i *model.CustomerCreateInput) (*model.EmployeeCreateCustomerResp, error) {
 	e, err := s.repo.Create(ctx, i)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (s *customerCreateRepository) create(ctx context.Context, i *model.Customer
 	if err != nil {
 		return nil, err
 	}
-	_, err = s.bACR.Create(ctx, &model.BankAccountCreateInput{
+	ba, err := s.bACR.Create(ctx, &model.BankAccountCreateInput{
 		CustomerID:    e.ID,
 		IsForPayment:  generic.GetPointer(true),
 		AccountNumber: &accountNumberCandidate,
@@ -100,11 +100,14 @@ func (s *customerCreateRepository) create(ctx context.Context, i *model.Customer
 	if err != nil {
 		return nil, err
 	}
-	return e, nil
+	return &model.EmployeeCreateCustomerResp{
+		Customer:    e,
+		BankAccount: ba,
+	}, nil
 }
 
-func (s *CustomerCreateRepository) Create(ctx context.Context, i *model.CustomerCreateInput) (*model.Customer, error) {
-	var e *model.Customer
+func (s *CustomerCreateRepository) Create(ctx context.Context, i *model.CustomerCreateInput) (*model.EmployeeCreateCustomerResp, error) {
+	var e *model.EmployeeCreateCustomerResp
 	if err := transaction.WithTx(ctx, s.client, func(tx *ent.Tx) error {
 		var errInner error
 		driver := newCustomerCreateRepository(tx.Client())

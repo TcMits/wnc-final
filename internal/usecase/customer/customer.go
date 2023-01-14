@@ -21,7 +21,7 @@ type (
 		repoUpdate repository.UpdateModelRepository[*model.Customer, *model.CustomerUpdateInput]
 	}
 	CustomerCreateUseCase struct {
-		repoCreate repository.CreateModelRepository[*model.Customer, *model.CustomerCreateInput]
+		repoCreate repository.CreateModelRepository[*model.EmployeeCreateCustomerResp, *model.CustomerCreateInput]
 	}
 	CustomerValidateCreateUseCase struct {
 		cLUC usecase.ICustomerListUseCase
@@ -82,7 +82,7 @@ func NewCustomerValidateCreateUseCase(
 }
 
 func NewCustomerCreateUseCase(
-	repoCreate repository.CreateModelRepository[*model.Customer, *model.CustomerCreateInput],
+	repoCreate repository.CreateModelRepository[*model.EmployeeCreateCustomerResp, *model.CustomerCreateInput],
 ) usecase.IEmployeeCustomerCreateUseCase {
 	return &CustomerCreateUseCase{
 		repoCreate: repoCreate,
@@ -118,7 +118,7 @@ func NewCustomerListUseCase(
 
 func NewEmployeeCustomerUseCase(
 	repoList repository.ListModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
-	repoCreate repository.CreateModelRepository[*model.Customer, *model.CustomerCreateInput],
+	repoCreate repository.CreateModelRepository[*model.EmployeeCreateCustomerResp, *model.CustomerCreateInput],
 	repoIsNext repository.IIsNextModelRepository[*model.Customer, *model.CustomerOrderInput, *model.CustomerWhereInput],
 	rle repository.ListModelRepository[*model.Employee, *model.EmployeeOrderInput, *model.EmployeeWhereInput],
 	secretKey *string,
@@ -222,7 +222,7 @@ func (s *CustomerValidateCreateUseCase) ValidateCreate(ctx context.Context, i *m
 	return i, nil
 }
 
-func (s *CustomerCreateUseCase) Create(ctx context.Context, i *model.CustomerCreateInput) (*model.Customer, error) {
+func (s *CustomerCreateUseCase) Create(ctx context.Context, i *model.CustomerCreateInput) (*model.EmployeeCreateCustomerResp, error) {
 	e, err := s.repoCreate.Create(ctx, i)
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.customer.customer.CustomerCreateUseCase.Create: %s", err))

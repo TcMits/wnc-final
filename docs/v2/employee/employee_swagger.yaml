@@ -69,13 +69,42 @@ definitions:
       email:
         type: string
       phone_number:
+        minLength: 12
         type: string
       username:
+        minLength: 6
         type: string
     required:
     - email
     - phone_number
     - username
+    type: object
+  employee.customerCreateResp:
+    properties:
+      account_number:
+        type: string
+      bank_account_id:
+        type: string
+      cash_in:
+        type: number
+      cash_out:
+        type: number
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      is_for_payment:
+        type: boolean
+      last_name:
+        type: string
+      phone_number:
+        type: string
+      username:
+        type: string
     type: object
   employee.customerResponse:
     properties:
@@ -198,7 +227,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/v1/employee/bank-accounts:
+  /api/employee/v1/bank-accounts:
     get:
       consumes:
       - application/json
@@ -229,7 +258,7 @@ paths:
       summary: Show bank accounts
       tags:
       - Bank account
-  /api/v1/employee/bank-accounts/{id}:
+  /api/employee/v1/bank-accounts/{id}:
     delete:
       consumes:
       - application/json
@@ -327,7 +356,7 @@ paths:
       summary: Deposit a bank account
       tags:
       - Bank account
-  /api/v1/employee/customers:
+  /api/employee/v1/customers:
     get:
       consumes:
       - application/json
@@ -367,7 +396,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/employee.customerResponse'
+            $ref: '#/definitions/employee.customerCreateResp'
         "400":
           description: Bad Request
           schema:
@@ -381,7 +410,7 @@ paths:
       summary: Create a customer
       tags:
       - Customer
-  /api/v1/employee/customers/{id}:
+  /api/employee/v1/customers/{id}:
     get:
       consumes:
       - application/json
@@ -413,7 +442,7 @@ paths:
       summary: Get a customer
       tags:
       - Customer
-  /api/v1/employee/login:
+  /api/employee/v1/login:
     delete:
       consumes:
       - application/json
@@ -467,7 +496,7 @@ paths:
       summary: Login
       tags:
       - Authentication
-  /api/v1/employee/me/:
+  /api/employee/v1/me/:
     get:
       consumes:
       - application/json
@@ -493,7 +522,7 @@ paths:
       summary: Get profile
       tags:
       - Me
-  /api/v1/employee/token:
+  /api/employee/v1/token:
     post:
       consumes:
       - application/json
@@ -524,7 +553,7 @@ paths:
       summary: Renew token
       tags:
       - Authentication
-  /api/v1/employee/transactions:
+  /api/employee/v1/transactions:
     get:
       consumes:
       - application/json
@@ -571,7 +600,7 @@ paths:
       summary: Show transactions
       tags:
       - Transaction
-  /api/v1/employee/transactions/{id}:
+  /api/employee/v1/transactions/{id}:
     get:
       consumes:
       - application/json

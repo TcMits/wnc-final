@@ -43,6 +43,14 @@ type (
 		Email       string    `json:"email"`
 		IsActive    bool      `json:"is_active"`
 	}
+	customerCreateResp struct {
+		*customerResponse
+		BankAccountID uuid.UUID `json:"bank_account_id"`
+		CashIn        float64   `json:"cash_in"`
+		CashOut       float64   `json:"cash_out"`
+		AccountNumber string    `json:"account_number"`
+		IsForPayment  bool      `json:"is_for_payment"`
+	}
 	meResponse struct {
 		ID        uuid.UUID `json:"id"`
 		Username  string    `json:"username"`
@@ -98,6 +106,24 @@ func getDefaultResponse(entity any) any {
 			PhoneNumber: rs.PhoneNumber,
 			Email:       rs.Email,
 			IsActive:    rs.IsActive,
+		}
+	case *model.EmployeeCreateCustomerResp:
+		rs, _ := entity.(*model.EmployeeCreateCustomerResp)
+		result = &customerCreateResp{
+			customerResponse: &customerResponse{
+				ID:          rs.Customer.ID,
+				Username:    rs.Username,
+				FirstName:   rs.FirstName,
+				LastName:    rs.LastName,
+				PhoneNumber: rs.PhoneNumber,
+				Email:       rs.Email,
+				IsActive:    rs.IsActive,
+			},
+			BankAccountID: rs.BankAccount.ID,
+			AccountNumber: rs.AccountNumber,
+			CashIn:        rs.CashIn,
+			CashOut:       rs.CashOut,
+			IsForPayment:  rs.IsForPayment,
 		}
 	case *model.Employee:
 		rs, _ := entity.(*model.Employee)

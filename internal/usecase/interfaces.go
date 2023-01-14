@@ -315,7 +315,7 @@ type (
 		iValidateCreateInput[*model.CustomerCreateInput]
 	}
 	IEmployeeCustomerCreateUseCase interface {
-		iCreateUseCase[*model.Customer, *model.CustomerCreateInput]
+		iCreateUseCase[*model.EmployeeCreateCustomerResp, *model.CustomerCreateInput]
 	}
 	IEmployeeCustomerListUseCase interface {
 		ICustomerListUseCase

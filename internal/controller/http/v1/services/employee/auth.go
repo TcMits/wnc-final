@@ -38,7 +38,7 @@ func RegisterAuthController(handler iris.Party, l logger.Interface, uc usecase.I
 // @Success     200 {object} tokenPairResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /api/v1/employee/login [post]
+// @Router      /api/employee/v1/login [post]
 func (r *authRoute) login(ctx iris.Context) {
 	request := new(loginRequest)
 	if err := ctx.ReadJSON(request); err != nil {
@@ -72,7 +72,7 @@ func (r *authRoute) login(ctx iris.Context) {
 // @Success     204  ""
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /api/v1/employee/login [Delete]
+// @Router      /api/employee/v1/login [Delete]
 func (r *authRoute) logout(ctx iris.Context) {
 	err := r.uc.Logout(ctx)
 	if err != nil {
@@ -92,7 +92,7 @@ func (r *authRoute) logout(ctx iris.Context) {
 // @Success     200 {object} tokenPairResponse
 // @Failure     400 {object} errorResponse
 // @Failure     500 {object} errorResponse
-// @Router      /api/v1/employee/token [post]
+// @Router      /api/employee/v1/token [post]
 func (r *authRoute) renewToken(ctx iris.Context) {
 	request := new(renewTokenRequest)
 	if err := ctx.ReadJSON(request); err != nil {

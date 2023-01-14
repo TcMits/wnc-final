@@ -1,5 +1,6 @@
-# wnc-final
+# Frontend
 
+# Backend
 ## Database
 -   Postgres.
 -   Triển khai trong docker compose

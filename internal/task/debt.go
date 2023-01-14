@@ -17,6 +17,7 @@ type (
 	DebtNotifyPayload struct {
 		ID     uuid.UUID
 		UserID uuid.UUID
+		Event  string
 	}
 )
 
@@ -30,7 +31,7 @@ func (s *DebtCreateTaskExecutor) ExecuteTask(ctx context.Context, pl *DebtNotify
 			return c.ID == pl.UserID
 		}
 		msgpl.Msg = pl.ID.String()
-		msgpl.Event = sse.DebtCreated
+		msgpl.Event = pl.Event
 		err := s.b.Notify(msgpl)
 		if err != nil {
 			s.l.Warn("Notify failed due to: %s", err)

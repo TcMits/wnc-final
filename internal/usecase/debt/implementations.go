@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/TcMits/wnc-final/ent/debt"
+	"github.com/TcMits/wnc-final/internal/sse"
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase"
 	"github.com/TcMits/wnc-final/pkg/entity/model"
@@ -161,6 +162,8 @@ func (uc *CustomerDebtCancelUseCase) Cancel(ctx context.Context, e *model.Debt, 
 	}
 	err = uc.taskExecutor.ExecuteTask(ctx, &task.DebtNotifyPayload{
 		UserID: target.ID,
+		ID:     e.ID,
+		Event:  sse.DebtCanceled,
 	})
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtCancelUseCase.Cancel: %s", err))
@@ -274,6 +277,8 @@ func (s *CustomerDebtFulfillWithTokenUseCase) FulfillWithToken(ctx context.Conte
 	}
 	err = s.taskExecutor.ExecuteTask(ctx, &task.DebtNotifyPayload{
 		UserID: owner.ID,
+		ID:     e.ID,
+		Event:  sse.DebtFulfilled,
 	})
 	if err != nil {
 		return nil, usecase.WrapError(fmt.Errorf("internal.usecase.debt.implementations.CustomerDebtFulfillWithTokenUseCase.FulfillWithToken: %s", err))

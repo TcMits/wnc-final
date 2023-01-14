@@ -3,28 +3,8 @@
 ## Quick start
 Local development:
 ```sh
-# Run app with migrations
+# Run app
 docker compose -f local.yml up
-```
-
-Production:
-```sh
-docker compose -f production.yml up
-```
-
-Integration tests (can be run in CI):
-```sh
-docker compose -f integration_test.yml up --abort-on-container-exit --build --exit-code-from http_v1_integration
-```
-
-Unit tests (can be run in CI):
-```sh
-go test -cover -race $(go list ./... | grep -v /integration_test/)
-```
-
-Generate locale files:
-```sh
-goi18n extract -sourceLanguage=en-US -outdir=./locales/en-US/ -format=yaml ./
 ```
 
 Generate docs customer app files:
@@ -43,39 +23,6 @@ Generate docs partner app files:
 ```sh
 swag init --exclude ./internal/controller/http/v1/services/customer,./internal/controller/http/v1/services/employee,./internal/controller/http/v1/services/admin -o ./docs/v2/partner/ --instanceName partner
 ```
-
-Convert OpenApi v2 to v3 (yaml):
-```sh
-# https://github.com/swaggo/swag/issues/386
-docker run --rm -v $(PWD)/docs:/work openapitools/openapi-generator-cli:latest-release \
-	  generate -i /work/v2/swagger.yaml -o /work/v3 -g openapi-yaml --minimal-update \
-    && mv ./docs/v3/openapi/openapi.yaml ./docs/v3/ \
-    && rm ./docs/v3/README.md \
-    && rm ./docs/v3/.openapi-generator-ignore \
-    && rm -rf ./docs/v3/.openapi-generator \
-    && rm -rf ./docs/v3/openapi
-```
-
-Convert OpenApi v2 to v3 (json):
-```sh
-# https://github.com/swaggo/swag/issues/386
-docker run --rm -v $(PWD)/docs:/work openapitools/openapi-generator-cli:latest-release \
-	  generate -i /work/v2/swagger.json -o /work/v3 -g openapi --minimal-update \
-    && rm ./docs/v3/README.md \
-    && rm ./docs/v3/.openapi-generator-ignore \
-    && rm -rf ./docs/v3/.openapi-generator 
-```
-
-### Changing between openapi v2/v3:
-Change [docs.go](https://github.com/TcMits/wnc-final/blob/master/docs/docs.go)
-
-```go
-package docs
-
-import _ "github.com/TcMits/wnc-final/docs/v3" // replace this
-// import _ "github.com/TcMits/wnc-final/docs/v2"
-```
-
 
 ## Overview
 

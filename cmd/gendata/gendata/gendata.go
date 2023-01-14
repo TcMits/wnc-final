@@ -6,6 +6,7 @@ import (
 
 	"github.com/TcMits/wnc-final/config"
 	"github.com/TcMits/wnc-final/ent"
+	"github.com/TcMits/wnc-final/ent/transaction"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
@@ -161,5 +162,57 @@ func genData(client *ent.Client, cfg *config.Config) {
 	})
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
+	}
+	// 8 transaction
+	for i := 1; i < 8; i++ {
+		bA, err = ent.CreateFakeBankAccount(ctx, client, nil, ent.Opt{
+			Key:   "IsForPayment",
+			Value: generic.GetPointer(true),
+		})
+		if err != nil {
+			log.Fatalf("failed generate data: %v", err)
+		}
+		_, err = ent.CreateFakeTransaction(ctx, client, nil,
+			ent.Opt{
+				Key:   "SenderID",
+				Value: &bA.ID,
+			},
+			ent.Opt{
+				Key:   "Status",
+				Value: generic.GetPointer(transaction.StatusSuccess),
+			},
+			ent.Opt{
+				Key:   "SenderBankName",
+				Value: "Sacombank",
+			},
+			ent.Opt{
+				Key:   "ReceiverBankName",
+				Value: "Sacombank",
+			},
+		)
+		if err != nil {
+			log.Fatalf("failed generate data: %v", err)
+		}
+		_, err = ent.CreateFakeTransaction(ctx, client, nil,
+			ent.Opt{
+				Key:   "ReceiverID",
+				Value: &bA.ID,
+			},
+			ent.Opt{
+				Key:   "Status",
+				Value: generic.GetPointer(transaction.StatusSuccess),
+			},
+			ent.Opt{
+				Key:   "SenderBankName",
+				Value: "Sacombank",
+			},
+			ent.Opt{
+				Key:   "ReceiverBankName",
+				Value: "Sacombank",
+			},
+		)
+		if err != nil {
+			log.Fatalf("failed generate data: %v", err)
+		}
 	}
 }

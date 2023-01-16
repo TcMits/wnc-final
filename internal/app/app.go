@@ -12,16 +12,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/repository"
 	"github.com/TcMits/wnc-final/internal/sse"
 	"github.com/TcMits/wnc-final/internal/task"
-	"github.com/TcMits/wnc-final/internal/usecase/auth"
-	"github.com/TcMits/wnc-final/internal/usecase/bankaccount"
-	"github.com/TcMits/wnc-final/internal/usecase/contact"
-	"github.com/TcMits/wnc-final/internal/usecase/customer"
-	"github.com/TcMits/wnc-final/internal/usecase/debt"
-	"github.com/TcMits/wnc-final/internal/usecase/employee"
-	"github.com/TcMits/wnc-final/internal/usecase/me"
-	"github.com/TcMits/wnc-final/internal/usecase/option"
-	"github.com/TcMits/wnc-final/internal/usecase/stream"
-	"github.com/TcMits/wnc-final/internal/usecase/transaction"
+	"github.com/TcMits/wnc-final/internal/usecase/constructors"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 )
@@ -51,14 +42,14 @@ func Run(cfg *config.Config) {
 	b := sse.NewBroker(l)
 
 	// Customer Usecase
-	cUC1 := customer.NewCustomerUseCase(
+	cUC1 := constructors.NewCustomerUseCase(
 		repository.GetCustomerListRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 		&cfg.TransactionUseCase.FeeAmount,
 		&cfg.TransactionUseCase.FeeDesc,
 	)
-	CMeUc := me.NewCustomerMeUseCase(
+	CMeUc := constructors.NewCustomerMeUseCase(
 		repository.GetCustomerListRepository(client),
 		repository.GetCustomerUpdateRepository(client),
 		&cfg.App.SecretKey,
@@ -66,7 +57,7 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeAmount,
 		&cfg.TransactionUseCase.FeeDesc,
 	)
-	CAuthUc := auth.NewCustomerAuthUseCase(
+	CAuthUc := constructors.NewCustomerAuthUseCase(
 		task.GetEmailTaskExecutor(cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, l),
 		repository.GetCustomerListRepository(client),
 		repository.GetCustomerUpdateRepository(client),
@@ -80,7 +71,7 @@ func Run(cfg *config.Config) {
 		cfg.AuthUseCase.AccessTTL,
 		cfg.AuthUseCase.RefreshTTL,
 	)
-	cBankAccountUc := bankaccount.NewCustomerBankAccountUseCase(
+	cBankAccountUc := constructors.NewCustomerBankAccountUseCase(
 		repository.GetBankAccountUpdateRepository(client),
 		repository.GetBankAccountListRepository(client),
 		repository.GetBankAccountIsNextRepository(client),
@@ -101,7 +92,7 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeAmount,
 		&cfg.TransactionUseCase.FeeDesc,
 	)
-	cTxcUc := transaction.NewCustomerTransactionUseCase(
+	cTxcUc := constructors.NewCustomerTransactionUseCase(
 		task.GetEmailTaskExecutor(cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, l),
 		repository.GetTransactionConfirmSuccessRepository(client, cfg.TransactionUseCase.Layout, cfg.BaseURL, cfg.AuthAPI, cfg.BankAccountAPI, cfg.ValidateAPI, cfg.CreateTransactionAPI, cfg.TPBank.Name, cfg.TPBank.ApiKey, cfg.TPBank.SecretKey, cfg.TPBank.PrivateKey),
 		repository.GetTransactionCreateRepository(client),
@@ -129,7 +120,7 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeAmount,
 		cfg.Mail.OTPTimeout,
 	)
-	cDUc := debt.NewCustomerDebtUseCase(
+	cDUc := constructors.NewCustomerDebtUseCase(
 		repository.GetDebtListRepository(client),
 		repository.GetDebtCreateRepository(client),
 		repository.GetDebtUpdateRepository(client),
@@ -147,14 +138,14 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeAmount,
 		cfg.Mail.OTPTimeout,
 	)
-	cStreamUc := stream.NewCustomerStreamUseCase(
+	cStreamUc := constructors.NewCustomerStreamUseCase(
 		repository.GetCustomerListRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 		&cfg.TransactionUseCase.FeeAmount,
 		&cfg.TransactionUseCase.FeeDesc,
 	)
-	cCUc := contact.NewCustomerContactUseCase(
+	cCUc := constructors.NewCustomerContactUseCase(
 		repository.GetContactListRepository(client),
 		repository.GetContactUpdateRepository(client),
 		repository.GetContactCreateRepository(client),
@@ -176,20 +167,20 @@ func Run(cfg *config.Config) {
 		cfg.TPBank.PrivateKey,
 		&cfg.TransactionUseCase.FeeAmount,
 	)
-	cCOUc := option.NewOptionUseCase(
+	cCOUc := constructors.NewOptionUseCase(
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 		cfg.TPBank.Name,
 	)
 
 	// Employee UseCase
-	eUc1 := me.NewEmployeeMeUseCase(
+	eUc1 := constructors.NewEmployeeMeUseCase(
 		repository.GetEmployeeListRepository(client),
 		repository.GetEmployeeUpdateRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)
-	eUc2 := auth.NewEmployeeAuthUseCase(
+	eUc2 := constructors.NewEmployeeAuthUseCase(
 		repository.GetEmployeeListRepository(client),
 		repository.GetEmployeeUpdateRepository(client),
 		&cfg.App.SecretKey,
@@ -197,7 +188,7 @@ func Run(cfg *config.Config) {
 		cfg.AuthUseCase.AccessTTL,
 		cfg.AuthUseCase.RefreshTTL,
 	)
-	eUc3 := customer.NewEmployeeCustomerUseCase(
+	eUc3 := constructors.NewEmployeeCustomerUseCase(
 		repository.GetCustomerListRepository(client),
 		repository.GetCustomerCreateRepository(client),
 		repository.GetCustomerIsNextRepository(client),
@@ -205,7 +196,7 @@ func Run(cfg *config.Config) {
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)
-	eUc4 := bankaccount.NewEmployeeBankAccountUseCase(
+	eUc4 := constructors.NewEmployeeBankAccountUseCase(
 		repository.GetBankAccountUpdateRepository(client),
 		repository.GetBankAccountListRepository(client),
 		repository.GetBankAccountIsNextRepository(client),
@@ -214,7 +205,7 @@ func Run(cfg *config.Config) {
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)
-	eUc5 := transaction.NewEmployeeTransactionUseCase(
+	eUc5 := constructors.NewEmployeeTransactionUseCase(
 		repository.GetTransactionListRepository(client),
 		repository.GetTransactionIsNextRepository(client),
 		repository.GetEmployeeListRepository(client),
@@ -222,13 +213,13 @@ func Run(cfg *config.Config) {
 		&cfg.App.Name,
 	)
 	// Admin UseCase
-	aUc1 := me.NewAdminMeUseCase(
+	aUc1 := constructors.NewAdminMeUseCase(
 		repository.GetAdminListRepository(client),
 		repository.GetAdminUpdateRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)
-	aUc2 := auth.NewAdminAuthUseCase(
+	aUc2 := constructors.NewAdminAuthUseCase(
 		repository.GetAdminListRepository(client),
 		repository.GetAdminUpdateRepository(client),
 		&cfg.App.SecretKey,
@@ -236,14 +227,14 @@ func Run(cfg *config.Config) {
 		cfg.AuthUseCase.AccessTTL,
 		cfg.AuthUseCase.RefreshTTL,
 	)
-	aUc3 := transaction.NewAdminTransactionUseCase(
+	aUc3 := constructors.NewAdminTransactionUseCase(
 		repository.GetTransactionListRepository(client),
 		repository.GetTransactionIsNextRepository(client),
 		repository.GetAdminListRepository(client),
 		&cfg.App.SecretKey,
 		&cfg.App.Name,
 	)
-	aUc4 := employee.NewAdminEmployeeUseCase(
+	aUc4 := constructors.NewAdminEmployeeUseCase(
 		repository.GetEmployeeListRepository(client),
 		repository.GetEmployeeCreateRepository(client),
 		repository.GetEmployeeUpdateRepository(client),
@@ -254,13 +245,13 @@ func Run(cfg *config.Config) {
 		&cfg.App.Name,
 	)
 	// partner
-	pUc1 := auth.NewPartnerAuthUseCase(
+	pUc1 := constructors.NewPartnerAuthUseCase(
 		repository.GetPartnerListRepository(client),
 		&cfg.App.SecretKey,
 		cfg.AuthUseCase.AccessTTL,
 		cfg.AuthUseCase.RefreshTTL,
 	)
-	pUc2 := transaction.NewPartnerTransactionUseCase(
+	pUc2 := constructors.NewPartnerTransactionUseCase(
 		repository.GetBankAccountListRepository(client),
 		repository.GetCustomerListRepository(client),
 		repository.GetPartnerTransactionCreateRepository(client),
@@ -271,7 +262,7 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.Layout,
 		&cfg.TransactionUseCase.FeeAmount,
 	)
-	pUc3 := bankaccount.NewPartnerBankAccountUseCase(
+	pUc3 := constructors.NewPartnerBankAccountUseCase(
 		repository.GetBankAccountListRepository(client),
 		repository.GetBankAccountIsNextRepository(client),
 		repository.GetPartnerListRepository(client),

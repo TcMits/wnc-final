@@ -13,6 +13,7 @@ import (
 	"github.com/TcMits/wnc-final/internal/sse"
 	"github.com/TcMits/wnc-final/internal/task"
 	"github.com/TcMits/wnc-final/internal/usecase/constructors"
+	"github.com/TcMits/wnc-final/pkg/infrastructure/backgroundtask"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/datastore"
 	"github.com/TcMits/wnc-final/pkg/infrastructure/logger"
 )
@@ -35,11 +36,19 @@ func Run(cfg *config.Config) {
 	}
 	defer client.Close()
 
-	// HTTP Server
-	handler := v1.NewHandler()
-
 	// Broker Server sent event
 	b := sse.NewBroker(l)
+
+	// BackgroundTask
+	taskClient := backgroundtask.NewClient(cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
+	defer taskClient.Close()
+	workerHandler := backgroundtask.NewHandler()
+	// Register Tasks
+	task.RegisterTask(workerHandler, l, cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, b)
+	workerServer := backgroundtask.NewServer(workerHandler, cfg.Redis.URL, cfg.Redis.Password, cfg.Redis.DB)
+
+	// HTTP Server
+	handler := v1.NewHandler()
 
 	// Customer Usecase
 	cUC1 := constructors.NewCustomerUseCase(
@@ -58,7 +67,7 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeDesc,
 	)
 	CAuthUc := constructors.NewCustomerAuthUseCase(
-		task.GetEmailTaskExecutor(cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, l),
+		task.GetEmailTaskExecutor(taskClient),
 		repository.GetCustomerListRepository(client),
 		repository.GetCustomerUpdateRepository(client),
 		&cfg.App.SecretKey,
@@ -93,7 +102,7 @@ func Run(cfg *config.Config) {
 		&cfg.TransactionUseCase.FeeDesc,
 	)
 	cTxcUc := constructors.NewCustomerTransactionUseCase(
-		task.GetEmailTaskExecutor(cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, l),
+		task.GetEmailTaskExecutor(taskClient),
 		repository.GetTransactionConfirmSuccessRepository(client, cfg.TransactionUseCase.Layout, cfg.BaseURL, cfg.AuthAPI, cfg.BankAccountAPI, cfg.ValidateAPI, cfg.CreateTransactionAPI, cfg.TPBank.Name, cfg.TPBank.ApiKey, cfg.TPBank.SecretKey, cfg.TPBank.PrivateKey),
 		repository.GetTransactionCreateRepository(client),
 		repository.GetTransactionListRepository(client),
@@ -128,8 +137,8 @@ func Run(cfg *config.Config) {
 		repository.GetDebtIsNextRepository(client),
 		repository.GetCustomerListRepository(client),
 		repository.GetBankAccountListRepository(client),
-		task.GetDebtTaskExecutor(b, l),
-		task.GetEmailTaskExecutor(cfg.Mail.Host, cfg.Mail.User, cfg.Mail.Password, cfg.Mail.SenderName, cfg.Mail.Port, l),
+		task.GetDebtTaskExecutor(taskClient),
+		task.GetEmailTaskExecutor(taskClient),
 		&cfg.App.SecretKey,
 		&cfg.Mail.ConfirmEmailSubject,
 		&cfg.Mail.ConfirmEmailTemplate,
@@ -299,5 +308,14 @@ func Run(cfg *config.Config) {
 		b,
 		l,
 	)
+	// Start worker server
+	go startBackGroundTaskServer(workerServer, l)
+	// Start http server
 	handler.Listen(fmt.Sprintf(":%s", cfg.HTTP.Port))
+}
+
+func startBackGroundTaskServer(s *backgroundtask.Server, l logger.Interface) {
+	if err := s.Run(); err != nil {
+		l.Fatal(fmt.Errorf("app - Run - workerServer.Run: %w", err))
+	}
 }

@@ -3,8 +3,8 @@ module github.com/TcMits/wnc-final
 go 1.19
 
 require (
-	entgo.io/contrib v0.3.3
-	entgo.io/ent v0.11.4
+	entgo.io/contrib v0.3.4
+	entgo.io/ent v0.11.5-0.20221031135557-521f9b57bc3d
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-playground/validator/v10 v10.11.1

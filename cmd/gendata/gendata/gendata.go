@@ -35,16 +35,16 @@ func genData(client *ent.Client, cfg *config.Config) {
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
-	user, err := ent.CreateFakeCustomer(ctx, client, nil,
+	user, err := ent.MustCustomerFactory(
 		ent.Opt{
 			Key:   "Email",
 			Value: "dinhphat611@gmail.com",
 		},
-	)
+	).CreateWithClient(ctx, client)
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
-	bA, err := ent.CreateFakeBankAccount(ctx, client, nil,
+	bA, err := ent.MustBankAccountFactory(
 		ent.Opt{
 			Key:   "CustomerID",
 			Value: user.ID,
@@ -57,25 +57,25 @@ func genData(client *ent.Client, cfg *config.Config) {
 			Key:   "IsForPayment",
 			Value: generic.GetPointer(true),
 		},
-	)
+	).CreateWithClient(ctx, client)
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
 	// transactions
 	for i := 1; i < 20; i++ {
-		_, err = ent.CreateFakeTransaction(ctx, client, nil,
+		_, err = ent.MustTransactionFactory(
 			ent.Opt{
 				Key:   "SenderID",
 				Value: &bA.ID,
 			},
-		)
+		).CreateWithClient(ctx, client)
 		if err != nil {
 			log.Fatalf("failed generate data: %v", err)
 		}
 	}
 	// contacts
 	for i := 1; i < 10; i++ {
-		_, err = ent.CreateFakeContact(ctx, client, nil,
+		_, err = ent.MustContactFactory(
 			ent.Opt{
 				Key:   "BankName",
 				Value: cfg.App.Name,
@@ -84,14 +84,14 @@ func genData(client *ent.Client, cfg *config.Config) {
 				Key:   "OwnerID",
 				Value: user.ID,
 			},
-		)
+		).CreateWithClient(ctx, client)
 		if err != nil {
 			log.Fatalf("failed generate data: %v", err)
 		}
 	}
 	// debts
 	for i := 1; i < 3; i++ {
-		ent.CreateFakeDebt(ctx, client, nil,
+		ent.MustDebtFactory(
 			ent.Opt{
 				Key:   "OwnerID",
 				Value: bA.ID,
@@ -104,19 +104,19 @@ func genData(client *ent.Client, cfg *config.Config) {
 				Key:   "ReceiverBankName",
 				Value: cfg.App.Name,
 			},
-		)
+		).CreateWithClient(ctx, client)
 	}
 	// customers
-	u1, err := ent.CreateFakeCustomer(ctx, client, nil,
+	u1, err := ent.MustCustomerFactory(
 		ent.Opt{
 			Key:   "Username",
 			Value: "alanwalker",
 		},
-	)
+	).CreateWithClient(ctx, client)
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
-	_, err = ent.CreateFakeBankAccount(ctx, client, nil,
+	_, err = ent.MustBankAccountFactory(
 		ent.Opt{
 			Key:   "IsForPayment",
 			Value: generic.GetPointer(true),
@@ -133,11 +133,11 @@ func genData(client *ent.Client, cfg *config.Config) {
 			Key:   "AccountNumber",
 			Value: generic.GetPointer("11112222333344445"),
 		},
-	)
+	).CreateWithClient(ctx, client)
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
-	_, err = ent.CreateFakeBankAccount(ctx, client, nil,
+	_, err = ent.MustBankAccountFactory(
 		ent.Opt{
 			Key:   "IsForPayment",
 			Value: generic.GetPointer(true),
@@ -150,53 +150,70 @@ func genData(client *ent.Client, cfg *config.Config) {
 			Key:   "AccountNumber",
 			Value: generic.GetPointer("33334444555566667"),
 		},
-	)
+	).CreateWithClient(ctx, client)
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
 	// admins
-	_, err = ent.CreateFakeAdmin(ctx, client, nil,
+	_, err = ent.MustAdminFactory(
 		ent.Opt{
 			Key:   "Username",
 			Value: "iamadmin",
 		},
-	)
+	).CreateWithClient(ctx, client)
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
 	// employees
-	_, err = ent.CreateFakeEmployee(ctx, client, nil,
+	_, err = ent.MustEmployeeFactory(
 		ent.Opt{
 			Key:   "Username",
 			Value: "iamemployee",
 		},
-	)
+	).CreateWithClient(ctx, client)
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
 	// partners
-	_, err = ent.CreateFakePartner(ctx, client, &ent.PartnerCreateInput{
-		APIKey:    "8JnDlw1CyEpr372uZL5S3OUoLARZgh",
-		SecretKey: "QwZHAcABNd98ehV1Y1qkmlJTsDJjox",
-		PublicKey: "-----BEGIN RSA PUBLIC KEY-----\nMIIBCgKCAQEApoL43bl4FCVmHJpsHzdxGiaMIxcsogjsBGryvERaZonQwj1K9rQ1\noJds5uUvLBFhNqPC1DkvhvF1JO/5fgIXv9XF+PHjpIaPn81l0Lfg3vZWDynCMbuQ\nhOzKFXlO8mJ5nRNmAxe+iLwSBlPEtjAe38E1XTaurenwLUHSD6NtH3Us0hu5N/Lo\nmlXpX4p6BTtfCwVYQGV7rh+pbKt4D5Ck4If0QwwHUz5UWBo8p0Rz7gFTYnUcRHAb\nlt+Aos93rfWocsAgTIIM+hd9PoyIpT07YbkzvmuScqLuptNl3p2iUPDik+G3NpEW\n67bKVg1U190qQV38x6jhwGFkUCl4wT3rdwIDAQAB\n-----END RSA PUBLIC KEY-----",
-		Name:      generic.GetPointer("Sacombank"),
-	})
+	_, err = ent.MustPartnerFactory(
+		ent.Opt{
+			Key:   "APIKey",
+			Value: "8JnDlw1CyEpr372uZL5S3OUoLARZgh",
+		},
+		ent.Opt{
+			Key:   "SecretKey",
+			Value: "QwZHAcABNd98ehV1Y1qkmlJTsDJjox",
+		},
+		ent.Opt{
+			Key:   "PublicKey",
+			Value: "-----BEGIN RSA PUBLIC KEY-----\nMIIBCgKCAQEApoL43bl4FCVmHJpsHzdxGiaMIxcsogjsBGryvERaZonQwj1K9rQ1\noJds5uUvLBFhNqPC1DkvhvF1JO/5fgIXv9XF+PHjpIaPn81l0Lfg3vZWDynCMbuQ\nhOzKFXlO8mJ5nRNmAxe+iLwSBlPEtjAe38E1XTaurenwLUHSD6NtH3Us0hu5N/Lo\nmlXpX4p6BTtfCwVYQGV7rh+pbKt4D5Ck4If0QwwHUz5UWBo8p0Rz7gFTYnUcRHAb\nlt+Aos93rfWocsAgTIIM+hd9PoyIpT07YbkzvmuScqLuptNl3p2iUPDik+G3NpEW\n67bKVg1U190qQV38x6jhwGFkUCl4wT3rdwIDAQAB\n-----END RSA PUBLIC KEY-----",
+		},
+		ent.Opt{
+			Key:   "Name",
+			Value: generic.GetPointer("Sacombank"),
+		},
+	).CreateWithClient(ctx, client)
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
 	// Gen data according to request
-	testerFac := ent.CustomerFactory(ctx, ent.Opt{
-		Key:   "Username",
-		Value: "iamcustomer",
-	})
-	if emailTester := cfg.Mail.EmailTester; emailTester != "" {
-		testerFac.Email = emailTester
+	opts := []ent.Opt{
+		{
+			Key:   "Username",
+			Value: "iamcustomer",
+		},
 	}
-	tester, err := ent.CreateFakeCustomer(ctx, client, testerFac)
+	if emailTester := cfg.Mail.EmailTester; emailTester != "" {
+		opts = append(opts, ent.Opt{
+			Key:   "Email",
+			Value: emailTester,
+		})
+	}
+	tester, err := ent.MustCustomerFactory(opts...).CreateWithClient(ctx, client)
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
-	bA, err = ent.CreateFakeBankAccount(ctx, client, nil,
+	bA, err = ent.MustBankAccountFactory(
 		ent.Opt{
 			Key:   "CustomerID",
 			Value: tester.ID,
@@ -213,12 +230,12 @@ func genData(client *ent.Client, cfg *config.Config) {
 			Key:   "AccountNumber",
 			Value: generic.GetPointer("22223333444455556"),
 		},
-	)
+	).CreateWithClient(ctx, client)
 	if err != nil {
 		log.Fatalf("failed generate data: %v", err)
 	}
 	for i := 1; i <= 8; i++ {
-		_, err = ent.CreateFakeTransaction(ctx, client, nil,
+		_, err = ent.MustTransactionFactory(
 			ent.Opt{
 				Key:   "SenderID",
 				Value: &bA.ID,
@@ -235,11 +252,11 @@ func genData(client *ent.Client, cfg *config.Config) {
 				Key:   "ReceiverBankName",
 				Value: "Sacombank",
 			},
-		)
+		).CreateWithClient(ctx, client)
 		if err != nil {
 			log.Fatalf("failed generate data: %v", err)
 		}
-		_, err = ent.CreateFakeTransaction(ctx, client, nil,
+		_, err = ent.MustTransactionFactory(
 			ent.Opt{
 				Key:   "ReceiverID",
 				Value: &bA.ID,
@@ -256,20 +273,22 @@ func genData(client *ent.Client, cfg *config.Config) {
 				Key:   "ReceiverBankName",
 				Value: "Sacombank",
 			},
-		)
+		).CreateWithClient(ctx, client)
 		if err != nil {
 			log.Fatalf("failed generate data: %v", err)
 		}
 	}
 	for i := 1; i <= 7; i++ {
-		bA, err = ent.CreateFakeBankAccount(ctx, client, nil, ent.Opt{
-			Key:   "IsForPayment",
-			Value: generic.GetPointer(true),
-		})
+		bA, err = ent.MustBankAccountFactory(
+			ent.Opt{
+				Key:   "IsForPayment",
+				Value: generic.GetPointer(true),
+			},
+		).CreateWithClient(ctx, client)
 		if err != nil {
 			log.Fatalf("failed generate data: %v", err)
 		}
-		_, err = ent.CreateFakeTransaction(ctx, client, nil,
+		_, err = ent.MustTransactionFactory(
 			ent.Opt{
 				Key:   "SenderID",
 				Value: &bA.ID,
@@ -286,11 +305,11 @@ func genData(client *ent.Client, cfg *config.Config) {
 				Key:   "ReceiverBankName",
 				Value: "Sacombank",
 			},
-		)
+		).CreateWithClient(ctx, client)
 		if err != nil {
 			log.Fatalf("failed generate data: %v", err)
 		}
-		_, err = ent.CreateFakeTransaction(ctx, client, nil,
+		_, err = ent.MustTransactionFactory(
 			ent.Opt{
 				Key:   "ReceiverID",
 				Value: &bA.ID,
@@ -307,7 +326,7 @@ func genData(client *ent.Client, cfg *config.Config) {
 				Key:   "ReceiverBankName",
 				Value: "Sacombank",
 			},
-		)
+		).CreateWithClient(ctx, client)
 		if err != nil {
 			log.Fatalf("failed generate data: %v", err)
 		}

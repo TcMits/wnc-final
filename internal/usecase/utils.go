@@ -164,7 +164,7 @@ func ValidateHashInfo(
 
 func AuthenticateCtx(ctx *context.Context, c *ent.Client, user *model.Customer) {
 	if user == nil {
-		user, _ = ent.CreateFakeCustomer(*ctx, c, nil)
+		user, _ = ent.MustCustomerFactory().CreateWithClient(*ctx, c)
 	}
 	*ctx = context.WithValue(*ctx, string(UserCtxKey), user)
 }

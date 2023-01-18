@@ -6,13 +6,13 @@ require (
 	entgo.io/contrib v0.3.3
 	entgo.io/ent v0.11.4
 	github.com/Pallinder/go-randomdata v1.2.0
-	github.com/bluele/factory-go v0.0.1
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/golang/mock v1.1.1
 	github.com/google/uuid v1.3.0
 	github.com/hibiken/asynq v0.24.0
+	github.com/hyuti/factory-go v0.0.0-20230118033227-145102f81cf5
 	github.com/ilyakaznacheev/cleanenv v1.4.1
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/kataras/iris/v12 v12.2.0-beta7.0.20230108120541-fe46dadc264b
@@ -114,3 +114,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
 )
+
+replace github.com/bluele/factory-go => github.com/hyuti/factory-go v0.0.0-20230118033227-145102f81cf5

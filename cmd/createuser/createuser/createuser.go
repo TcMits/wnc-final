@@ -37,7 +37,7 @@ func createUser(client *ent.Client) {
 		log.Fatalf("failed creating user: %v", err)
 	}
 	if len(client.Customer.Query().Where(customer.Username("superuser")).AllX(ctx)) == 0 {
-		_, err = ent.CreateFakeCustomer(ctx, client, nil,
+		_, err = ent.MustCustomerFactory(
 			ent.Opt{
 				Key:   "Username",
 				Value: "superuser",
@@ -58,13 +58,13 @@ func createUser(client *ent.Client) {
 				Key:   "IsActive",
 				Value: generic.GetPointer(true),
 			},
-		)
+		).CreateWithClient(ctx, client)
 		if err != nil {
 			log.Fatalf("failed creating user: %v", err)
 		}
 	}
 	if len(client.Employee.Query().Where(employee.Username("superuser")).AllX(ctx)) == 0 {
-		_, err = ent.CreateFakeEmployee(ctx, client, nil,
+		_, err = ent.MustEmployeeFactory(
 			ent.Opt{
 				Key:   "Username",
 				Value: "superuser",
@@ -77,7 +77,7 @@ func createUser(client *ent.Client) {
 				Key:   "IsActive",
 				Value: generic.GetPointer(true),
 			},
-		)
+		).CreateWithClient(ctx, client)
 		if err != nil {
 			log.Fatalf("failed creating user: %v", err)
 		}

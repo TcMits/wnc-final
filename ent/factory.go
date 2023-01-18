@@ -3,6 +3,7 @@ package ent
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/Pallinder/go-randomdata"
 	"github.com/TcMits/wnc-final/ent/bankaccount"
@@ -10,27 +11,113 @@ import (
 	"github.com/TcMits/wnc-final/ent/transaction"
 	"github.com/TcMits/wnc-final/pkg/tool/generic"
 	"github.com/TcMits/wnc-final/pkg/tool/password"
-	"github.com/bluele/factory-go/factory"
+	"github.com/hyuti/factory-go/factory"
 	"github.com/shopspring/decimal"
 )
 
-type Opt struct {
-	Key   string
-	Value any
+type (
+	ClientCtxType string
+	Opt           struct {
+		Key   string
+		Value any
+	}
+	IFactory[ModelType any] interface {
+		Create(context.Context) (ModelType, error)
+		CreateWithClient(context.Context, *Client) (ModelType, error)
+	}
+
+	Factory[ModelType any] struct {
+		worker *factory.Factory
+	}
+)
+
+const ClientCtxKey ClientCtxType = "client"
+
+func (s *Factory[ModelType]) Create(ctx context.Context) (ModelType, error) {
+	eAny, err := s.worker.CreateWithContext(ctx)
+	if err != nil {
+		return generic.Zero[ModelType](), err
+	}
+	e, ok := eAny.(ModelType)
+	if !ok {
+		return generic.Zero[ModelType](), fmt.Errorf("unexpected type %t", eAny)
+	}
+	return e, nil
+}
+
+func (s *Factory[ModelType]) CreateWithClient(ctx context.Context, client *Client) (ModelType, error) {
+	EmbedClient(&ctx, client)
+	return s.Create(ctx)
 }
 
 func getClient(ctx context.Context) (*Client, error) {
-	client, ok := ctx.Value("client").(*Client)
-	if !ok {
+	client, ok := ctx.Value(ClientCtxKey).(*Client)
+	if !ok || client == nil {
 		return nil, fmt.Errorf("cannot find client in context")
 	}
 	return client, nil
 }
+func convertInputToOutput[ModelInputType, ModelType any](
+	ctx context.Context,
+	args factory.Args,
+	factory *factory.Factory,
+	saver func(context.Context, *Client, ModelInputType) (ModelType, error),
+	opts ...Opt,
+) error {
+	optMap := make(map[string]any)
+	for _, opt := range opts {
+		optMap[opt.Key] = opt.Value
+	}
+	iAny, err := factory.CreateWithContextAndOption(ctx, optMap)
+	if err != nil {
+		return err
+	}
+	i, ok := iAny.(ModelInputType)
+	if !ok {
+		return fmt.Errorf("unexpected type %t", iAny)
+	}
+	client, err := getClient(ctx)
+	if err != nil {
+		return err
+	}
+	e, err := saver(ctx, client, i)
+	if err != nil {
+		return err
+	}
+	inst := args.Instance()
+	dst := reflect.ValueOf(inst)
+	src := reflect.ValueOf(e).Elem()
+	dst.Elem().Set(src)
+	return nil
+}
+func factoryTemplate[ModelType, ModelInputType any](
+	model ModelType,
+	f *factory.Factory,
+	saver func(context.Context, *Client, ModelInputType) (ModelType, error),
+	opts ...Opt,
+) *factory.Factory {
+	return factory.NewFactory(
+		model,
+	).OnCreate(func(a factory.Args) error {
+		ctx := a.Context()
+		err := convertInputToOutput(
+			ctx,
+			a,
+			f,
+			saver,
+			opts...,
+		)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+}
 func EmbedClient(ctx *context.Context, v *Client) {
 	c := *ctx
-	client := c.Value("client")
+	client := c.Value(ClientCtxKey)
 	if client == nil {
-		*ctx = context.WithValue(*ctx, "client", v)
+		*ctx = context.WithValue(*ctx, ClientCtxKey, v)
 	}
 }
 
@@ -68,6 +155,7 @@ var customerFactory = factory.NewFactory(
 }).Attr("IsActive", func(a factory.Args) (interface{}, error) {
 	return generic.GetPointer(true), nil
 })
+
 var employeeFactory = factory.NewFactory(
 	&EmployeeCreateInput{},
 ).Attr("Password", func(a factory.Args) (interface{}, error) {
@@ -105,14 +193,10 @@ var bankAccountFactory = factory.NewFactory(
 	},
 ).SeqString("AccountNumber", func(s string) (interface{}, error) {
 	return generic.GetPointer(fmt.Sprintf("%s%s", randomdata.Digits(16), s)), nil
-}).Attr("CustomerID", func(a factory.Args) (interface{}, error) {
-	client, err := getClient(a.Context())
-	if err != nil {
-		return nil, err
-	}
-	e, err := CreateFakeCustomer(a.Context(), client, nil)
-	if err != nil {
-		return nil, err
+}).SubFactory("CustomerID", CustomerFactory(), func(i interface{}) (interface{}, error) {
+	e, ok := i.(*Customer)
+	if !ok {
+		return nil, fmt.Errorf("unexpected type %t", i)
 	}
 	return e.ID, nil
 })
@@ -125,14 +209,10 @@ var transactionFactory = factory.NewFactory(
 		Amount:           decimal.NewFromInt32(1),
 		TransactionType:  transaction.TransactionTypeInternal,
 	},
-).Attr("SenderID", func(a factory.Args) (interface{}, error) {
-	client, err := getClient(a.Context())
-	if err != nil {
-		return nil, err
-	}
-	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", generic.GetPointer(true)})
-	if err != nil {
-		return nil, err
+).SubFactory("SenderID", BankAccountFactory(), func(i interface{}) (interface{}, error) {
+	e, ok := i.(*BankAccount)
+	if !ok {
+		return nil, fmt.Errorf("unexpected type %t", i)
 	}
 	return &e.ID, nil
 }).Attr("SenderName", func(a factory.Args) (interface{}, error) {
@@ -160,16 +240,13 @@ var transactionFactory = factory.NewFactory(
 		return nil, err
 	}
 	return ba.AccountNumber, nil
-}).Attr("ReceiverID", func(a factory.Args) (interface{}, error) {
-	client, err := getClient(a.Context())
-	if err != nil {
-		return nil, err
+}).SubFactory("ReceiverID", BankAccountFactory(), func(i interface{}) (interface{}, error) {
+	e, ok := i.(*BankAccount)
+	if !ok {
+		return nil, fmt.Errorf("unexpected type %t", i)
 	}
-	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", generic.GetPointer(true)})
-	if err != nil {
-		return nil, err
-	}
-	return generic.GetPointer(e.ID), nil
+	return &e.ID, nil
+
 }).Attr("ReceiverName", func(a factory.Args) (interface{}, error) {
 	ins := a.Instance().(*TransactionCreateInput)
 	sid := *ins.ReceiverID
@@ -206,14 +283,10 @@ var debtFactory = factory.NewFactory(
 	},
 ).Attr("Description", func(a factory.Args) (interface{}, error) {
 	return generic.GetPointer(randomdata.Paragraph()), nil
-}).Attr("OwnerID", func(a factory.Args) (interface{}, error) {
-	client, err := getClient(a.Context())
-	if err != nil {
-		return nil, err
-	}
-	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", generic.GetPointer(true)})
-	if err != nil {
-		return nil, err
+}).SubFactory("OwnerID", BankAccountFactory(Opt{"IsForPayment", generic.GetPointer(true)}), func(i interface{}) (interface{}, error) {
+	e, ok := i.(*BankAccount)
+	if !ok {
+		return nil, fmt.Errorf("unexpected type %t", i)
 	}
 	return e.ID, nil
 }).Attr("OwnerName", func(a factory.Args) (interface{}, error) {
@@ -244,14 +317,10 @@ var debtFactory = factory.NewFactory(
 		return nil, err
 	}
 	return e.AccountNumber, nil
-}).Attr("ReceiverID", func(a factory.Args) (interface{}, error) {
-	client, err := getClient(a.Context())
-	if err != nil {
-		return nil, err
-	}
-	e, err := CreateFakeBankAccount(a.Context(), client, nil, Opt{"IsForPayment", generic.GetPointer(true)})
-	if err != nil {
-		return nil, err
+}).SubFactory("ReceiverID", BankAccountFactory(Opt{"IsForPayment", generic.GetPointer(true)}), func(i interface{}) (interface{}, error) {
+	e, ok := i.(*BankAccount)
+	if !ok {
+		return nil, fmt.Errorf("unexpected type %t", i)
 	}
 	return e.ID, nil
 }).Attr("ReceiverName", func(a factory.Args) (interface{}, error) {
@@ -288,181 +357,143 @@ var contactFactory = factory.NewFactory(
 	&ContactCreateInput{
 		BankName: "Bank name",
 	},
-).Attr("AccountNumber", func(a factory.Args) (interface{}, error) {
-	client, err := getClient(a.Context())
-	if err != nil {
-		return nil, err
-	}
-	e, err := CreateFakeBankAccount(a.Context(), client, nil,
-		Opt{
-			Key:   "IsForPayment",
-			Value: generic.GetPointer(true),
-		},
-	)
-	if err != nil {
-		return nil, err
+).SubFactory("AccountNumber", BankAccountFactory(Opt{"IsForPayment", generic.GetPointer(true)}), func(i interface{}) (interface{}, error) {
+	e, ok := i.(*BankAccount)
+	if !ok {
+		return nil, fmt.Errorf("unexpected type %t", i)
 	}
 	return e.AccountNumber, nil
 }).SeqString("SuggestName", func(s string) (interface{}, error) {
 	return randomdata.FullName(randomdata.RandomGender), nil
-}).Attr("OwnerID", func(a factory.Args) (interface{}, error) {
-	client, err := getClient(a.Context())
-	if err != nil {
-		return nil, err
+}).SubFactory("OwnerID", CustomerFactory(), func(i interface{}) (interface{}, error) {
+	e, ok := i.(*Customer)
+	if !ok {
+		return nil, fmt.Errorf("unexpected type %t", i)
 	}
-	owner, err := CreateFakeCustomer(a.Context(), client, nil)
-	if err != nil {
-		return nil, err
-	}
-	return owner.ID, nil
+	return e.ID, nil
 })
 
-func PartnerFactory(ctx context.Context, opts ...Opt) *PartnerCreateInput {
-	optMap := make(map[string]any)
-	for _, opt := range opts {
-		optMap[opt.Key] = opt.Value
-	}
-	return partnerFactory.MustCreateWithContextAndOption(ctx, optMap).(*PartnerCreateInput)
+func TransactionFactory(opts ...Opt) *factory.Factory {
+	return factoryTemplate(
+		new(Transaction),
+		transactionFactory,
+		func(ctx context.Context, client *Client, i *TransactionCreateInput) (*Transaction, error) {
+			return client.Transaction.Create().SetInput(i).Save(ctx)
+		},
+		opts...,
+	)
 }
-func TransactionFactory(ctx context.Context, opts ...Opt) *TransactionCreateInput {
-	optMap := make(map[string]any)
-	for _, opt := range opts {
-		optMap[opt.Key] = opt.Value
+func MustTransactionFactory(opts ...Opt) IFactory[*Transaction] {
+	return &Factory[*Transaction]{
+		worker: TransactionFactory(opts...),
 	}
-	return transactionFactory.MustCreateWithContextAndOption(ctx, optMap).(*TransactionCreateInput)
 }
-func EmployeeFactory(ctx context.Context, opts ...Opt) *EmployeeCreateInput {
-	optMap := make(map[string]any)
-	for _, opt := range opts {
-		optMap[opt.Key] = opt.Value
-	}
-	return employeeFactory.MustCreateWithContextAndOption(ctx, optMap).(*EmployeeCreateInput)
+func EmployeeFactory(opts ...Opt) *factory.Factory {
+	return factoryTemplate(
+		new(Employee),
+		employeeFactory,
+		func(ctx context.Context, client *Client, i *EmployeeCreateInput) (*Employee, error) {
+			return client.Employee.Create().SetInput(i).Save(ctx)
+		},
+		opts...,
+	)
 }
-func AdminFactory(ctx context.Context, opts ...Opt) *AdminCreateInput {
-	optMap := make(map[string]any)
-	for _, opt := range opts {
-		optMap[opt.Key] = opt.Value
+func MustEmployeeFactory(opts ...Opt) IFactory[*Employee] {
+	return &Factory[*Employee]{
+		worker: EmployeeFactory(opts...),
 	}
-	return adminFactory.MustCreateWithContextAndOption(ctx, optMap).(*AdminCreateInput)
 }
-func CustomerFactory(ctx context.Context, opts ...Opt) *CustomerCreateInput {
-	optMap := make(map[string]any)
-	for _, opt := range opts {
-		optMap[opt.Key] = opt.Value
-	}
-	return customerFactory.MustCreateWithContextAndOption(ctx, optMap).(*CustomerCreateInput)
+func AdminFactory(opts ...Opt) *factory.Factory {
+	return factoryTemplate(
+		new(Admin),
+		adminFactory,
+		func(ctx context.Context, client *Client, i *AdminCreateInput) (*Admin, error) {
+			return client.Admin.Create().SetInput(i).Save(ctx)
+		},
+		opts...,
+	)
 }
-func BankAccountFactory(ctx context.Context, opts ...Opt) *BankAccountCreateInput {
-	optMap := make(map[string]any)
-	for _, opt := range opts {
-		optMap[opt.Key] = opt.Value
+func MustAdminFactory(opts ...Opt) IFactory[*Admin] {
+	return &Factory[*Admin]{
+		worker: AdminFactory(opts...),
 	}
-	return bankAccountFactory.MustCreateWithContextAndOption(ctx, optMap).(*BankAccountCreateInput)
 }
-func DebtFactory(ctx context.Context, opts ...Opt) *DebtCreateInput {
-	optMap := make(map[string]any)
-	for _, opt := range opts {
-		optMap[opt.Key] = opt.Value
-	}
-	return debtFactory.MustCreateWithContextAndOption(ctx, optMap).(*DebtCreateInput)
+func DebtFactory(opts ...Opt) *factory.Factory {
+	return factoryTemplate(
+		new(Debt),
+		debtFactory,
+		func(ctx context.Context, client *Client, i *DebtCreateInput) (*Debt, error) {
+			return client.Debt.Create().SetInput(i).Save(ctx)
+		},
+		opts...,
+	)
 }
-
-func ContactFactory(ctx context.Context, opts ...Opt) *ContactCreateInput {
-	optMap := make(map[string]any)
-	for _, opt := range opts {
-		optMap[opt.Key] = opt.Value
+func MustDebtFactory(opts ...Opt) IFactory[*Debt] {
+	return &Factory[*Debt]{
+		worker: DebtFactory(opts...),
 	}
-	return contactFactory.MustCreateWithContextAndOption(ctx, optMap).(*ContactCreateInput)
-}
-
-func CreateFakeDebt(ctx context.Context, c *Client, i *DebtCreateInput, opts ...Opt) (*Debt, error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	if i == nil {
-		EmbedClient(&ctx, c)
-		i = DebtFactory(ctx, opts...)
-	}
-	return c.Debt.Create().SetInput(i).Save(ctx)
 }
 
-func CreateFakeCustomer(ctx context.Context, c *Client, i *CustomerCreateInput, opts ...Opt) (*Customer, error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	if i == nil {
-		EmbedClient(&ctx, c)
-		i = CustomerFactory(ctx, opts...)
-	}
-	e, err := c.Customer.Create().SetInput(i).Save(ctx)
-	for idx := 0; idx < 10 && err != nil; idx++ {
-		i = CustomerFactory(ctx, opts...)
-		e, err = c.Customer.Create().SetInput(i).Save(ctx)
-	}
-	if err != nil {
-		return nil, err
-	}
-	return e, nil
+func ContactFactory(opts ...Opt) *factory.Factory {
+	return factoryTemplate(
+		new(Contact),
+		contactFactory,
+		func(ctx context.Context, client *Client, i *ContactCreateInput) (*Contact, error) {
+			return client.Contact.Create().SetInput(i).Save(ctx)
+		},
+		opts...,
+	)
 }
-func CreateFakeBankAccount(ctx context.Context, c *Client, i *BankAccountCreateInput, opts ...Opt) (*BankAccount, error) {
-	if ctx == nil {
-		ctx = context.Background()
+func MustContactFactory(opts ...Opt) IFactory[*Contact] {
+	return &Factory[*Contact]{
+		worker: ContactFactory(opts...),
 	}
-	if i == nil {
-		EmbedClient(&ctx, c)
-		i = BankAccountFactory(ctx, opts...)
-	}
-	return c.BankAccount.Create().SetInput(i).Save(ctx)
-}
-func CreateFakeContact(ctx context.Context, c *Client, i *ContactCreateInput, opts ...Opt) (*Contact, error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	if i == nil {
-		EmbedClient(&ctx, c)
-		i = ContactFactory(ctx, opts...)
-	}
-	return c.Contact.Create().SetInput(i).Save(ctx)
 }
 
-func CreateFakeTransaction(ctx context.Context, c *Client, i *TransactionCreateInput, opts ...Opt) (*Transaction, error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	if i == nil {
-		EmbedClient(&ctx, c)
-		i = TransactionFactory(ctx, opts...)
-	}
-	return c.Transaction.Create().SetInput(i).Save(ctx)
+func PartnerFactory(opts ...Opt) *factory.Factory {
+	return factoryTemplate(
+		new(Partner),
+		partnerFactory,
+		func(ctx context.Context, client *Client, i *PartnerCreateInput) (*Partner, error) {
+			return client.Partner.Create().SetInput(i).Save(ctx)
+		},
+		opts...,
+	)
 }
-func CreateFakeEmployee(ctx context.Context, c *Client, i *EmployeeCreateInput, opts ...Opt) (*Employee, error) {
-	if ctx == nil {
-		ctx = context.Background()
+func MustPartnerFactory(opts ...Opt) IFactory[*Partner] {
+	return &Factory[*Partner]{
+		worker: PartnerFactory(opts...),
 	}
-	if i == nil {
-		EmbedClient(&ctx, c)
-		i = EmployeeFactory(ctx, opts...)
-	}
-	return c.Employee.Create().SetInput(i).Save(ctx)
 }
-func CreateFakeAdmin(ctx context.Context, c *Client, i *AdminCreateInput, opts ...Opt) (*Admin, error) {
-	if ctx == nil {
-		ctx = context.Background()
+func CustomerFactory(opts ...Opt) *factory.Factory {
+	return factoryTemplate(
+		new(Customer),
+		customerFactory,
+		func(ctx context.Context, client *Client, i *CustomerCreateInput) (*Customer, error) {
+			return client.Customer.Create().SetInput(i).Save(ctx)
+		},
+		opts...,
+	)
+}
+func MustCustomerFactory(opts ...Opt) IFactory[*Customer] {
+	return &Factory[*Customer]{
+		worker: CustomerFactory(opts...),
 	}
-	if i == nil {
-		EmbedClient(&ctx, c)
-		i = AdminFactory(ctx, opts...)
-	}
-	return c.Admin.Create().SetInput(i).Save(ctx)
 }
 
-func CreateFakePartner(ctx context.Context, c *Client, i *PartnerCreateInput, opts ...Opt) (*Partner, error) {
-	if ctx == nil {
-		ctx = context.Background()
+func BankAccountFactory(opts ...Opt) *factory.Factory {
+	return factoryTemplate(
+		new(BankAccount),
+		bankAccountFactory,
+		func(ctx context.Context, client *Client, i *BankAccountCreateInput) (*BankAccount, error) {
+			return client.BankAccount.Create().SetInput(i).Save(ctx)
+		},
+		opts...,
+	)
+}
+
+func MustBankAccountFactory(opts ...Opt) IFactory[*BankAccount] {
+	return &Factory[*BankAccount]{
+		worker: BankAccountFactory(opts...),
 	}
-	if i == nil {
-		EmbedClient(&ctx, c)
-		i = PartnerFactory(ctx, opts...)
-	}
-	return c.Partner.Create().SetInput(i).Save(ctx)
 }

@@ -178,8 +178,8 @@ github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpO
 github.com/hyuti/factory-go v0.0.0-20230118033227-145102f81cf5 h1:BTF6xDzhlfuDNvFARJEmMLUmOTU/mGAU+kbP2VusdB0=
 github.com/hyuti/factory-go v0.0.0-20230118033227-145102f81cf5/go.mod h1:jE0F6H+rRNtsJU61x1Rxg1pFxg9lqN9oGmebS9DEiS4=
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
-github.com/ilyakaznacheev/cleanenv v1.4.1 h1:zroQjmb8e3w6DBcgbgFXtlQTX8xP8XCOg1etuYv4hX0=
-github.com/ilyakaznacheev/cleanenv v1.4.1/go.mod h1:i0owW+HDxeGKE0/JPREJOdSCPIyOnmh6C0xhWAkF/xA=
+github.com/ilyakaznacheev/cleanenv v1.4.2 h1:nRqiriLMAC7tz7GzjzUTBHfzdzw6SQ7XvTagkFqe/zU=
+github.com/ilyakaznacheev/cleanenv v1.4.2/go.mod h1:i0owW+HDxeGKE0/JPREJOdSCPIyOnmh6C0xhWAkF/xA=
 github.com/imkira/go-interpol v1.1.0 h1:KIiKr0VSG2CUW1hl1jpiyuzuJeKUUpC8iM1AIE7N1Vk=
 github.com/iris-contrib/httpexpect/v2 v2.3.1 h1:A69ilxKGW1jDRKK5UAhjTL4uJYh3RjD4qzt9vNZ7fpY=
 github.com/iris-contrib/schema v0.0.6 h1:CPSBLyx2e91H2yJzPuhGuifVRnZBBJ3pCOMbOvPZaTw=

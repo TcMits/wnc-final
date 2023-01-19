@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	entgo.io/contrib v0.3.3
-	entgo.io/ent v0.11.4
+	entgo.io/ent v0.11.6
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-playground/validator/v10 v10.11.1
@@ -27,7 +27,7 @@ require (
 )
 
 require (
-	ariga.io/atlas v0.8.3 // indirect
+	ariga.io/atlas v0.9.1-0.20230119123307-a3ab6808892b // indirect
 	github.com/99designs/gqlgen v0.17.5-0.20220428154617-9250f9ac1f90 // indirect
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect

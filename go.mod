@@ -18,7 +18,7 @@ require (
 	github.com/kataras/iris/v12 v12.2.0-beta7.0.20230108120541-fe46dadc264b
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
-	github.com/rs/zerolog v1.28.0
+	github.com/rs/zerolog v1.29.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.1
 	github.com/swaggo/swag v1.8.9
